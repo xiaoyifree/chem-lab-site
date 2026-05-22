@@ -23,7 +23,7 @@ export default function HomePage() {
             <Link className="button button-primary" href="/experiments">
               进入实验目录
             </Link>
-            <Link className="button button-secondary" href={`/experiments/${featuredExperiment.slug}`}>
+            <Link className="button button-secondary" href={`/experiments#${featuredExperiment.slug}`}>
               查看示范实验
             </Link>
           </div>
@@ -68,7 +68,7 @@ export default function HomePage() {
                 </div>
                 <div className="card-links">
                   {levelExperiments.map((experiment) => (
-                    <Link className="inline-link" href={`/experiments/${experiment.slug}`} key={experiment.slug}>
+                    <Link className="inline-link" href={`/experiments#${experiment.slug}`} key={experiment.slug}>
                       {experiment.title}
                     </Link>
                   ))}
@@ -109,7 +109,7 @@ export default function HomePage() {
                 {featuredExperiment.safety}
               </p>
             </div>
-            <Link className="button button-primary" href={`/experiments/${featuredExperiment.slug}`}>
+            <Link className="button button-primary" href={`/experiments#${featuredExperiment.slug}`}>
               打开完整实验页
             </Link>
           </div>
@@ -124,7 +124,7 @@ export default function HomePage() {
         </div>
         <div className="experiment-grid">
           {experiments.map((experiment) => (
-            <Link className="experiment-card" href={`/experiments/${experiment.slug}`} key={experiment.slug}>
+            <Link className="experiment-card" href={`/experiments#${experiment.slug}`} key={experiment.slug}>
               <div className={`level-badge ${experiment.badgeClass}`}>{experiment.level}</div>
               <h3>{experiment.title}</h3>
               <p>{experiment.summary}</p>
