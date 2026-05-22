@@ -545,7 +545,8 @@ select {
 .lab-stage-hint,
 .lab-drop-zone,
 .lab-stage-tool,
-.lab-reactive-ripple {
+.lab-reactive-ripple,
+.lab-stage-action {
   position: absolute;
 }
 
@@ -837,6 +838,10 @@ select {
   box-shadow: 0 24px 40px rgba(4, 8, 17, 0.28);
 }
 
+.lab-stage-tool-pouring {
+  box-shadow: 0 22px 44px rgba(4, 8, 17, 0.26), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
 .lab-stage-tool-icon {
   display: inline-flex;
   align-items: center;
@@ -876,6 +881,111 @@ select {
 
 .lab-stage-tool-lime .lab-stage-tool-icon {
   background: linear-gradient(135deg, rgba(250, 250, 249, 0.2), rgba(125, 211, 252, 0.16));
+}
+
+.lab-stage-action {
+  z-index: 4;
+  pointer-events: none;
+}
+
+.lab-stage-action-liquid-pour {
+  width: 56px;
+  height: 138px;
+  margin-left: -28px;
+  margin-top: -16px;
+}
+
+.lab-stage-action-charge-drop {
+  width: 44px;
+  height: 44px;
+  margin-left: -22px;
+  margin-top: -12px;
+}
+
+.lab-stage-pour-stream {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 14px;
+  height: 126px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  animation: lab-pour-stream 0.8s ease-in-out infinite;
+}
+
+.lab-stage-action-acid .lab-stage-pour-stream {
+  background: linear-gradient(180deg, rgba(147, 197, 253, 0.08), rgba(56, 189, 248, 0.9), rgba(59, 130, 246, 0.2));
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.34);
+}
+
+.lab-stage-action-lime .lab-stage-pour-stream {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.08), rgba(226, 232, 240, 0.88), rgba(125, 211, 252, 0.16));
+  box-shadow: 0 0 18px rgba(226, 232, 240, 0.26);
+}
+
+.lab-stage-pour-droplets span,
+.lab-stage-charge-field span {
+  position: absolute;
+  border-radius: 999px;
+}
+
+.lab-stage-pour-droplets span {
+  left: 50%;
+  top: 14px;
+  width: 10px;
+  height: 10px;
+  transform: translateX(-50%);
+  animation: lab-pour-droplet 0.9s linear infinite;
+}
+
+.lab-stage-action-acid .lab-stage-pour-droplets span {
+  background: rgba(191, 219, 254, 0.92);
+  box-shadow: 0 0 10px rgba(125, 211, 252, 0.28);
+}
+
+.lab-stage-action-lime .lab-stage-pour-droplets span {
+  background: rgba(248, 250, 252, 0.96);
+  box-shadow: 0 0 10px rgba(226, 232, 240, 0.24);
+}
+
+.lab-stage-pour-droplets span:nth-child(1) { animation-delay: -0.1s; }
+.lab-stage-pour-droplets span:nth-child(2) { animation-delay: -0.3s; left: calc(50% - 6px); }
+.lab-stage-pour-droplets span:nth-child(3) { animation-delay: -0.5s; left: calc(50% + 6px); }
+.lab-stage-pour-droplets span:nth-child(4) { animation-delay: -0.7s; left: calc(50% - 4px); }
+.lab-stage-pour-droplets span:nth-child(5) { animation-delay: -0.86s; left: calc(50% + 4px); }
+
+.lab-stage-charge-field {
+  position: absolute;
+  inset: 0;
+}
+
+.lab-stage-charge-field span {
+  top: 0;
+  width: 16px;
+  height: 12px;
+  background: rgba(231, 229, 228, 0.96);
+  box-shadow: 0 8px 14px rgba(4, 8, 17, 0.18);
+  animation: lab-charge-drop 0.56s ease-in forwards;
+}
+
+.lab-stage-charge-field span:nth-child(1) {
+  left: 2px;
+  animation-delay: -0.03s;
+}
+
+.lab-stage-charge-field span:nth-child(2) {
+  left: 12px;
+  animation-delay: -0.12s;
+}
+
+.lab-stage-charge-field span:nth-child(3) {
+  left: 22px;
+  animation-delay: -0.18s;
+}
+
+.lab-stage-charge-field span:nth-child(4) {
+  left: 8px;
+  animation-delay: -0.24s;
 }
 
 .lab-demo-copy h3 {
@@ -2062,6 +2172,55 @@ select {
   100% {
     transform: translateY(-136px) scale(1.08);
     opacity: 0;
+  }
+}
+
+@keyframes lab-pour-stream {
+  0% {
+    opacity: 0.42;
+    transform: translateX(-50%) scaleY(0.72);
+  }
+
+  50% {
+    opacity: 0.92;
+    transform: translateX(-50%) scaleY(1);
+  }
+
+  100% {
+    opacity: 0.54;
+    transform: translateX(-50%) scaleY(0.82);
+  }
+}
+
+@keyframes lab-pour-droplet {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -4px) scale(0.72);
+  }
+
+  18% {
+    opacity: 0.96;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 112px) scale(1.08);
+  }
+}
+
+@keyframes lab-charge-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.84);
+  }
+
+  24% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(34px) scale(1.04);
   }
 }
 

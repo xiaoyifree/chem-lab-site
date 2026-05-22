@@ -119,6 +119,12 @@ const stageInteractionProfiles = {
       target: { x: 0.27, y: 0.78 },
       targetSide: "left",
       radius: 78,
+      commitEffect: "charge-drop",
+      commitDelayMs: 520,
+      pourPose: {
+        rotate: -12,
+        scale: 1.03
+      },
       nextStep: 1
     },
     loaded: {
@@ -131,6 +137,12 @@ const stageInteractionProfiles = {
       target: { x: 0.27, y: 0.34 },
       targetSide: "left",
       radius: 82,
+      commitEffect: "liquid-pour",
+      commitDelayMs: 960,
+      pourPose: {
+        rotate: -24,
+        scale: 1.04
+      },
       nextStep: 2
     },
     reacting: {
@@ -143,6 +155,12 @@ const stageInteractionProfiles = {
       target: { x: 0.73, y: 0.35 },
       targetSide: "right",
       radius: 86,
+      commitEffect: "liquid-pour",
+      commitDelayMs: 900,
+      pourPose: {
+        rotate: 22,
+        scale: 1.04
+      },
       nextStep: 3
     }
   }
@@ -551,12 +569,32 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [dragStatus, setDragStatus] = useState("ready");
   const [isDragging, setIsDragging] = useState(false);
+  const commitTimerRef = useRef(null);
 
   useEffect(() => {
     setDragOffset({ x: 0, y: 0 });
     setDragStatus("ready");
     setIsDragging(false);
   }, [interaction?.id, interaction?.nextStep]);
+
+  useEffect(() => {
+    if (dragStatus !== "pouring") {
+      return undefined;
+    }
+
+    const delay = reduceMotion ? 180 : interaction?.commitDelayMs ?? 760;
+    commitTimerRef.current = window.setTimeout(() => {
+      setDragStatus("committed");
+      onCommit?.(interaction.nextStep);
+    }, delay);
+
+    return () => {
+      if (commitTimerRef.current) {
+        window.clearTimeout(commitTimerRef.current);
+        commitTimerRef.current = null;
+      }
+    };
+  }, [dragStatus, interaction, onCommit, reduceMotion]);
 
   if (!interaction || !bounds) {
     return null;
@@ -569,13 +607,24 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
     y: targetCenter.y - startCenter.y
   };
   const isSnapping = dragStatus === "snapping";
-  const animateTarget = isSnapping ? snapOffset : dragOffset;
+  const isPouring = dragStatus === "pouring";
+  const activeOffset = isSnapping || isPouring ? snapOffset : dragOffset;
+  const pourPose = interaction.pourPose ?? { rotate: 0, scale: 1.02 };
+  const animateTarget = reduceMotion
+    ? { opacity: 1, x: activeOffset.x, y: activeOffset.y, scale: 1, rotate: 0 }
+    : {
+        opacity: 1,
+        x: activeOffset.x,
+        y: activeOffset.y,
+        scale: isPouring ? pourPose.scale ?? 1.03 : isSnapping ? 1.04 : isDragging ? 1.02 : 1,
+        rotate: isPouring ? pourPose.rotate ?? 0 : isDragging ? [0, -2, 2, 0] : 0
+      };
 
   return (
     <>
       <div
         className={`lab-drop-zone lab-drop-zone-${interaction.targetSide} ${
-          isDragging || isSnapping ? "lab-drop-zone-active" : ""
+          isDragging || isSnapping || isPouring ? "lab-drop-zone-active" : ""
         }`}
         style={{
           left: targetCenter.x,
@@ -585,22 +634,38 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
         <span>{interaction.targetSide === "left" ? "反应位" : "检验位"}</span>
       </div>
 
+      <AnimatePresence initial={false}>
+        {isPouring ? (
+          <motion.div
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
+            className={`lab-stage-action lab-stage-action-${interaction.commitEffect} lab-stage-action-${interaction.toolTone}`}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 8 }}
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.92, y: -8 }}
+            key={`${interaction.id}-action`}
+            style={{
+              left: targetCenter.x,
+              top: targetCenter.y
+            }}
+            transition={resolveMotionTransition("reactive", reduceMotion)}
+          >
+            {interaction.commitEffect === "charge-drop" ? (
+              <div className="lab-stage-charge-field">{RepeatedSpans({ count: 4 })}</div>
+            ) : (
+              <>
+                <span className="lab-stage-pour-stream" />
+                <div className="lab-stage-pour-droplets">{RepeatedSpans({ count: 5 })}</div>
+              </>
+            )}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <motion.button
-        animate={
-          reduceMotion
-            ? { opacity: 1, x: animateTarget.x, y: animateTarget.y, scale: 1 }
-            : {
-                opacity: 1,
-                x: animateTarget.x,
-                y: animateTarget.y,
-                scale: isSnapping ? 1.04 : isDragging ? 1.02 : 1,
-                rotate: isDragging ? [0, -2, 2, 0] : 0
-              }
-        }
+        animate={animateTarget}
         className={`lab-stage-tool lab-stage-tool-${interaction.toolTone} ${
           isDragging ? "lab-stage-tool-dragging" : ""
-        }`}
-        drag={!isSnapping}
+        } ${isPouring ? "lab-stage-tool-pouring" : ""}`}
+        drag={!isSnapping && !isPouring}
         dragConstraints={containerRef}
         dragElastic={0.08}
         dragMomentum={false}
@@ -609,6 +674,11 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
         key={interaction.id}
         onAnimationComplete={() => {
           if (dragStatus === "snapping") {
+            if (interaction.commitEffect) {
+              setDragStatus("pouring");
+              return;
+            }
+
             setDragStatus("committed");
             onCommit?.(interaction.nextStep);
           }
@@ -638,7 +708,14 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
           minHeight: stageToolSize.height
         }}
         transition={
-          isSnapping
+          isPouring
+            ? {
+                type: "spring",
+                stiffness: 260,
+                damping: 22,
+                mass: 0.76
+              }
+            : isSnapping
             ? {
                 type: "spring",
                 stiffness: 320,
@@ -652,8 +729,8 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
       >
         <span className="lab-stage-tool-icon">{interaction.icon}</span>
         <span className="lab-stage-tool-copy">
-          <strong>{interaction.label}</strong>
-          <small>{interaction.helper}</small>
+          <strong>{isPouring ? "正在加入..." : interaction.label}</strong>
+          <small>{isPouring ? "已经吸附到目标位，正在完成加入动作" : interaction.helper}</small>
         </span>
       </motion.button>
     </>
