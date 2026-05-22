@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CarbonDioxideLabDemo } from "@/components/carbon-dioxide-lab-demo";
-import { ReactionScene } from "@/components/reaction-scene";
+import { ExperimentPlaybackDemo } from "@/components/experiment-playback-demo";
 
 function getInitialSlug(experiments, defaultSlug) {
   if (typeof window === "undefined") {
@@ -104,7 +104,7 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
           {selectedExperiment.slug === "carbon-dioxide-preparation" ? (
             <CarbonDioxideLabDemo />
           ) : (
-            <ReactionScene variant={selectedExperiment.sceneVariant} />
+            <ExperimentPlaybackDemo experiment={selectedExperiment} />
           )}
         </div>
 

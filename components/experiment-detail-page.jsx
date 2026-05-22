@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getExperimentBySlug } from "@/data/experiments";
 import { CarbonDioxideLabDemo } from "@/components/carbon-dioxide-lab-demo";
+import { ExperimentPlaybackDemo } from "@/components/experiment-playback-demo";
 import { SoundToggle } from "@/components/sound-toggle";
-import { ReactionScene } from "@/components/reaction-scene";
 
 export function ExperimentDetailPage({ slug }) {
   const experiment = getExperimentBySlug(slug);
@@ -38,7 +38,7 @@ export function ExperimentDetailPage({ slug }) {
             ))}
           </div>
         </div>
-        <ReactionScene variant={experiment.sceneVariant} />
+        <ExperimentPlaybackDemo experiment={experiment} />
       </section>
 
       <section className="detail-grid">
@@ -119,7 +119,7 @@ function CarbonDioxideExperimentPage({ experiment }) {
             <strong>{experiment.equation}</strong>
           </div>
         </div>
-        <ReactionScene variant={experiment.sceneVariant} />
+        <CarbonDioxideLabDemo />
       </section>
 
       <section className="immersive-overview">
@@ -134,8 +134,6 @@ function CarbonDioxideExperimentPage({ experiment }) {
           <p>{experiment.observation}</p>
         </article>
       </section>
-
-      <CarbonDioxideLabDemo />
 
       <section className="immersive-grid">
         <article className="detail-card timeline-card">
