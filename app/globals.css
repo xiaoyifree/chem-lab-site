@@ -341,6 +341,303 @@ select {
   margin-top: 28px;
 }
 
+.immersive-hero,
+.immersive-overview,
+.lab-demo-panel,
+.immersive-grid {
+  display: grid;
+  gap: 22px;
+}
+
+.immersive-hero {
+  grid-template-columns: 1.02fr 0.98fr;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.immersive-overview {
+  grid-template-columns: 1.1fr 0.9fr;
+  margin-top: 28px;
+}
+
+.immersive-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  margin-top: 28px;
+}
+
+.story-card,
+.equation-panel,
+.lab-demo-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.story-card {
+  border-radius: 28px;
+  padding: 26px;
+}
+
+.story-card h2 {
+  margin: 0 0 12px;
+}
+
+.story-card p {
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.story-card-primary {
+  background:
+    linear-gradient(140deg, rgba(14, 116, 144, 0.14), rgba(255, 255, 255, 0.72)),
+    var(--panel);
+}
+
+.immersive-copy h1 {
+  margin: 14px 0 16px;
+  font-size: clamp(2.4rem, 5vw, 5rem);
+  line-height: 1.02;
+}
+
+.equation-panel {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(23, 37, 84, 0.96), rgba(14, 116, 144, 0.9));
+  color: #fff;
+}
+
+.equation-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.84rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.76;
+}
+
+.equation-panel strong {
+  display: block;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.lab-demo-panel {
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: center;
+  margin-top: 28px;
+  padding: 26px;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 32%),
+    radial-gradient(circle at top right, rgba(14, 116, 144, 0.18), transparent 30%),
+    rgba(255, 251, 244, 0.9);
+}
+
+.lab-stage {
+  position: relative;
+  min-height: 340px;
+  border-radius: 28px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 22% 24%, rgba(147, 197, 253, 0.34), transparent 26%),
+    radial-gradient(circle at 78% 22%, rgba(103, 232, 249, 0.26), transparent 24%),
+    linear-gradient(180deg, #0f172a 0%, #162033 100%);
+}
+
+.lab-beaker,
+.lab-transfer-line,
+.lab-bubbles span,
+.lab-clouds span,
+.lab-rocks span,
+.lab-flow-dot {
+  position: absolute;
+}
+
+.lab-beaker {
+  bottom: 26px;
+  width: 164px;
+  height: 228px;
+  border: 4px solid rgba(255, 255, 255, 0.34);
+  border-top: none;
+  border-radius: 0 0 30px 30px;
+  overflow: hidden;
+}
+
+.lab-beaker-left {
+  left: 42px;
+}
+
+.lab-beaker-right {
+  right: 42px;
+}
+
+.lab-transfer-line {
+  left: 50%;
+  top: 84px;
+  width: 210px;
+  height: 14px;
+  margin-left: -105px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.26);
+}
+
+.lab-flow-dot {
+  top: 2px;
+  left: 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.55);
+}
+
+.phase-transferring .lab-flow-dot,
+.phase-verified .lab-flow-dot {
+  animation: flow 1.5s linear infinite;
+}
+
+.lab-liquid {
+  position: absolute;
+  inset: auto 0 0;
+  height: 56%;
+}
+
+.lab-liquid-reactant {
+  background: linear-gradient(180deg, rgba(96, 165, 250, 0.94), rgba(37, 99, 235, 0.9));
+}
+
+.lab-liquid-limewater {
+  background: linear-gradient(180deg, rgba(226, 232, 240, 0.9), rgba(186, 230, 253, 0.78));
+}
+
+.lab-rocks span {
+  bottom: 18px;
+  width: 28px;
+  height: 18px;
+  border-radius: 12px;
+  background: rgba(214, 211, 209, 0.92);
+}
+
+.lab-rocks span:nth-child(1) {
+  left: 18px;
+}
+
+.lab-rocks span:nth-child(2) {
+  left: 54px;
+}
+
+.lab-rocks span:nth-child(3) {
+  left: 88px;
+}
+
+.lab-bubbles {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.phase-reacting .lab-bubbles,
+.phase-transferring .lab-bubbles,
+.phase-verified .lab-bubbles {
+  opacity: 1;
+}
+
+.lab-bubbles span {
+  bottom: 36px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(219, 234, 254, 0.92);
+  animation: lab-rise 2.4s linear infinite;
+}
+
+.lab-bubbles span:nth-child(1) { left: 24px; animation-delay: -0.2s; }
+.lab-bubbles span:nth-child(2) { left: 42px; animation-delay: -0.7s; }
+.lab-bubbles span:nth-child(3) { left: 58px; animation-delay: -1.3s; }
+.lab-bubbles span:nth-child(4) { left: 72px; animation-delay: -1.7s; }
+.lab-bubbles span:nth-child(5) { left: 92px; animation-delay: -0.5s; }
+.lab-bubbles span:nth-child(6) { left: 106px; animation-delay: -1.1s; }
+.lab-bubbles span:nth-child(7) { left: 118px; animation-delay: -1.9s; }
+.lab-bubbles span:nth-child(8) { left: 132px; animation-delay: -0.9s; }
+.lab-bubbles span:nth-child(9) { left: 146px; animation-delay: -1.5s; }
+
+.lab-clouds {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.phase-transferring .lab-clouds,
+.phase-verified .lab-clouds {
+  opacity: 1;
+}
+
+.lab-clouds span {
+  width: 34px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(248, 250, 252, 0.9);
+  filter: blur(0.3px);
+  animation: cloud-pulse 2.2s ease-in-out infinite;
+}
+
+.lab-clouds span:nth-child(1) {
+  left: 36px;
+  bottom: 70px;
+}
+
+.lab-clouds span:nth-child(2) {
+  left: 70px;
+  bottom: 92px;
+  animation-delay: -0.7s;
+}
+
+.lab-clouds span:nth-child(3) {
+  left: 98px;
+  bottom: 64px;
+  animation-delay: -1.2s;
+}
+
+.lab-demo-copy h3 {
+  margin: 8px 0 10px;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+.lab-demo-copy p {
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.lab-demo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.timeline-card,
+.knowledge-card,
+.teacher-card,
+.practice-card,
+.materials-card,
+.safety-card {
+  position: relative;
+}
+
+.timeline-card::before,
+.knowledge-card::before,
+.teacher-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 0 0 24px 0;
+  background: linear-gradient(135deg, rgba(14, 116, 144, 0.18), rgba(37, 99, 235, 0));
+  pointer-events: none;
+}
+
 .info-card,
 .level-card,
 .experiment-card,
@@ -535,10 +832,58 @@ select {
   }
 }
 
+@keyframes flow {
+  0% {
+    transform: translateX(0);
+    opacity: 0.35;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(188px);
+    opacity: 0.2;
+  }
+}
+
+@keyframes lab-rise {
+  0% {
+    transform: translateY(0) scale(0.75);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-136px) scale(1.08);
+    opacity: 0;
+  }
+}
+
+@keyframes cloud-pulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(0.92);
+    opacity: 0.72;
+  }
+
+  50% {
+    transform: translateY(-6px) scale(1.06);
+    opacity: 1;
+  }
+}
+
 @media (max-width: 900px) {
   .hero-panel,
   .featured-card,
-  .detail-hero {
+  .detail-hero,
+  .immersive-hero,
+  .immersive-overview,
+  .lab-demo-panel {
     grid-template-columns: 1fr;
   }
 
@@ -555,6 +900,29 @@ select {
   .liquid-column {
     width: 98px;
     height: 112px;
+  }
+
+  .lab-stage {
+    min-height: 300px;
+  }
+
+  .lab-beaker {
+    width: 130px;
+    height: 196px;
+  }
+
+  .lab-beaker-left {
+    left: 20px;
+  }
+
+  .lab-beaker-right {
+    right: 20px;
+  }
+
+  .lab-transfer-line {
+    top: 70px;
+    width: 160px;
+    margin-left: -80px;
   }
 }
 
