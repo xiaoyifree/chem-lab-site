@@ -14,12 +14,13 @@ export function ExperimentPlaybackDemo({
   stepIndex: controlledStepIndex,
   onAdvance,
   onReset,
+  interactive = false,
   showControls = true,
   showCopy = true
 }) {
   const demoSteps = getDemoStepsForExperiment(experiment);
   const theme = themeByLevel[experiment.levelKey] ?? themeByLevel.intermediate;
-  const { stepIndex, handleAdvance, handleReset } = useExperimentPlaybackController({
+  const { stepIndex, handleAdvance, handleReset, handleStepChange } = useExperimentPlaybackController({
     steps: demoSteps,
     controlledStepIndex,
     onAdvance,
@@ -28,7 +29,13 @@ export function ExperimentPlaybackDemo({
   });
 
   const stage = (
-    <ExperimentAnimationStage experiment={experiment} stepIndex={stepIndex} totalSteps={demoSteps.length} />
+    <ExperimentAnimationStage
+      experiment={experiment}
+      interactive={interactive}
+      onInteractiveStepChange={handleStepChange}
+      stepIndex={stepIndex}
+      totalSteps={demoSteps.length}
+    />
   );
 
   if (!showCopy) {

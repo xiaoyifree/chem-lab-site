@@ -10,7 +10,7 @@ const carbonDioxideExperimentFallback = {
   slug: "carbon-dioxide-preparation",
   levelKey: "intermediate",
   materials: ["大理石", "稀盐酸", "锥形瓶", "导管", "澄清石灰水"],
-  steps: ["加入大理石", "滴加稀盐酸", "导入石灰水", "完成检验"],
+  steps: ["加入大理石", "滴加稀盐酸", "观察产气", "通入石灰水", "完成检验"],
   demoSteps: [
     {
       title: "加入大理石",
@@ -21,8 +21,12 @@ const carbonDioxideExperimentFallback = {
       note: "酸液接触碳酸钙后开始放出二氧化碳，锥形瓶内出现持续气泡。"
     },
     {
-      title: "导入石灰水",
-      note: "气体通过导管进入澄清石灰水，逐渐使其变浑浊。"
+      title: "观察产气",
+      note: "先确认锥形瓶内连续产气，再把检验用石灰水拖到右侧观察位。"
+    },
+    {
+      title: "通入石灰水",
+      note: "气体通过导管进入澄清石灰水，右侧液体开始出现浑浊云团。"
     },
     {
       title: "完成检验",
@@ -38,6 +42,7 @@ export function CarbonDioxideLabDemo({
   stepIndex: controlledStepIndex,
   onAdvance,
   onReset,
+  interactive = false,
   showControls = true,
   showCopy = true
 }) {
@@ -48,7 +53,7 @@ export function CarbonDioxideLabDemo({
   };
 
   const theme = themeByLevel[mergedExperiment.levelKey] ?? themeByLevel.intermediate;
-  const { stepIndex, handleAdvance, handleReset } = useExperimentPlaybackController({
+  const { stepIndex, handleAdvance, handleReset, handleStepChange } = useExperimentPlaybackController({
     steps: mergedExperiment.demoSteps,
     controlledStepIndex,
     onAdvance,
@@ -59,7 +64,9 @@ export function CarbonDioxideLabDemo({
   const stage = (
     <ExperimentAnimationStage
       experiment={mergedExperiment}
+      interactive={interactive}
       kindOverride="fizz-transfer"
+      onInteractiveStepChange={handleStepChange}
       stepIndex={stepIndex}
       totalSteps={mergedExperiment.demoSteps.length}
     />

@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
+import {
+  createExperimentAnimationState,
+  ExperimentConsoleMotionProvider,
+  resolveMotionTransition
+} from "@/components/experiment-animation-system";
 import {
   ExperimentPlaybackDemo,
   getDemoStepsForExperiment
@@ -99,6 +105,7 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
   const [selectedSlug, setSelectedSlug] = useState(() => getInitialSlug(experiments, defaultSlug));
   const [activeTab, setActiveTab] = useState("steps");
   const [stepIndex, setStepIndex] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const onHashChange = () => {
@@ -128,6 +135,20 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
   const teacherPrompts = selectedExperiment.teacherPrompt ?? selectedExperiment.practice;
   const demoSteps = getDemoStepsForExperiment(selectedExperiment);
   const currentStep = demoSteps[Math.min(stepIndex, demoSteps.length - 1)];
+  const animationState = useMemo(
+    () =>
+      createExperimentAnimationState({
+        experiment: selectedExperiment,
+        stepIndex,
+        totalSteps: demoSteps.length
+      }),
+    [demoSteps.length, selectedExperiment, stepIndex]
+  );
+  const panelTransition = useMemo(
+    () => resolveMotionTransition(animationState.transitionPreset, prefersReducedMotion),
+    [animationState.transitionPreset, prefersReducedMotion]
+  );
+  const stageIsEmphasized = animationState.phaseKey === animationState.emphasisPhase;
 
   const handleSelect = (slug) => {
     setSelectedSlug(slug);
@@ -193,178 +214,334 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
       </aside>
 
       <section className="explorer-stage explorer-stage-lab">
-        <article className="lab-console" style={{ "--console-accent": tone.accent, "--console-soft": tone.soft }}>
-          <header className="lab-console-head">
-            <div className="lab-console-title">
-              <div className="lab-console-labels">
-                <span className={`level-badge ${selectedExperiment.badgeClass}`}>{selectedExperiment.level}</span>
-                <span className="lab-console-code">{experimentCode}</span>
-              </div>
-              <h1>{selectedExperiment.title}</h1>
-              <p>{selectedExperiment.subtitle || selectedExperiment.summary}</p>
-            </div>
-          </header>
+        <ExperimentConsoleMotionProvider>
+          <LayoutGroup id="experiments-console">
+            <motion.article
+              animate={
+                prefersReducedMotion
+                  ? { opacity: 1 }
+                  : {
+                      opacity: 1,
+                      y: 0,
+                      boxShadow: stageIsEmphasized
+                        ? `0 32px 92px rgba(4, 8, 17, 0.34), 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 44px ${tone.soft}`
+                        : "0 30px 90px rgba(4, 8, 17, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.06)"
+                    }
+              }
+              className="lab-console"
+              layout={!prefersReducedMotion}
+              style={{ "--console-accent": tone.accent, "--console-soft": tone.soft }}
+              transition={panelTransition}
+            >
+              <header className="lab-console-head">
+                <AnimatePresence initial={false} mode="wait">
+                  <motion.div
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    className="lab-console-title"
+                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -18, scale: 0.985 }}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 22, scale: 0.985 }}
+                    key={selectedExperiment.slug}
+                    transition={panelTransition}
+                  >
+                    <div className="lab-console-labels">
+                      <span className={`level-badge ${selectedExperiment.badgeClass}`}>{selectedExperiment.level}</span>
+                      <span className="lab-console-code">{experimentCode}</span>
+                    </div>
+                    <h1>{selectedExperiment.title}</h1>
+                    <p>{selectedExperiment.subtitle || selectedExperiment.summary}</p>
+                  </motion.div>
+                </AnimatePresence>
+              </header>
 
-          <section className="lab-equation-bar" style={{ "--equation-card": tone.card }}>
-            <span className="lab-equation-caption">化学方程式</span>
-            <strong>{selectedExperiment.equation}</strong>
-          </section>
-
-          <section className="lab-console-grid">
-            <div className="lab-visual-card">
-              <ExperimentPlaybackDemo
-                experiment={selectedExperiment}
-                onAdvance={handleAdvance}
-                onReset={handleReset}
-                showControls={false}
-                showCopy={false}
-                stepIndex={stepIndex}
-              />
-            </div>
-
-            <div className="lab-side-stack">
-              <section className="lab-side-card lab-side-summary">
-                <p>{selectedExperiment.objective}</p>
-              </section>
-
-              <section className="lab-side-card lab-progress-card">
-                <div className="lab-progress-head">
-                  <span>步骤进度</span>
-                  <strong>
-                    {stepIndex + 1}/{demoSteps.length}
-                  </strong>
-                </div>
-                <div
-                  className="lab-progress-track"
-                  style={{ gridTemplateColumns: `repeat(${demoSteps.length}, minmax(0, 1fr))` }}
+              <AnimatePresence initial={false} mode="wait">
+                <motion.section
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className="lab-equation-bar"
+                  exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.99 }}
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 18, scale: 0.99 }}
+                  key={`${selectedExperiment.slug}-equation`}
+                  style={{ "--equation-card": tone.card }}
+                  transition={panelTransition}
                 >
-                  {demoSteps.map((step, index) => (
-                    <button
-                      aria-label={`跳到${step.title}`}
-                      className={`lab-progress-dot ${index <= stepIndex ? "lab-progress-dot-active" : ""}`}
-                      key={step.title}
-                      onClick={() => handleStepChange(index)}
+                  <span className="lab-equation-caption">化学方程式</span>
+                  <strong>{selectedExperiment.equation}</strong>
+                </motion.section>
+              </AnimatePresence>
+
+              <section className="lab-console-grid">
+                <motion.div
+                  className="lab-visual-card"
+                  layout={!prefersReducedMotion}
+                  transition={panelTransition}
+                  whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+                >
+                  <ExperimentPlaybackDemo
+                    experiment={selectedExperiment}
+                    interactive={selectedExperiment.slug === "carbon-dioxide-preparation"}
+                    onAdvance={handleAdvance}
+                    onReset={handleReset}
+                    showControls={false}
+                    showCopy={false}
+                    stepIndex={stepIndex}
+                  />
+                </motion.div>
+
+                <div className="lab-side-stack">
+                  <AnimatePresence initial={false} mode="wait">
+                    <motion.section
+                      animate={{ opacity: 1, y: 0 }}
+                      className="lab-side-card lab-side-summary"
+                      exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
+                      initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+                      key={`${selectedExperiment.slug}-summary`}
+                      transition={panelTransition}
+                    >
+                      <p>{selectedExperiment.objective}</p>
+                    </motion.section>
+                  </AnimatePresence>
+
+                  <motion.section className="lab-side-card lab-progress-card" layout={!prefersReducedMotion} transition={panelTransition}>
+                    <div className="lab-progress-head">
+                      <span>步骤进度</span>
+                      <strong>
+                        {stepIndex + 1}/{demoSteps.length}
+                      </strong>
+                    </div>
+                    <div
+                      className="lab-progress-track"
+                      style={{ gridTemplateColumns: `repeat(${demoSteps.length}, minmax(0, 1fr))` }}
+                    >
+                      {demoSteps.map((step, index) => {
+                        const isActive = index === stepIndex;
+                        const isUnlocked = index <= stepIndex;
+
+                        return (
+                          <motion.button
+                            animate={
+                              prefersReducedMotion
+                                ? { opacity: 1 }
+                                : {
+                                    scaleY: isActive ? 1.16 : 1,
+                                    opacity: isUnlocked ? 1 : 0.72,
+                                    boxShadow: isActive ? `0 0 18px ${tone.soft}` : "0 0 0 rgba(0, 0, 0, 0)"
+                                  }
+                            }
+                            aria-label={`跳到${step.title}`}
+                            className={`lab-progress-dot ${isUnlocked ? "lab-progress-dot-active" : ""}`}
+                            key={step.title}
+                            layout={!prefersReducedMotion}
+                            onClick={() => handleStepChange(index)}
+                            transition={panelTransition}
+                            type="button"
+                          />
+                        );
+                      })}
+                    </div>
+
+                    <AnimatePresence initial={false} mode="wait">
+                      <motion.div
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        className="lab-step-focus"
+                        exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -10, scale: 0.99 }}
+                        initial={prefersReducedMotion ? false : { opacity: 0, y: 18, scale: 0.985 }}
+                        key={`${selectedExperiment.slug}-${stepIndex}`}
+                        transition={panelTransition}
+                      >
+                        <h3>
+                          步骤 {stepIndex + 1}：{currentStep.title}
+                        </h3>
+                        <p>{currentStep.note}</p>
+                      </motion.div>
+                    </AnimatePresence>
+
+                    <div className="lab-step-actions">
+                      <motion.button
+                        className="lab-step-button lab-step-button-muted"
+                        disabled={stepIndex === 0}
+                        onClick={() => handleStepChange(Math.max(0, stepIndex - 1))}
+                        transition={panelTransition}
+                        type="button"
+                        whileHover={prefersReducedMotion || stepIndex === 0 ? undefined : { y: -1 }}
+                        whileTap={prefersReducedMotion || stepIndex === 0 ? undefined : { scale: 0.985 }}
+                      >
+                        ← 上一步
+                      </motion.button>
+                      <motion.button
+                        animate={
+                          prefersReducedMotion
+                            ? { opacity: 1 }
+                            : {
+                                boxShadow:
+                                  stepIndex < demoSteps.length - 1
+                                    ? `0 0 22px ${tone.soft}`
+                                    : "0 0 0 rgba(0, 0, 0, 0)",
+                                scale: stepIndex < demoSteps.length - 1 ? 1 : 0.985
+                              }
+                        }
+                        className="lab-step-button"
+                        disabled={stepIndex === demoSteps.length - 1}
+                        onClick={() => handleStepChange(Math.min(demoSteps.length - 1, stepIndex + 1))}
+                        transition={panelTransition}
+                        type="button"
+                        whileHover={prefersReducedMotion || stepIndex === demoSteps.length - 1 ? undefined : { y: -2, scale: 1.01 }}
+                        whileTap={prefersReducedMotion || stepIndex === demoSteps.length - 1 ? undefined : { scale: 0.99 }}
+                      >
+                        下一阶段 →
+                      </motion.button>
+                    </div>
+                    <motion.button
+                      className="lab-reset-button"
+                      onClick={handleReset}
+                      transition={panelTransition}
                       type="button"
-                    />
-                  ))}
+                      whileHover={prefersReducedMotion ? undefined : { y: -1 }}
+                      whileTap={prefersReducedMotion ? undefined : { scale: 0.99 }}
+                    >
+                      重新演示
+                    </motion.button>
+                  </motion.section>
                 </div>
-
-                <div className="lab-step-focus">
-                  <h3>
-                    步骤 {stepIndex + 1}：{currentStep.title}
-                  </h3>
-                  <p>{currentStep.note}</p>
-                </div>
-
-                <div className="lab-step-actions">
-                  <button
-                    className="lab-step-button lab-step-button-muted"
-                    disabled={stepIndex === 0}
-                    onClick={() => handleStepChange(Math.max(0, stepIndex - 1))}
-                    type="button"
-                  >
-                    ← 上一步
-                  </button>
-                  <button
-                    className="lab-step-button"
-                    disabled={stepIndex === demoSteps.length - 1}
-                    onClick={() => handleStepChange(Math.min(demoSteps.length - 1, stepIndex + 1))}
-                    type="button"
-                  >
-                    下一阶段 →
-                  </button>
-                </div>
-                <button className="lab-reset-button" onClick={handleReset} type="button">
-                  重新演示
-                </button>
               </section>
-            </div>
-          </section>
 
-          <div className="lab-tab-row">
-            {[
-              { key: "steps", label: "📋 全部步骤" },
-              { key: "knowledge", label: "💡 知识点" },
-              { key: "safety", label: "⚠️ 安全" }
-            ].map((tab) => (
-              <button
-                className={`lab-tab ${activeTab === tab.key ? "lab-tab-active" : ""}`}
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                type="button"
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+              <div className="lab-tab-row">
+                {[
+                  { key: "steps", label: "📋 全部步骤" },
+                  { key: "knowledge", label: "💡 知识点" },
+                  { key: "safety", label: "⚠️ 安全" }
+                ].map((tab) => (
+                  <motion.button
+                    animate={
+                      prefersReducedMotion
+                        ? { opacity: 1 }
+                        : {
+                            y: activeTab === tab.key ? -2 : 0,
+                            boxShadow:
+                              activeTab === tab.key ? `0 0 18px ${tone.soft}` : "0 0 0 rgba(0, 0, 0, 0)"
+                          }
+                    }
+                    className={`lab-tab ${activeTab === tab.key ? "lab-tab-active" : ""}`}
+                    key={tab.key}
+                    layout={!prefersReducedMotion}
+                    onClick={() => setActiveTab(tab.key)}
+                    transition={panelTransition}
+                    type="button"
+                    whileHover={prefersReducedMotion ? undefined : { y: -1 }}
+                    whileTap={prefersReducedMotion ? undefined : { scale: 0.99 }}
+                  >
+                    {tab.label}
+                  </motion.button>
+                ))}
+              </div>
 
-          {activeTab === "steps" ? (
-            <div className="lab-step-grid">
-              {demoSteps.map((step, index) => (
-                <button
-                  className={`lab-step-card ${index === stepIndex ? "lab-step-card-active" : ""}`}
-                  key={step.title}
-                  onClick={() => handleStepChange(index)}
-                  type="button"
-                >
-                  <div className="lab-step-card-index">{index + 1}</div>
-                  <div className="lab-step-card-copy">
-                    <h3>{step.title}</h3>
-                    <p>{step.note}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          ) : null}
+              <AnimatePresence initial={false} mode="wait">
+                {activeTab === "steps" ? (
+                  <motion.div
+                    animate={{ opacity: 1, y: 0 }}
+                    className="lab-step-grid"
+                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+                    key="steps"
+                    transition={panelTransition}
+                  >
+                    {demoSteps.map((step, index) => (
+                      <motion.button
+                        animate={
+                          prefersReducedMotion
+                            ? { opacity: 1 }
+                            : {
+                                y: index === stepIndex ? -4 : 0,
+                                boxShadow:
+                                  index === stepIndex ? `0 0 24px ${tone.soft}` : "0 0 0 rgba(0, 0, 0, 0)"
+                              }
+                        }
+                        className={`lab-step-card ${index === stepIndex ? "lab-step-card-active" : ""}`}
+                        key={step.title}
+                        layout={!prefersReducedMotion}
+                        onClick={() => handleStepChange(index)}
+                        transition={panelTransition}
+                        type="button"
+                        whileHover={prefersReducedMotion ? undefined : { y: index === stepIndex ? -4 : -2 }}
+                        whileTap={prefersReducedMotion ? undefined : { scale: 0.992 }}
+                      >
+                        <div className="lab-step-card-index">{index + 1}</div>
+                        <div className="lab-step-card-copy">
+                          <h3>{step.title}</h3>
+                          <p>{step.note}</p>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                ) : null}
 
-          {activeTab === "knowledge" ? (
-            <div className="lab-info-grid">
-              <article className="lab-info-card">
-                <p className="lab-info-eyebrow">Knowledge</p>
-                <h3>知识拓展</h3>
-                <ul>
-                  {knowledgeItems.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </article>
+                {activeTab === "knowledge" ? (
+                  <motion.div
+                    animate={{ opacity: 1, y: 0 }}
+                    className="lab-info-grid"
+                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+                    key="knowledge"
+                    transition={panelTransition}
+                  >
+                    <motion.article className="lab-info-card" layout={!prefersReducedMotion} transition={panelTransition}>
+                      <p className="lab-info-eyebrow">Knowledge</p>
+                      <h3>知识拓展</h3>
+                      <ul>
+                        {knowledgeItems.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </motion.article>
 
-              <article className="lab-info-card">
-                <p className="lab-info-eyebrow">Prompt</p>
-                <h3>课堂提问</h3>
-                <ul>
-                  {teacherPrompts.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </article>
-            </div>
-          ) : null}
+                    <motion.article className="lab-info-card" layout={!prefersReducedMotion} transition={panelTransition}>
+                      <p className="lab-info-eyebrow">Prompt</p>
+                      <h3>课堂提问</h3>
+                      <ul>
+                        {teacherPrompts.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </motion.article>
+                  </motion.div>
+                ) : null}
 
-          {activeTab === "safety" ? (
-            <div className="lab-info-grid">
-              <article className="lab-info-card lab-info-card-warning">
-                <p className="lab-info-eyebrow">Safety</p>
-                <h3>安全提示</h3>
-                <ul>
-                  {selectedExperiment.safetyNotes.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </article>
+                {activeTab === "safety" ? (
+                  <motion.div
+                    animate={{ opacity: 1, y: 0 }}
+                    className="lab-info-grid"
+                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+                    key="safety"
+                    transition={panelTransition}
+                  >
+                    <motion.article
+                      className="lab-info-card lab-info-card-warning"
+                      layout={!prefersReducedMotion}
+                      transition={panelTransition}
+                    >
+                      <p className="lab-info-eyebrow">Safety</p>
+                      <h3>安全提示</h3>
+                      <ul>
+                        {selectedExperiment.safetyNotes.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </motion.article>
 
-              <article className="lab-info-card">
-                <p className="lab-info-eyebrow">Materials</p>
-                <h3>器材与药品</h3>
-                <ul>
-                  {selectedExperiment.materials.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </article>
-            </div>
-          ) : null}
-        </article>
+                    <motion.article className="lab-info-card" layout={!prefersReducedMotion} transition={panelTransition}>
+                      <p className="lab-info-eyebrow">Materials</p>
+                      <h3>器材与药品</h3>
+                      <ul>
+                        {selectedExperiment.materials.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </motion.article>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </motion.article>
+          </LayoutGroup>
+        </ExperimentConsoleMotionProvider>
       </section>
     </div>
   );
