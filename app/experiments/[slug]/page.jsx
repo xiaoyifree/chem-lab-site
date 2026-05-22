@@ -1,5 +1,5 @@
 import { experiments, getExperimentBySlug } from "@/data/experiments";
-import { ExperimentDetailPage } from "@/components/experiment-detail-page";
+import { ExperimentDetailPage as ExperimentDetailView } from "@/components/experiment-detail-page";
 
 export function generateStaticParams() {
   return experiments.map((experiment) => ({
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function ExperimentDetailPage({ params }) {
+export default async function ExperimentSlugPage({ params }) {
   const { slug } = await params;
-  return <ExperimentDetailPage slug={slug} />;
+  return <ExperimentDetailView slug={slug} />;
 }
