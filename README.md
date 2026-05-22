@@ -1,6 +1,6 @@
 # Chem Lab Site
 
-一个面向中学生的化学实验学习网站，现已升级为 Next.js App Router 结构，适合继续扩展实验页、互动动画和教学模块。
+一个面向中学生的化学实验学习网站，现已升级为 Next.js App Router 结构，并支持导出为适合 GitHub Pages 的静态站点。
 
 ## 当前能力
 
@@ -26,8 +26,21 @@
 
 - `npm install`
 - `npm run dev`
+- `pnpm run build`
 
 如果当前机器没有 `npm`，需要先安装 Node.js 对应的包管理器，或使用其他可用的包管理工具安装依赖。
+
+## GitHub Pages 发布
+
+项目已配置为静态导出模式：
+
+- `next build` 会输出到 `out/`
+- `.github/workflows/deploy-github-pages.yml` 会在推送到 `main` 后自动发布
+- 发布到 GitHub Pages 时会自动使用仓库名作为 `basePath`
+
+如果你的仓库名是 `chem-lab-site`，最终页面地址通常会是：
+
+- `https://<你的 GitHub 用户名>.github.io/chem-lab-site/`
 
 ## GitHub 仓库建议
 
