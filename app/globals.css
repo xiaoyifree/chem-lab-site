@@ -719,6 +719,12 @@ select {
     linear-gradient(180deg, #18213a 0%, #1f2b4d 100%);
 }
 
+.demo-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
 .demo-stage-orbit {
   position: absolute;
   left: 50%;
@@ -881,6 +887,732 @@ select {
 
 .demo-sediment span:nth-child(3) {
   left: 88px;
+}
+
+.demo-scene-indicator {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 22px;
+  padding: 38px 34px 26px;
+}
+
+.demo-tube {
+  position: relative;
+  height: 228px;
+  border-radius: 999px 999px 28px 28px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  border: 4px solid rgba(255, 255, 255, 0.28);
+}
+
+.demo-tube-glass,
+.demo-tube-liquid,
+.demo-tube-badge {
+  position: absolute;
+}
+
+.demo-tube-glass {
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.16), transparent 30%, rgba(255, 255, 255, 0.08) 70%, transparent);
+}
+
+.demo-tube-liquid {
+  inset: auto 0 0;
+  height: 54%;
+  animation: demo-level 2.8s ease-in-out infinite;
+}
+
+.demo-tube-pink .demo-tube-liquid {
+  background: linear-gradient(180deg, rgba(244, 114, 182, 0.95), rgba(190, 24, 93, 0.92));
+}
+
+.demo-tube-violet .demo-tube-liquid {
+  background: linear-gradient(180deg, rgba(167, 139, 250, 0.95), rgba(109, 40, 217, 0.92));
+}
+
+.demo-tube-amber .demo-tube-liquid {
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.96), rgba(217, 119, 6, 0.92));
+}
+
+.demo-tube-badge {
+  top: 22px;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.demo-scene-flame .demo-metal-strip,
+.demo-burner,
+.demo-burner-stem,
+.demo-burner-base,
+.demo-flame-stack,
+.demo-flame,
+.demo-spark-field span {
+  position: absolute;
+}
+
+.demo-metal-strip {
+  left: 50%;
+  top: 38px;
+  width: 18px;
+  height: 86px;
+  margin-left: -9px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(226, 232, 240, 0.95), rgba(148, 163, 184, 0.94));
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.18);
+}
+
+.demo-burner {
+  left: 50%;
+  bottom: 36px;
+  width: 128px;
+  height: 154px;
+  margin-left: -64px;
+}
+
+.demo-burner-stem {
+  left: 50%;
+  bottom: 24px;
+  width: 22px;
+  height: 90px;
+  margin-left: -11px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.9), rgba(30, 41, 59, 0.96));
+}
+
+.demo-burner-base {
+  left: 50%;
+  bottom: 0;
+  width: 116px;
+  height: 34px;
+  margin-left: -58px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.98));
+}
+
+.demo-flame-stack {
+  left: 50%;
+  bottom: 104px;
+  width: 120px;
+  height: 150px;
+  margin-left: -60px;
+}
+
+.demo-flame {
+  left: 50%;
+  bottom: 0;
+  border-radius: 60% 60% 48% 48%;
+  transform-origin: center bottom;
+  animation: demo-flicker 1.7s ease-in-out infinite;
+}
+
+.demo-flame-outer {
+  width: 96px;
+  height: 136px;
+  margin-left: -48px;
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.96), rgba(249, 115, 22, 0.96));
+  filter: blur(0.5px);
+}
+
+.demo-flame-middle {
+  width: 60px;
+  height: 100px;
+  margin-left: -30px;
+  background: linear-gradient(180deg, rgba(253, 224, 71, 0.96), rgba(251, 146, 60, 0.96));
+  animation-delay: -0.4s;
+}
+
+.demo-flame-core {
+  width: 26px;
+  height: 72px;
+  margin-left: -13px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(254, 240, 138, 0.96));
+  animation-delay: -0.8s;
+}
+
+.demo-spark-field span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(254, 249, 195, 0.94);
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.48);
+  animation: lab-rise 2.4s linear infinite;
+}
+
+.demo-spark-field span:nth-child(1) { left: 28%; bottom: 104px; animation-delay: -0.2s; }
+.demo-spark-field span:nth-child(2) { left: 36%; bottom: 140px; animation-delay: -0.8s; }
+.demo-spark-field span:nth-child(3) { left: 44%; bottom: 168px; animation-delay: -1.2s; }
+.demo-spark-field span:nth-child(4) { left: 56%; bottom: 152px; animation-delay: -1.5s; }
+.demo-spark-field span:nth-child(5) { left: 63%; bottom: 128px; animation-delay: -0.6s; }
+.demo-spark-field span:nth-child(6) { left: 70%; bottom: 180px; animation-delay: -1.7s; }
+.demo-spark-field span:nth-child(7) { left: 76%; bottom: 148px; animation-delay: -0.9s; }
+
+.demo-scene-crystal .demo-dish,
+.demo-dish-liquid,
+.demo-dish-crystals span,
+.demo-heat-wave span {
+  position: absolute;
+}
+
+.demo-dish {
+  left: 50%;
+  bottom: 38px;
+  width: 320px;
+  height: 124px;
+  margin-left: -160px;
+  border-radius: 999px;
+  border: 4px solid rgba(255, 255, 255, 0.32);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(15, 23, 42, 0.18));
+  overflow: hidden;
+}
+
+.demo-dish-liquid {
+  inset: auto 0 0;
+  height: 58%;
+  background: linear-gradient(180deg, rgba(125, 211, 252, 0.86), rgba(59, 130, 246, 0.92));
+  animation: demo-evaporate 4.8s ease-in-out infinite;
+}
+
+.demo-dish-crystals span {
+  bottom: 18px;
+  width: 24px;
+  height: 24px;
+  transform: rotate(45deg);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.28);
+  opacity: 0.12;
+  animation: crystal-grow 3.1s ease-in-out infinite;
+}
+
+.demo-dish-crystals span:nth-child(1) { left: 64px; }
+.demo-dish-crystals span:nth-child(2) { left: 108px; animation-delay: -0.4s; }
+.demo-dish-crystals span:nth-child(3) { left: 148px; animation-delay: -0.8s; }
+.demo-dish-crystals span:nth-child(4) { left: 190px; animation-delay: -1.2s; }
+.demo-dish-crystals span:nth-child(5) { left: 232px; animation-delay: -1.6s; }
+.demo-dish-crystals span:nth-child(6) { left: 274px; animation-delay: -2s; }
+
+.demo-heat-wave span {
+  bottom: 152px;
+  width: 10px;
+  height: 70px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.08), rgba(251, 191, 36, 0.28), transparent);
+  animation: heat-wave 2.1s ease-in-out infinite;
+}
+
+.demo-heat-wave span:nth-child(1) { left: 38%; }
+.demo-heat-wave span:nth-child(2) { left: 46%; animation-delay: -0.4s; }
+.demo-heat-wave span:nth-child(3) { left: 54%; animation-delay: -0.8s; }
+.demo-heat-wave span:nth-child(4) { left: 62%; animation-delay: -1.2s; }
+
+.demo-scene-precipitate .demo-mix-vessel,
+.demo-mix-liquid,
+.demo-cloud-bloom span,
+.demo-dropper {
+  position: absolute;
+}
+
+.demo-mix-vessel {
+  left: 50%;
+  bottom: 28px;
+  width: 340px;
+  height: 236px;
+  margin-left: -170px;
+  border-radius: 0 0 34px 34px;
+  border: 4px solid rgba(255, 255, 255, 0.32);
+  border-top: none;
+  overflow: hidden;
+}
+
+.demo-mix-liquid {
+  inset: auto 0 0;
+  height: 54%;
+}
+
+.demo-mix-left {
+  clip-path: polygon(0 0, 48% 0, 60% 100%, 0 100%);
+  background: linear-gradient(180deg, rgba(96, 165, 250, 0.96), rgba(37, 99, 235, 0.92));
+}
+
+.demo-mix-right {
+  clip-path: polygon(52% 0, 100% 0, 100% 100%, 40% 100%);
+  background: linear-gradient(180deg, rgba(251, 146, 60, 0.96), rgba(239, 68, 68, 0.9));
+}
+
+.demo-cloud-bloom span {
+  width: 52px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(248, 250, 252, 0.88);
+  animation: cloud-pulse 2.4s ease-in-out infinite;
+}
+
+.demo-cloud-bloom span:nth-child(1) { left: 132px; bottom: 90px; }
+.demo-cloud-bloom span:nth-child(2) { left: 166px; bottom: 120px; animation-delay: -0.5s; }
+.demo-cloud-bloom span:nth-child(3) { left: 202px; bottom: 86px; animation-delay: -0.9s; }
+.demo-cloud-bloom span:nth-child(4) { left: 150px; bottom: 62px; animation-delay: -1.3s; }
+.demo-cloud-bloom span:nth-child(5) { left: 216px; bottom: 58px; animation-delay: -1.6s; }
+.demo-cloud-bloom span:nth-child(6) { left: 184px; bottom: 146px; animation-delay: -2s; }
+
+.demo-dropper {
+  left: 50%;
+  top: 38px;
+  width: 20px;
+  height: 112px;
+  margin-left: 68px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(226, 232, 240, 0.94), rgba(148, 163, 184, 0.92));
+  box-shadow: 0 14px 20px rgba(15, 23, 42, 0.18);
+}
+
+.demo-dropper::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -18px;
+  width: 16px;
+  height: 24px;
+  margin-left: -8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  animation: drop-pulse 1.9s ease-in-out infinite;
+}
+
+.demo-scene-distillation .demo-flask,
+.demo-flask-liquid,
+.demo-condenser,
+.demo-condenser-tube,
+.demo-condenser-flow,
+.demo-receiver,
+.demo-receiver-liquid,
+.demo-vapor-trail span {
+  position: absolute;
+}
+
+.demo-flask {
+  left: 46px;
+  bottom: 42px;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.demo-flask::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -66px;
+  width: 26px;
+  height: 74px;
+  margin-left: -13px;
+  border-radius: 999px;
+  background: rgba(226, 232, 240, 0.82);
+}
+
+.demo-flask-liquid {
+  inset: auto 12px 12px;
+  height: 54%;
+  border-radius: 999px 999px 30px 30px;
+  background: linear-gradient(180deg, rgba(96, 165, 250, 0.92), rgba(14, 165, 233, 0.88));
+}
+
+.demo-condenser {
+  left: 146px;
+  top: 94px;
+  width: 188px;
+  height: 20px;
+}
+
+.demo-condenser-tube {
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.demo-condenser-flow {
+  top: 4px;
+  left: 12px;
+  width: 34px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(186, 230, 253, 0.88);
+  animation: flow 1.4s linear infinite;
+}
+
+.demo-receiver {
+  right: 48px;
+  bottom: 42px;
+  width: 124px;
+  height: 180px;
+  border-radius: 32px 32px 22px 22px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.demo-receiver-liquid {
+  inset: auto 0 0;
+  height: 34%;
+  background: linear-gradient(180deg, rgba(191, 219, 254, 0.9), rgba(96, 165, 250, 0.9));
+}
+
+.demo-vapor-trail span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(241, 245, 249, 0.84);
+  animation: vapor-drift 2.6s linear infinite;
+}
+
+.demo-vapor-trail span:nth-child(1) { left: 132px; top: 88px; animation-delay: -0.2s; }
+.demo-vapor-trail span:nth-child(2) { left: 168px; top: 82px; animation-delay: -0.7s; }
+.demo-vapor-trail span:nth-child(3) { left: 206px; top: 76px; animation-delay: -1.1s; }
+.demo-vapor-trail span:nth-child(4) { left: 244px; top: 70px; animation-delay: -1.5s; }
+.demo-vapor-trail span:nth-child(5) { left: 282px; top: 64px; animation-delay: -1.9s; }
+
+.demo-scene-electroplate .demo-cell,
+.demo-cell-liquid,
+.demo-electrode,
+.demo-copper-coat,
+.demo-wire,
+.demo-battery {
+  position: absolute;
+}
+
+.demo-cell {
+  left: 50%;
+  bottom: 34px;
+  width: 320px;
+  height: 220px;
+  margin-left: -160px;
+  border-radius: 0 0 28px 28px;
+  border: 4px solid rgba(255, 255, 255, 0.32);
+  border-top: none;
+  overflow: hidden;
+}
+
+.demo-cell-liquid {
+  inset: auto 0 0;
+  height: 60%;
+  background: linear-gradient(180deg, rgba(125, 211, 252, 0.8), rgba(59, 130, 246, 0.92));
+}
+
+.demo-electrode {
+  top: 42px;
+  width: 18px;
+  height: 122px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(226, 232, 240, 0.94), rgba(148, 163, 184, 0.96));
+}
+
+.demo-electrode-left {
+  left: 88px;
+}
+
+.demo-electrode-right {
+  right: 88px;
+}
+
+.demo-copper-coat {
+  right: 82px;
+  top: 54px;
+  width: 30px;
+  height: 110px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(251, 146, 60, 0.2), rgba(249, 115, 22, 0.96));
+  animation: copper-build 3s ease-in-out infinite;
+}
+
+.demo-wire-left,
+.demo-wire-right {
+  top: 40px;
+  width: 92px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.34);
+}
+
+.demo-wire-left {
+  left: 112px;
+}
+
+.demo-wire-right {
+  right: 112px;
+}
+
+.demo-battery {
+  left: 50%;
+  top: 20px;
+  width: 68px;
+  height: 36px;
+  margin-left: -34px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(37, 99, 235, 0.88));
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.24);
+}
+
+.demo-battery::before,
+.demo-battery::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  width: 8px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.demo-battery::before {
+  left: 14px;
+}
+
+.demo-battery::after {
+  right: 14px;
+}
+
+.demo-scene-rate {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  align-items: end;
+  padding: 42px 28px 32px;
+}
+
+.demo-rate-vessel {
+  position: relative;
+  height: 230px;
+  border-radius: 0 0 28px 28px;
+  border: 4px solid rgba(255, 255, 255, 0.32);
+  border-top: none;
+  overflow: hidden;
+}
+
+.demo-rate-label,
+.demo-rate-bubbles span {
+  position: absolute;
+}
+
+.demo-rate-label {
+  left: 50%;
+  top: 16px;
+  width: 32px;
+  height: 32px;
+  margin-left: -16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.82);
+  color: #1e293b;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.demo-rate-liquid {
+  position: absolute;
+  inset: auto 0 0;
+  height: 52%;
+  background: linear-gradient(180deg, rgba(125, 211, 252, 0.82), rgba(37, 99, 235, 0.92));
+}
+
+.demo-rate-bubbles span {
+  bottom: 36px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  animation: lab-rise 2.2s linear infinite;
+}
+
+.demo-rate-bubbles span:nth-child(odd) { left: 34%; }
+.demo-rate-bubbles span:nth-child(even) { left: 58%; }
+
+.demo-scene-inference .demo-card-grid,
+.demo-card-grid span,
+.demo-link-lines span,
+.demo-focus-ring {
+  position: absolute;
+}
+
+.demo-card-grid {
+  inset: 54px 46px 54px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.demo-card-grid span {
+  position: relative;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(96, 165, 250, 0.18));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.demo-link-lines span {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.34);
+  animation: pulse-line 2.6s ease-in-out infinite;
+}
+
+.demo-link-lines span:nth-child(1) {
+  left: 36%;
+  top: 38%;
+  width: 28%;
+}
+
+.demo-link-lines span:nth-child(2) {
+  left: 28%;
+  top: 58%;
+  width: 40%;
+  animation-delay: -0.8s;
+}
+
+.demo-link-lines span:nth-child(3) {
+  left: 50%;
+  top: 26%;
+  width: 18%;
+  transform: rotate(90deg);
+  animation-delay: -1.3s;
+}
+
+.demo-focus-ring {
+  left: 50%;
+  top: 50%;
+  width: 110px;
+  height: 110px;
+  margin: -55px 0 0 -55px;
+  border-radius: 50%;
+  border: 3px solid rgba(251, 191, 36, 0.66);
+  box-shadow: 0 0 0 14px rgba(251, 191, 36, 0.08);
+  animation: ring-breathe 2.8s ease-in-out infinite;
+}
+
+.demo-stage-precipitate .demo-cloud-bloom,
+.demo-stage-precipitate .demo-dropper,
+.demo-stage-electroplate .demo-circuit,
+.demo-stage-distillation .demo-vapor-trail,
+.demo-stage-flame .demo-spark-field,
+.demo-stage-rate .demo-rate-bubbles {
+  opacity: 0.78;
+}
+
+@keyframes demo-level {
+  0%, 100% {
+    height: 52%;
+  }
+
+  50% {
+    height: 58%;
+  }
+}
+
+@keyframes demo-flicker {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-6px) scale(1.04, 1.08);
+  }
+}
+
+@keyframes demo-evaporate {
+  0%, 100% {
+    height: 58%;
+  }
+
+  50% {
+    height: 36%;
+  }
+}
+
+@keyframes crystal-grow {
+  0%, 20% {
+    opacity: 0.08;
+    transform: rotate(45deg) scale(0.68);
+  }
+
+  60%, 100% {
+    opacity: 0.9;
+    transform: rotate(45deg) scale(1);
+  }
+}
+
+@keyframes heat-wave {
+  0%, 100% {
+    transform: translateY(8px);
+    opacity: 0.24;
+  }
+
+  50% {
+    transform: translateY(-12px);
+    opacity: 0.72;
+  }
+}
+
+@keyframes drop-pulse {
+  0%, 100% {
+    transform: scaleY(0.72);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: scaleY(1);
+    opacity: 0.92;
+  }
+}
+
+@keyframes vapor-drift {
+  0% {
+    transform: translateX(0) translateY(0);
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.86;
+  }
+
+  100% {
+    transform: translateX(38px) translateY(-18px);
+    opacity: 0;
+  }
+}
+
+@keyframes copper-build {
+  0%, 18% {
+    opacity: 0.24;
+    transform: scaleY(0.36);
+    transform-origin: bottom;
+  }
+
+  60%, 100% {
+    opacity: 1;
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+}
+
+@keyframes pulse-line {
+  0%, 100% {
+    opacity: 0.22;
+  }
+
+  50% {
+    opacity: 0.84;
+  }
+}
+
+@keyframes ring-breathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
 }
 
 .timeline-card,

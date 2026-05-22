@@ -104,11 +104,257 @@ function buildFallbackSteps(experiment) {
   ];
 }
 
+function inferDemoKind(experiment) {
+  const slug = experiment.slug;
+
+  if (slug.includes("indicator")) {
+    return "indicator";
+  }
+
+  if (slug.includes("burning")) {
+    return "flame";
+  }
+
+  if (slug.includes("crystallization") || slug.includes("heating")) {
+    return "crystal";
+  }
+
+  if (slug.includes("precipitation") || slug.includes("hydroxide") || slug.includes("silver")) {
+    return "precipitate";
+  }
+
+  if (slug.includes("distillation")) {
+    return "distillation";
+  }
+
+  if (slug.includes("electroplating")) {
+    return "electroplate";
+  }
+
+  if (slug.includes("rate-control")) {
+    return "rate";
+  }
+
+  if (slug.includes("inference")) {
+    return "inference";
+  }
+
+  return "reaction";
+}
+
+function IndicatorScene() {
+  return (
+    <div className="demo-scene demo-scene-indicator">
+      {["pink", "violet", "amber"].map((tone, index) => (
+        <div className={`demo-tube demo-tube-${tone}`} key={tone} style={{ "--tube-index": index }}>
+          <span className="demo-tube-glass" />
+          <span className="demo-tube-liquid" />
+          <span className="demo-tube-badge" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FlameScene() {
+  return (
+    <div className="demo-scene demo-scene-flame">
+      <div className="demo-burner">
+        <span className="demo-burner-stem" />
+        <span className="demo-burner-base" />
+      </div>
+      <div className="demo-flame-stack">
+        <span className="demo-flame demo-flame-outer" />
+        <span className="demo-flame demo-flame-middle" />
+        <span className="demo-flame demo-flame-core" />
+      </div>
+      <div className="demo-spark-field">
+        {Array.from({ length: 7 }).map((_, index) => (
+          <span key={index} />
+        ))}
+      </div>
+      <div className="demo-metal-strip" />
+    </div>
+  );
+}
+
+function CrystalScene() {
+  return (
+    <div className="demo-scene demo-scene-crystal">
+      <div className="demo-dish">
+        <div className="demo-dish-liquid" />
+        <div className="demo-dish-crystals">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <span key={index} />
+          ))}
+        </div>
+      </div>
+      <div className="demo-heat-wave">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <span key={index} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PrecipitateScene() {
+  return (
+    <div className="demo-scene demo-scene-precipitate">
+      <div className="demo-mix-vessel">
+        <div className="demo-mix-liquid demo-mix-left" />
+        <div className="demo-mix-liquid demo-mix-right" />
+        <div className="demo-cloud-bloom">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <span key={index} />
+          ))}
+        </div>
+      </div>
+      <div className="demo-dropper" />
+    </div>
+  );
+}
+
+function DistillationScene() {
+  return (
+    <div className="demo-scene demo-scene-distillation">
+      <div className="demo-flask">
+        <div className="demo-flask-liquid" />
+      </div>
+      <div className="demo-condenser">
+        <span className="demo-condenser-tube" />
+        <span className="demo-condenser-flow" />
+      </div>
+      <div className="demo-receiver">
+        <div className="demo-receiver-liquid" />
+      </div>
+      <div className="demo-vapor-trail">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <span key={index} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ElectroplateScene() {
+  return (
+    <div className="demo-scene demo-scene-electroplate">
+      <div className="demo-cell">
+        <div className="demo-cell-liquid" />
+        <span className="demo-electrode demo-electrode-left" />
+        <span className="demo-electrode demo-electrode-right" />
+        <span className="demo-copper-coat" />
+      </div>
+      <div className="demo-circuit">
+        <span className="demo-wire demo-wire-left" />
+        <span className="demo-wire demo-wire-right" />
+        <span className="demo-battery" />
+      </div>
+    </div>
+  );
+}
+
+function RateScene() {
+  return (
+    <div className="demo-scene demo-scene-rate">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div className="demo-rate-vessel" key={index}>
+          <span className="demo-rate-label">{index + 1}</span>
+          <div className="demo-rate-liquid" />
+          <div className="demo-rate-bubbles">
+            {Array.from({ length: 4 + index * 2 }).map((__, bubbleIndex) => (
+              <span key={bubbleIndex} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function InferenceScene() {
+  return (
+    <div className="demo-scene demo-scene-inference">
+      <div className="demo-card-grid">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <span key={index} />
+        ))}
+      </div>
+      <div className="demo-link-lines">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="demo-focus-ring" />
+    </div>
+  );
+}
+
+function ReactionScene() {
+  return (
+    <div className="demo-scene demo-scene-reaction">
+      <div className="demo-stage-orbit" />
+      <div className="demo-vessel demo-vessel-left">
+        <div className="demo-liquid demo-liquid-left" />
+        <div className="demo-sediment">
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
+
+      <div className="demo-stage-bridge">
+        <span className="demo-bridge-dot" />
+      </div>
+
+      <div className="demo-vessel demo-vessel-right">
+        <div className="demo-liquid demo-liquid-right" />
+        <div className="demo-vapor">
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
+
+      <div className="demo-particles">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <span key={index} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function renderScene(kind) {
+  switch (kind) {
+    case "indicator":
+      return <IndicatorScene />;
+    case "flame":
+      return <FlameScene />;
+    case "crystal":
+      return <CrystalScene />;
+    case "precipitate":
+      return <PrecipitateScene />;
+    case "distillation":
+      return <DistillationScene />;
+    case "electroplate":
+      return <ElectroplateScene />;
+    case "rate":
+      return <RateScene />;
+    case "inference":
+      return <InferenceScene />;
+    default:
+      return <ReactionScene />;
+  }
+}
+
 export function ExperimentPlaybackDemo({ experiment }) {
   const demoSteps = experiment.demoSteps?.length ? experiment.demoSteps : buildFallbackSteps(experiment);
   const [stepIndex, setStepIndex] = useState(0);
 
   const theme = themeByLevel[experiment.levelKey] ?? themeByLevel.intermediate;
+  const demoKind = inferDemoKind(experiment);
 
   const phase = useMemo(() => {
     if (stepIndex === 0) {
@@ -152,7 +398,7 @@ export function ExperimentPlaybackDemo({ experiment }) {
   return (
     <section className="lab-demo-panel generic-demo-panel">
       <div
-        className={`demo-stage demo-phase-${phase}`}
+        className={`demo-stage demo-stage-${demoKind} demo-phase-${phase}`}
         style={{
           "--demo-left": theme.left,
           "--demo-right": theme.right,
@@ -160,34 +406,7 @@ export function ExperimentPlaybackDemo({ experiment }) {
           "--demo-accent": theme.accent
         }}
       >
-        <div className="demo-stage-orbit" />
-        <div className="demo-vessel demo-vessel-left">
-          <div className="demo-liquid demo-liquid-left" />
-          <div className="demo-sediment">
-            <span />
-            <span />
-            <span />
-          </div>
-        </div>
-
-        <div className="demo-stage-bridge">
-          <span className="demo-bridge-dot" />
-        </div>
-
-        <div className="demo-vessel demo-vessel-right">
-          <div className="demo-liquid demo-liquid-right" />
-          <div className="demo-vapor">
-            <span />
-            <span />
-            <span />
-          </div>
-        </div>
-
-        <div className="demo-particles">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <span key={index} />
-          ))}
-        </div>
+        {renderScene(demoKind)}
       </div>
 
       <div className="lab-demo-copy">
