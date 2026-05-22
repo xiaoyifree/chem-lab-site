@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CarbonDioxideLabDemo, carbonDioxideDemoSteps } from "@/components/carbon-dioxide-lab-demo";
 import {
   ExperimentPlaybackDemo,
   getDemoStepsForExperiment
@@ -127,10 +126,7 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
   const experimentCode = getExperimentCode(selectedExperiment);
   const knowledgeItems = getKnowledgeItems(selectedExperiment);
   const teacherPrompts = selectedExperiment.teacherPrompt ?? selectedExperiment.practice;
-  const demoSteps =
-    selectedExperiment.slug === "carbon-dioxide-preparation"
-      ? carbonDioxideDemoSteps
-      : getDemoStepsForExperiment(selectedExperiment);
+  const demoSteps = getDemoStepsForExperiment(selectedExperiment);
   const currentStep = demoSteps[Math.min(stepIndex, demoSteps.length - 1)];
 
   const handleSelect = (slug) => {
@@ -216,24 +212,14 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
 
           <section className="lab-console-grid">
             <div className="lab-visual-card">
-              {selectedExperiment.slug === "carbon-dioxide-preparation" ? (
-                <CarbonDioxideLabDemo
-                  onAdvance={handleAdvance}
-                  onReset={handleReset}
-                  showControls={false}
-                  showCopy={false}
-                  stepIndex={stepIndex}
-                />
-              ) : (
-                <ExperimentPlaybackDemo
-                  experiment={selectedExperiment}
-                  onAdvance={handleAdvance}
-                  onReset={handleReset}
-                  showControls={false}
-                  showCopy={false}
-                  stepIndex={stepIndex}
-                />
-              )}
+              <ExperimentPlaybackDemo
+                experiment={selectedExperiment}
+                onAdvance={handleAdvance}
+                onReset={handleReset}
+                showControls={false}
+                showCopy={false}
+                stepIndex={stepIndex}
+              />
             </div>
 
             <div className="lab-side-stack">

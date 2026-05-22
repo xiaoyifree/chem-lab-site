@@ -119,7 +119,7 @@ function CarbonDioxideExperimentPage({ experiment }) {
             <strong>{experiment.equation}</strong>
           </div>
         </div>
-        <CarbonDioxideLabDemo />
+        <CarbonDioxideLabDemo experiment={experiment} />
       </section>
 
       <section className="immersive-overview">

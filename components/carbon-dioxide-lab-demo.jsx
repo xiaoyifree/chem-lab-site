@@ -1,167 +1,68 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  ExperimentAnimationStage,
+  themeByLevel,
+  useExperimentPlaybackController
+} from "@/components/experiment-animation-system";
 
-export const carbonDioxideDemoSteps = [
-  {
-    title: "加入大理石",
-    note: "锥形瓶中先放入块状碳酸钙，为反应提供稳定表面积。"
-  },
-  {
-    title: "滴加稀盐酸",
-    note: "酸液接触碳酸钙后开始放出二氧化碳，锥形瓶内出现持续气泡。"
-  },
-  {
-    title: "导入石灰水",
-    note: "气体通过导管进入澄清石灰水，逐渐使其变浑浊。"
-  },
-  {
-    title: "完成检验",
-    note: "石灰水明显浑浊，说明我们得到并确认了二氧化碳。"
-  }
-];
-
-let demoAudioContext = null;
-
-function getAudioContext() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  if (!demoAudioContext) {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-
-    if (!AudioContextClass) {
-      return null;
+const carbonDioxideExperimentFallback = {
+  slug: "carbon-dioxide-preparation",
+  levelKey: "intermediate",
+  materials: ["大理石", "稀盐酸", "锥形瓶", "导管", "澄清石灰水"],
+  steps: ["加入大理石", "滴加稀盐酸", "导入石灰水", "完成检验"],
+  demoSteps: [
+    {
+      title: "加入大理石",
+      note: "锥形瓶中先放入块状碳酸钙，为反应提供稳定表面积。"
+    },
+    {
+      title: "滴加稀盐酸",
+      note: "酸液接触碳酸钙后开始放出二氧化碳，锥形瓶内出现持续气泡。"
+    },
+    {
+      title: "导入石灰水",
+      note: "气体通过导管进入澄清石灰水，逐渐使其变浑浊。"
+    },
+    {
+      title: "完成检验",
+      note: "石灰水明显浑浊，说明我们得到并确认了二氧化碳。"
     }
+  ]
+};
 
-    demoAudioContext = new AudioContextClass();
-  }
-
-  return demoAudioContext;
-}
-
-function playTone(type) {
-  const context = getAudioContext();
-
-  if (!context) {
-    return;
-  }
-
-  const oscillator = context.createOscillator();
-  const gainNode = context.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(context.destination);
-
-  if (type === "fizz") {
-    oscillator.type = "triangle";
-    oscillator.frequency.setValueAtTime(420, context.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(130, context.currentTime + 0.18);
-    gainNode.gain.setValueAtTime(0.0001, context.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.06, context.currentTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.18);
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.2);
-    return;
-  }
-
-  oscillator.type = "sine";
-  oscillator.frequency.setValueAtTime(600, context.currentTime);
-  oscillator.frequency.exponentialRampToValueAtTime(900, context.currentTime + 0.12);
-  gainNode.gain.setValueAtTime(0.0001, context.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.05, context.currentTime + 0.02);
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.12);
-  oscillator.start();
-  oscillator.stop(context.currentTime + 0.14);
-}
+export const carbonDioxideDemoSteps = carbonDioxideExperimentFallback.demoSteps;
 
 export function CarbonDioxideLabDemo({
+  experiment = carbonDioxideExperimentFallback,
   stepIndex: controlledStepIndex,
   onAdvance,
   onReset,
   showControls = true,
   showCopy = true
 }) {
-  const [localStepIndex, setLocalStepIndex] = useState(0);
-  const stepIndex = controlledStepIndex ?? localStepIndex;
-
-  const phase = useMemo(() => {
-    if (stepIndex === 0) {
-      return "idle";
-    }
-
-    if (stepIndex === 1) {
-      return "reacting";
-    }
-
-    if (stepIndex === 2) {
-      return "transferring";
-    }
-
-    return "verified";
-  }, [stepIndex]);
-
-  const handleAdvance = async () => {
-    const context = getAudioContext();
-
-    if (context?.state === "suspended") {
-      await context.resume();
-    }
-
-    const nextStep = Math.min(carbonDioxideDemoSteps.length - 1, stepIndex + 1);
-    if (onAdvance) {
-      onAdvance(nextStep);
-    } else {
-      setLocalStepIndex(nextStep);
-    }
-    playTone(nextStep >= 1 ? "fizz" : "click");
+  const mergedExperiment = {
+    ...carbonDioxideExperimentFallback,
+    ...experiment,
+    demoSteps: experiment.demoSteps?.length ? experiment.demoSteps : carbonDioxideExperimentFallback.demoSteps
   };
 
-  const handleReset = async () => {
-    const context = getAudioContext();
-
-    if (context?.state === "suspended") {
-      await context.resume();
-    }
-
-    if (onReset) {
-      onReset();
-    } else {
-      setLocalStepIndex(0);
-    }
-    playTone("click");
-  };
+  const theme = themeByLevel[mergedExperiment.levelKey] ?? themeByLevel.intermediate;
+  const { stepIndex, handleAdvance, handleReset } = useExperimentPlaybackController({
+    steps: mergedExperiment.demoSteps,
+    controlledStepIndex,
+    onAdvance,
+    onReset,
+    toneOnAdvance: "fizz"
+  });
 
   const stage = (
-    <div className={`lab-stage phase-${phase}`}>
-      <div className="lab-beaker lab-beaker-left">
-        <div className="lab-liquid lab-liquid-reactant" />
-        <div className="lab-rocks">
-          <span />
-          <span />
-          <span />
-        </div>
-        <div className="lab-bubbles">
-          {Array.from({ length: 9 }).map((_, index) => (
-            <span key={index} />
-          ))}
-        </div>
-      </div>
-
-      <div className="lab-transfer-line">
-        <span className="lab-flow-dot" />
-      </div>
-
-      <div className="lab-beaker lab-beaker-right">
-        <div className="lab-liquid lab-liquid-limewater" />
-        <div className="lab-clouds">
-          <span />
-          <span />
-          <span />
-        </div>
-      </div>
-    </div>
+    <ExperimentAnimationStage
+      experiment={mergedExperiment}
+      kindOverride="fizz-transfer"
+      stepIndex={stepIndex}
+      totalSteps={mergedExperiment.demoSteps.length}
+    />
   );
 
   if (!showCopy) {
@@ -174,11 +75,18 @@ export function CarbonDioxideLabDemo({
 
       <div className="lab-demo-copy">
         <p className="eyebrow">Live Demo</p>
-        <h3>{carbonDioxideDemoSteps[stepIndex].title}</h3>
-        <p>{carbonDioxideDemoSteps[stepIndex].note}</p>
+        <h3>{mergedExperiment.demoSteps[stepIndex].title}</h3>
+        <p>{mergedExperiment.demoSteps[stepIndex].note}</p>
         {showControls ? (
           <div className="lab-demo-actions">
-            <button className="button button-primary" onClick={handleAdvance} type="button">
+            <button
+              className="button button-primary"
+              onClick={handleAdvance}
+              style={{
+                background: `linear-gradient(135deg, ${theme.left}, ${theme.right})`
+              }}
+              type="button"
+            >
               下一阶段
             </button>
             <button className="button button-secondary" onClick={handleReset} type="button">
