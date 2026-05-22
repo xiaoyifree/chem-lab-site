@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-const flowSteps = [
+export const carbonDioxideDemoSteps = [
   {
     title: "加入大理石",
     note: "锥形瓶中先放入块状碳酸钙，为反应提供稳定表面积。"
@@ -76,8 +76,15 @@ function playTone(type) {
   oscillator.stop(context.currentTime + 0.14);
 }
 
-export function CarbonDioxideLabDemo() {
-  const [stepIndex, setStepIndex] = useState(0);
+export function CarbonDioxideLabDemo({
+  stepIndex: controlledStepIndex,
+  onAdvance,
+  onReset,
+  showControls = true,
+  showCopy = true
+}) {
+  const [localStepIndex, setLocalStepIndex] = useState(0);
+  const stepIndex = controlledStepIndex ?? localStepIndex;
 
   const phase = useMemo(() => {
     if (stepIndex === 0) {
@@ -102,8 +109,12 @@ export function CarbonDioxideLabDemo() {
       await context.resume();
     }
 
-    const nextStep = Math.min(flowSteps.length - 1, stepIndex + 1);
-    setStepIndex(nextStep);
+    const nextStep = Math.min(carbonDioxideDemoSteps.length - 1, stepIndex + 1);
+    if (onAdvance) {
+      onAdvance(nextStep);
+    } else {
+      setLocalStepIndex(nextStep);
+    }
     playTone(nextStep >= 1 ? "fizz" : "click");
   };
 
@@ -114,53 +125,67 @@ export function CarbonDioxideLabDemo() {
       await context.resume();
     }
 
-    setStepIndex(0);
+    if (onReset) {
+      onReset();
+    } else {
+      setLocalStepIndex(0);
+    }
     playTone("click");
   };
 
-  return (
-    <section className="lab-demo-panel">
-      <div className={`lab-stage phase-${phase}`}>
-        <div className="lab-beaker lab-beaker-left">
-          <div className="lab-liquid lab-liquid-reactant" />
-          <div className="lab-rocks">
-            <span />
-            <span />
-            <span />
-          </div>
-          <div className="lab-bubbles">
-            {Array.from({ length: 9 }).map((_, index) => (
-              <span key={index} />
-            ))}
-          </div>
+  const stage = (
+    <div className={`lab-stage phase-${phase}`}>
+      <div className="lab-beaker lab-beaker-left">
+        <div className="lab-liquid lab-liquid-reactant" />
+        <div className="lab-rocks">
+          <span />
+          <span />
+          <span />
         </div>
-
-        <div className="lab-transfer-line">
-          <span className="lab-flow-dot" />
-        </div>
-
-        <div className="lab-beaker lab-beaker-right">
-          <div className="lab-liquid lab-liquid-limewater" />
-          <div className="lab-clouds">
-            <span />
-            <span />
-            <span />
-          </div>
+        <div className="lab-bubbles">
+          {Array.from({ length: 9 }).map((_, index) => (
+            <span key={index} />
+          ))}
         </div>
       </div>
 
+      <div className="lab-transfer-line">
+        <span className="lab-flow-dot" />
+      </div>
+
+      <div className="lab-beaker lab-beaker-right">
+        <div className="lab-liquid lab-liquid-limewater" />
+        <div className="lab-clouds">
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
+    </div>
+  );
+
+  if (!showCopy) {
+    return <div className="experiment-visual-shell">{stage}</div>;
+  }
+
+  return (
+    <section className="lab-demo-panel">
+      {stage}
+
       <div className="lab-demo-copy">
         <p className="eyebrow">Live Demo</p>
-        <h3>{flowSteps[stepIndex].title}</h3>
-        <p>{flowSteps[stepIndex].note}</p>
-        <div className="lab-demo-actions">
-          <button className="button button-primary" onClick={handleAdvance} type="button">
-            下一阶段
-          </button>
-          <button className="button button-secondary" onClick={handleReset} type="button">
-            重新演示
-          </button>
-        </div>
+        <h3>{carbonDioxideDemoSteps[stepIndex].title}</h3>
+        <p>{carbonDioxideDemoSteps[stepIndex].note}</p>
+        {showControls ? (
+          <div className="lab-demo-actions">
+            <button className="button button-primary" onClick={handleAdvance} type="button">
+              下一阶段
+            </button>
+            <button className="button button-secondary" onClick={handleReset} type="button">
+              重新演示
+            </button>
+          </div>
+        ) : null}
       </div>
     </section>
   );

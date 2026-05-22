@@ -104,6 +104,10 @@ function buildFallbackSteps(experiment) {
   ];
 }
 
+export function getDemoStepsForExperiment(experiment) {
+  return experiment.demoSteps?.length ? experiment.demoSteps : buildFallbackSteps(experiment);
+}
+
 function inferDemoKind(experiment) {
   const slug = experiment.slug;
 
@@ -349,9 +353,17 @@ function renderScene(kind) {
   }
 }
 
-export function ExperimentPlaybackDemo({ experiment }) {
-  const demoSteps = experiment.demoSteps?.length ? experiment.demoSteps : buildFallbackSteps(experiment);
-  const [stepIndex, setStepIndex] = useState(0);
+export function ExperimentPlaybackDemo({
+  experiment,
+  stepIndex: controlledStepIndex,
+  onAdvance,
+  onReset,
+  showControls = true,
+  showCopy = true
+}) {
+  const demoSteps = getDemoStepsForExperiment(experiment);
+  const [localStepIndex, setLocalStepIndex] = useState(0);
+  const stepIndex = controlledStepIndex ?? localStepIndex;
 
   const theme = themeByLevel[experiment.levelKey] ?? themeByLevel.intermediate;
   const demoKind = inferDemoKind(experiment);
@@ -380,7 +392,11 @@ export function ExperimentPlaybackDemo({ experiment }) {
     }
 
     const nextStep = Math.min(demoSteps.length - 1, stepIndex + 1);
-    setStepIndex(nextStep);
+    if (onAdvance) {
+      onAdvance(nextStep);
+    } else {
+      setLocalStepIndex(nextStep);
+    }
     playTone(nextStep >= 1 ? "react" : "click");
   };
 
@@ -391,23 +407,35 @@ export function ExperimentPlaybackDemo({ experiment }) {
       await context.resume();
     }
 
-    setStepIndex(0);
+    if (onReset) {
+      onReset();
+    } else {
+      setLocalStepIndex(0);
+    }
     playTone("click");
   };
 
+  const stage = (
+    <div
+      className={`demo-stage demo-stage-${demoKind} demo-phase-${phase}`}
+      style={{
+        "--demo-left": theme.left,
+        "--demo-right": theme.right,
+        "--demo-glow": theme.glow,
+        "--demo-accent": theme.accent
+      }}
+    >
+      {renderScene(demoKind)}
+    </div>
+  );
+
+  if (!showCopy) {
+    return <div className="experiment-visual-shell">{stage}</div>;
+  }
+
   return (
     <section className="lab-demo-panel generic-demo-panel">
-      <div
-        className={`demo-stage demo-stage-${demoKind} demo-phase-${phase}`}
-        style={{
-          "--demo-left": theme.left,
-          "--demo-right": theme.right,
-          "--demo-glow": theme.glow,
-          "--demo-accent": theme.accent
-        }}
-      >
-        {renderScene(demoKind)}
-      </div>
+      {stage}
 
       <div className="lab-demo-copy">
         <p className="eyebrow">Live Demo</p>
@@ -420,14 +448,16 @@ export function ExperimentPlaybackDemo({ experiment }) {
             </span>
           ))}
         </div>
-        <div className="lab-demo-actions">
-          <button className="button button-primary" onClick={handleAdvance} type="button">
-            下一阶段
-          </button>
-          <button className="button button-secondary" onClick={handleReset} type="button">
-            重新演示
-          </button>
-        </div>
+        {showControls ? (
+          <div className="lab-demo-actions">
+            <button className="button button-primary" onClick={handleAdvance} type="button">
+              下一阶段
+            </button>
+            <button className="button button-secondary" onClick={handleReset} type="button">
+              重新演示
+            </button>
+          </div>
+        ) : null}
       </div>
     </section>
   );

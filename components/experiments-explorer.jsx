@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CarbonDioxideLabDemo } from "@/components/carbon-dioxide-lab-demo";
-import { ExperimentPlaybackDemo } from "@/components/experiment-playback-demo";
+import { CarbonDioxideLabDemo, carbonDioxideDemoSteps } from "@/components/carbon-dioxide-lab-demo";
+import {
+  ExperimentPlaybackDemo,
+  getDemoStepsForExperiment
+} from "@/components/experiment-playback-demo";
 
 function getInitialSlug(experiments, defaultSlug) {
   if (typeof window === "undefined") {
@@ -13,8 +16,90 @@ function getInitialSlug(experiments, defaultSlug) {
   return experiments.some((experiment) => experiment.slug === hashSlug) ? hashSlug : defaultSlug;
 }
 
+function getExperimentCode(experiment) {
+  const slug = experiment.slug;
+
+  if (slug.includes("carbon-dioxide")) return "FIZZ";
+  if (slug.includes("indicator")) return "PH";
+  if (slug.includes("iron") || slug.includes("copper")) return "RUST";
+  if (slug.includes("magnesium")) return "FLAME";
+  if (slug.includes("precipitation") || slug.includes("hydroxide") || slug.includes("silver")) return "CLOUD";
+  if (slug.includes("crystallization") || slug.includes("heating")) return "CRYSTAL";
+  if (slug.includes("distillation")) return "DISTILL";
+  if (slug.includes("electroplating")) return "PLATE";
+  if (slug.includes("rate-control")) return "RATE";
+  if (slug.includes("inference")) return "INFER";
+
+  return "LAB";
+}
+
+function getExperimentTone(experiment) {
+  if (experiment.levelKey === "advanced") {
+    return {
+      accent: "#ffb703",
+      soft: "rgba(255, 183, 3, 0.16)",
+      strong: "rgba(255, 183, 3, 0.32)",
+      card: "linear-gradient(135deg, rgba(255, 183, 3, 0.24), rgba(255, 122, 0, 0.16))"
+    };
+  }
+
+  if (experiment.slug.includes("carbon-dioxide")) {
+    return {
+      accent: "#3ddc97",
+      soft: "rgba(61, 220, 151, 0.16)",
+      strong: "rgba(61, 220, 151, 0.34)",
+      card: "linear-gradient(135deg, rgba(61, 220, 151, 0.26), rgba(54, 99, 255, 0.18))"
+    };
+  }
+
+  if (
+    experiment.slug.includes("precipitation") ||
+    experiment.slug.includes("hydroxide") ||
+    experiment.slug.includes("silver")
+  ) {
+    return {
+      accent: "#5ea2ff",
+      soft: "rgba(94, 162, 255, 0.16)",
+      strong: "rgba(94, 162, 255, 0.34)",
+      card: "linear-gradient(135deg, rgba(94, 162, 255, 0.24), rgba(174, 139, 255, 0.16))"
+    };
+  }
+
+  if (experiment.slug.includes("magnesium") || experiment.slug.includes("burning")) {
+    return {
+      accent: "#ff8a4c",
+      soft: "rgba(255, 138, 76, 0.16)",
+      strong: "rgba(255, 138, 76, 0.34)",
+      card: "linear-gradient(135deg, rgba(255, 138, 76, 0.26), rgba(255, 213, 79, 0.18))"
+    };
+  }
+
+  return {
+    accent: experiment.levelKey === "beginner" ? "#2dd4bf" : "#60a5fa",
+    soft: experiment.levelKey === "beginner" ? "rgba(45, 212, 191, 0.16)" : "rgba(96, 165, 250, 0.16)",
+    strong:
+      experiment.levelKey === "beginner" ? "rgba(45, 212, 191, 0.34)" : "rgba(96, 165, 250, 0.34)",
+    card:
+      experiment.levelKey === "beginner"
+        ? "linear-gradient(135deg, rgba(45, 212, 191, 0.22), rgba(54, 99, 255, 0.14))"
+        : "linear-gradient(135deg, rgba(96, 165, 250, 0.22), rgba(99, 102, 241, 0.16))"
+  };
+}
+
+function getKnowledgeItems(experiment) {
+  return (
+    experiment.knowledge ?? [
+      `这个实验属于${experiment.level}内容，重点是把“现象”和“化学解释”对齐。`,
+      `核心反应：${experiment.equation}`,
+      "建议先做现象观察，再引导学生归纳条件、产物和安全要求。"
+    ]
+  );
+}
+
 export function ExperimentsExplorer({ experiments, defaultSlug }) {
   const [selectedSlug, setSelectedSlug] = useState(() => getInitialSlug(experiments, defaultSlug));
+  const [activeTab, setActiveTab] = useState("steps");
+  const [stepIndex, setStepIndex] = useState(0);
 
   useEffect(() => {
     const onHashChange = () => {
@@ -33,6 +118,21 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
     return experiments.find((experiment) => experiment.slug === selectedSlug) ?? experiments[0];
   }, [experiments, selectedSlug]);
 
+  useEffect(() => {
+    setStepIndex(0);
+    setActiveTab("steps");
+  }, [selectedExperiment.slug]);
+
+  const tone = getExperimentTone(selectedExperiment);
+  const experimentCode = getExperimentCode(selectedExperiment);
+  const knowledgeItems = getKnowledgeItems(selectedExperiment);
+  const teacherPrompts = selectedExperiment.teacherPrompt ?? selectedExperiment.practice;
+  const demoSteps =
+    selectedExperiment.slug === "carbon-dioxide-preparation"
+      ? carbonDioxideDemoSteps
+      : getDemoStepsForExperiment(selectedExperiment);
+  const currentStep = demoSteps[Math.min(stepIndex, demoSteps.length - 1)];
+
   const handleSelect = (slug) => {
     setSelectedSlug(slug);
 
@@ -41,37 +141,52 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
     }
   };
 
-  const knowledgeItems = selectedExperiment.knowledge ?? [
-    `这个实验属于${selectedExperiment.level}内容，重点是理解“现象”和“化学解释”的对应关系。`,
-    `方程式：${selectedExperiment.equation}`,
-    "建议先做现象观察，再引导学生归纳反应条件、产物特征和安全要求。"
-  ];
+  const handleAdvance = (nextStep) => {
+    setStepIndex(nextStep);
+  };
 
-  const teacherPrompts = selectedExperiment.teacherPrompt ?? selectedExperiment.practice;
+  const handleReset = () => {
+    setStepIndex(0);
+  };
+
+  const handleStepChange = (nextStep) => {
+    setStepIndex(nextStep);
+  };
 
   return (
-    <div className="explorer-shell">
-      <aside className="explorer-sidebar">
-        <div className="section-heading">
+    <div className="explorer-shell explorer-shell-lab">
+      <aside className="explorer-sidebar explorer-sidebar-lab">
+        <div className="section-heading section-heading-lab">
           <p className="eyebrow">Experiment Switcher</p>
           <h2>选择实验</h2>
           <p className="lede">
-            前期先把实验内容稳定放进同一个页面里，避免 GitHub Pages 上的多路由问题，同时保留强视觉和课堂演示感。
+            先把实验稳定放在同一页里切换，再把每个实验做成更完整的课堂演示控制台。
           </p>
         </div>
 
-        <div className="explorer-list">
+        <div className="explorer-list explorer-list-lab">
           {experiments.map((experiment) => {
             const isActive = experiment.slug === selectedExperiment.slug;
 
             return (
               <button
-                className={`explorer-item ${isActive ? "explorer-item-active" : ""}`}
+                className={`explorer-item explorer-item-lab ${isActive ? "explorer-item-lab-active" : ""}`}
                 key={experiment.slug}
                 onClick={() => handleSelect(experiment.slug)}
+                style={
+                  isActive
+                    ? {
+                        "--item-accent": tone.accent,
+                        "--item-soft": tone.soft
+                      }
+                    : undefined
+                }
                 type="button"
               >
-                <div className={`level-badge ${experiment.badgeClass}`}>{experiment.level}</div>
+                <div className="explorer-item-topline">
+                  <div className={`level-badge ${experiment.badgeClass}`}>{experiment.level}</div>
+                  <span className="explorer-item-code">{getExperimentCode(experiment)}</span>
+                </div>
                 <h3>{experiment.title}</h3>
                 <p>{experiment.summary}</p>
                 <span className="explorer-cta">{isActive ? "当前实验" : "切换查看"}</span>
@@ -81,94 +196,189 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
         </div>
       </aside>
 
-      <section className="explorer-stage">
-        <div className="immersive-hero explorer-hero">
-          <div className="immersive-copy">
-            <p className="eyebrow">Lab Showcase</p>
-            <div className={`level-badge ${selectedExperiment.badgeClass}`}>{selectedExperiment.level}</div>
-            <h1>{selectedExperiment.title}</h1>
-            <p className="lede">{selectedExperiment.subtitle || selectedExperiment.summary}</p>
-            <div className="chip-row">
-              {(selectedExperiment.highlights || selectedExperiment.tags).map((item) => (
-                <span className="chip" key={item}>
-                  {item}
-                </span>
-              ))}
+      <section className="explorer-stage explorer-stage-lab">
+        <article className="lab-console" style={{ "--console-accent": tone.accent, "--console-soft": tone.soft }}>
+          <header className="lab-console-head">
+            <div className="lab-console-title">
+              <div className="lab-console-labels">
+                <span className={`level-badge ${selectedExperiment.badgeClass}`}>{selectedExperiment.level}</span>
+                <span className="lab-console-code">{experimentCode}</span>
+              </div>
+              <h1>{selectedExperiment.title}</h1>
+              <p>{selectedExperiment.subtitle || selectedExperiment.summary}</p>
             </div>
-            <div className="equation-panel">
-              <span className="equation-label">核心方程式</span>
-              <strong>{selectedExperiment.equation}</strong>
+          </header>
+
+          <section className="lab-equation-bar" style={{ "--equation-card": tone.card }}>
+            <span className="lab-equation-caption">化学方程式</span>
+            <strong>{selectedExperiment.equation}</strong>
+          </section>
+
+          <section className="lab-console-grid">
+            <div className="lab-visual-card">
+              {selectedExperiment.slug === "carbon-dioxide-preparation" ? (
+                <CarbonDioxideLabDemo
+                  onAdvance={handleAdvance}
+                  onReset={handleReset}
+                  showControls={false}
+                  showCopy={false}
+                  stepIndex={stepIndex}
+                />
+              ) : (
+                <ExperimentPlaybackDemo
+                  experiment={selectedExperiment}
+                  onAdvance={handleAdvance}
+                  onReset={handleReset}
+                  showControls={false}
+                  showCopy={false}
+                  stepIndex={stepIndex}
+                />
+              )}
             </div>
+
+            <div className="lab-side-stack">
+              <section className="lab-side-card lab-side-summary">
+                <p>{selectedExperiment.objective}</p>
+              </section>
+
+              <section className="lab-side-card lab-progress-card">
+                <div className="lab-progress-head">
+                  <span>步骤进度</span>
+                  <strong>
+                    {stepIndex + 1}/{demoSteps.length}
+                  </strong>
+                </div>
+                <div
+                  className="lab-progress-track"
+                  style={{ gridTemplateColumns: `repeat(${demoSteps.length}, minmax(0, 1fr))` }}
+                >
+                  {demoSteps.map((step, index) => (
+                    <button
+                      aria-label={`跳到${step.title}`}
+                      className={`lab-progress-dot ${index <= stepIndex ? "lab-progress-dot-active" : ""}`}
+                      key={step.title}
+                      onClick={() => handleStepChange(index)}
+                      type="button"
+                    />
+                  ))}
+                </div>
+
+                <div className="lab-step-focus">
+                  <h3>
+                    步骤 {stepIndex + 1}：{currentStep.title}
+                  </h3>
+                  <p>{currentStep.note}</p>
+                </div>
+
+                <div className="lab-step-actions">
+                  <button
+                    className="lab-step-button lab-step-button-muted"
+                    disabled={stepIndex === 0}
+                    onClick={() => handleStepChange(Math.max(0, stepIndex - 1))}
+                    type="button"
+                  >
+                    ← 上一步
+                  </button>
+                  <button
+                    className="lab-step-button"
+                    disabled={stepIndex === demoSteps.length - 1}
+                    onClick={() => handleStepChange(Math.min(demoSteps.length - 1, stepIndex + 1))}
+                    type="button"
+                  >
+                    下一阶段 →
+                  </button>
+                </div>
+                <button className="lab-reset-button" onClick={handleReset} type="button">
+                  重新演示
+                </button>
+              </section>
+            </div>
+          </section>
+
+          <div className="lab-tab-row">
+            {[
+              { key: "steps", label: "📋 全部步骤" },
+              { key: "knowledge", label: "💡 知识点" },
+              { key: "safety", label: "⚠️ 安全" }
+            ].map((tab) => (
+              <button
+                className={`lab-tab ${activeTab === tab.key ? "lab-tab-active" : ""}`}
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                type="button"
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          {selectedExperiment.slug === "carbon-dioxide-preparation" ? (
-            <CarbonDioxideLabDemo />
-          ) : (
-            <ExperimentPlaybackDemo experiment={selectedExperiment} />
-          )}
-        </div>
-
-        <div className="explorer-detail-grid">
-          <article className="detail-card timeline-card">
-            <p className="eyebrow">Procedure</p>
-            <h2>操作步骤</h2>
-            <ol className="detail-list detail-list-numbered">
-              {selectedExperiment.steps.map((item) => (
-                <li key={item}>{item}</li>
+          {activeTab === "steps" ? (
+            <div className="lab-step-grid">
+              {demoSteps.map((step, index) => (
+                <button
+                  className={`lab-step-card ${index === stepIndex ? "lab-step-card-active" : ""}`}
+                  key={step.title}
+                  onClick={() => handleStepChange(index)}
+                  type="button"
+                >
+                  <div className="lab-step-card-index">{index + 1}</div>
+                  <div className="lab-step-card-copy">
+                    <h3>{step.title}</h3>
+                    <p>{step.note}</p>
+                  </div>
+                </button>
               ))}
-            </ol>
-          </article>
+            </div>
+          ) : null}
 
-          <article className="detail-card materials-card">
-            <p className="eyebrow">Materials</p>
-            <h2>器材与药品</h2>
-            <ul className="detail-list">
-              {selectedExperiment.materials.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </article>
+          {activeTab === "knowledge" ? (
+            <div className="lab-info-grid">
+              <article className="lab-info-card">
+                <p className="lab-info-eyebrow">Knowledge</p>
+                <h3>知识拓展</h3>
+                <ul>
+                  {knowledgeItems.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
 
-          <article className="detail-card">
-            <p className="eyebrow">Observation</p>
-            <h2>现象说明</h2>
-            <p>{selectedExperiment.observation}</p>
-            <p>
-              <strong>实验目标：</strong>
-              {selectedExperiment.objective}
-            </p>
-          </article>
+              <article className="lab-info-card">
+                <p className="lab-info-eyebrow">Prompt</p>
+                <h3>课堂提问</h3>
+                <ul>
+                  {teacherPrompts.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
+            </div>
+          ) : null}
 
-          <article className="detail-card safety-card">
-            <p className="eyebrow">Safety</p>
-            <h2>安全提示</h2>
-            <ul className="detail-list">
-              {selectedExperiment.safetyNotes.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </article>
+          {activeTab === "safety" ? (
+            <div className="lab-info-grid">
+              <article className="lab-info-card lab-info-card-warning">
+                <p className="lab-info-eyebrow">Safety</p>
+                <h3>安全提示</h3>
+                <ul>
+                  {selectedExperiment.safetyNotes.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
 
-          <article className="detail-card knowledge-card">
-            <p className="eyebrow">Knowledge</p>
-            <h2>知识拓展</h2>
-            <ul className="detail-list">
-              {knowledgeItems.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </article>
-
-          <article className="detail-card teacher-card">
-            <p className="eyebrow">Prompt</p>
-            <h2>课堂提问</h2>
-            <ul className="detail-list">
-              {teacherPrompts.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </article>
-        </div>
+              <article className="lab-info-card">
+                <p className="lab-info-eyebrow">Materials</p>
+                <h3>器材与药品</h3>
+                <ul>
+                  {selectedExperiment.materials.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
+            </div>
+          ) : null}
+        </article>
       </section>
     </div>
   );
