@@ -30,6 +30,16 @@ const motionProfileByKind = {
     emphasisPhase: "transferring",
     transitionPreset: "reactive"
   },
+  clock: {
+    motionPreset: "clock-flash",
+    emphasisPhase: "reacting",
+    transitionPreset: "reactive"
+  },
+  mirror: {
+    motionPreset: "mirror-build",
+    emphasisPhase: "observing",
+    transitionPreset: "measured"
+  },
   indicator: {
     motionPreset: "tone-shift",
     emphasisPhase: "reacting",
@@ -64,6 +74,11 @@ const motionProfileByKind = {
     motionPreset: "charge-rise",
     emphasisPhase: "reacting",
     transitionPreset: "reactive"
+  },
+  chromatography: {
+    motionPreset: "band-separate",
+    emphasisPhase: "observing",
+    transitionPreset: "measured"
   },
   rate: {
     motionPreset: "compare-speed",
@@ -376,7 +391,21 @@ export function inferDemoKind(experiment) {
     return "fizz-transfer";
   }
 
-  if (slug.includes("indicator")) {
+  if (slug.includes("iodine-clock")) {
+    return "clock";
+  }
+
+  if (slug.includes("silver-mirror")) {
+    return "mirror";
+  }
+
+  if (
+    slug.includes("indicator") ||
+    slug.includes("neutralization") ||
+    slug.includes("titration") ||
+    slug.includes("buffer") ||
+    slug.includes("iodine-starch")
+  ) {
     return "indicator";
   }
 
@@ -388,7 +417,14 @@ export function inferDemoKind(experiment) {
     return "crystal";
   }
 
-  if (slug.includes("precipitation") || slug.includes("hydroxide") || slug.includes("silver")) {
+  if (
+    slug.includes("precipitation") ||
+    slug.includes("hydroxide") ||
+    slug.includes("silver") ||
+    slug.includes("limewater") ||
+    slug.includes("fehling") ||
+    slug.includes("colloid")
+  ) {
     return "precipitate";
   }
 
@@ -400,16 +436,35 @@ export function inferDemoKind(experiment) {
     return "electroplate";
   }
 
-  if (slug.includes("electrolysis")) {
+  if (slug.includes("electrolysis") || slug.includes("galvanic")) {
     return "electrolysis";
   }
 
-  if (slug.includes("rate-control")) {
+  if (slug.includes("chromatography")) {
+    return "chromatography";
+  }
+
+  if (slug.includes("rate-control") || slug.includes("rusting")) {
     return "rate";
   }
 
   if (slug.includes("inference")) {
     return "inference";
+  }
+
+  if (
+    slug.includes("oxygen") ||
+    slug.includes("peroxide") ||
+    slug.includes("nitric-acid") ||
+    slug.includes("aluminum-sodium") ||
+    slug.includes("sodium-water") ||
+    slug.includes("fountain") ||
+    slug.includes("saponification") ||
+    slug.includes("esterification") ||
+    slug.includes("aspirin") ||
+    slug.includes("sugar")
+  ) {
+    return "reaction";
   }
 
   return "reaction";
@@ -818,6 +873,87 @@ function IndicatorScene({ state, motionEnabled, reduceMotion }) {
   );
 }
 
+function ClockScene({ state, motionEnabled, reduceMotion }) {
+  const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
+  const isTriggered = state.flags.reactionStarted || state.phaseKey === "observing" || state.phaseKey === "complete";
+  const elapsed = Math.max(0, Math.round(state.progress * 90));
+
+  return (
+    <div className="demo-scene demo-scene-clock">
+      <div className="demo-clock-vessel">
+        <div className="demo-clock-liquid" />
+        <MotionElement
+          as="div"
+          className="demo-clock-surface"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isTriggered
+                ? { opacity: [0.34, 0.82, 0.52], y: [2, -3, 0], scaleX: [0.95, 1.04, 0.99] }
+                : { opacity: 0.2, y: 3, scaleX: 0.92 },
+            transition: isTriggered
+              ? {
+                  duration: 1.02,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 4 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="demo-clock-bloom"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isTriggered
+                ? { opacity: [0.18, 0.74, 0.42], scale: [0.78, 1.08, 0.96], y: [10, -4, 2] }
+                : { opacity: 0.08, scale: 0.68, y: 14 },
+            transition: isTriggered
+              ? {
+                  duration: 0.92,
+                  ease: "easeInOut"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 5 })}
+        </MotionElement>
+      </div>
+      <MotionElement
+        as="div"
+        className="demo-clock-counter"
+        enabled={motionEnabled}
+        motionProps={{
+          animate: reduceMotion
+            ? { opacity: 1 }
+            : isTriggered
+              ? { scale: [0.98, 1.04, 1], boxShadow: ["0 0 0 rgba(0,0,0,0)", "0 0 22px rgba(155, 140, 255, 0.22)", "0 0 0 rgba(0,0,0,0)"] }
+              : { scale: 0.98 },
+          transition: isTriggered
+            ? {
+                duration: 1.08,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatType: "mirror"
+              }
+            : transition
+        }}
+      >
+        <span>反应计时</span>
+        <strong>{elapsed}s</strong>
+      </MotionElement>
+      <div className="demo-clock-ring">{RepeatedSpans({ count: 3 })}</div>
+      <div className="demo-clock-particles">{RepeatedSpans({ count: 8 })}</div>
+    </div>
+  );
+}
+
 function FlameScene({ state, motionEnabled, reduceMotion }) {
   const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
   const isActive = state.flags.reactionStarted;
@@ -1065,6 +1201,77 @@ function PrecipitateScene({ state, motionEnabled, reduceMotion }) {
             : transition
         }}
       />
+    </div>
+  );
+}
+
+function MirrorScene({ state, motionEnabled, reduceMotion }) {
+  const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
+  const mirrorProgress = 0.22 + state.progress * 0.78;
+  const isCoating = state.phaseKey === "observing" || state.phaseKey === "complete";
+
+  return (
+    <div className="demo-scene demo-scene-mirror">
+      <div className="demo-mirror-tube">
+        <div className="demo-mirror-liquid" />
+        <MotionElement
+          as="div"
+          className="demo-mirror-surface"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isCoating
+                ? { opacity: [0.32, 0.74, 0.5], y: [1, -2, 0], scaleX: [0.96, 1.03, 0.99] }
+                : { opacity: 0.18, y: 3, scaleX: 0.94 },
+            transition: isCoating
+              ? {
+                  duration: 1.1,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 3 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="demo-mirror-coat"
+          enabled={motionEnabled}
+          motionProps={{
+            style: { transformOrigin: "left center" },
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : { scaleX: mirrorProgress, opacity: isCoating ? 0.46 + state.progress * 0.44 : 0.18 },
+            transition
+          }}
+        />
+        <MotionElement
+          as="div"
+          className="demo-mirror-sheen"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isCoating
+                ? { opacity: [0.22, 0.8, 0.28], x: [-18, 18, -6] }
+                : { opacity: 0.08, x: -20 },
+            transition: isCoating
+              ? {
+                  duration: 1.3,
+                  ease: "easeInOut",
+                  repeat: Infinity
+                }
+              : transition
+          }}
+        />
+      </div>
+      <div className="demo-water-bath">
+        <div className="demo-water-bath-liquid" />
+        <div className="demo-water-bath-wave">{RepeatedSpans({ count: 4 })}</div>
+      </div>
     </div>
   );
 }
@@ -1463,6 +1670,70 @@ function RateScene({ state, motionEnabled, reduceMotion }) {
   );
 }
 
+function ChromatographyScene({ state, motionEnabled, reduceMotion }) {
+  const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
+  const isSeparating = state.phaseKey === "observing" || state.phaseKey === "complete";
+
+  return (
+    <div className="demo-scene demo-scene-chromatography">
+      <div className="demo-chamber">
+        <div className="demo-solvent" />
+        <MotionElement
+          as="div"
+          className="demo-solvent-front"
+          enabled={motionEnabled}
+          motionProps={{
+            style: { transformOrigin: "center bottom" },
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : { scaleY: 0.24 + state.progress * 0.52, opacity: isSeparating ? 0.78 : 0.52 },
+            transition
+          }}
+        />
+        <div className="demo-paper-strip">
+          <MotionElement
+            as="div"
+            className="demo-chroma-band demo-chroma-band-orange"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion ? { y: -34 } : { y: isSeparating ? [-14, -54, -34] : -10, opacity: [0.7, 1, 0.82] },
+              transition: isSeparating ? { duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" } : transition
+            }}
+          />
+          <MotionElement
+            as="div"
+            className="demo-chroma-band demo-chroma-band-gold"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion ? { y: -4 } : { y: isSeparating ? [0, -32, -16] : 0, opacity: [0.68, 0.94, 0.78] },
+              transition: isSeparating ? { duration: 1.36, ease: "easeInOut", repeat: Infinity, repeatType: "mirror", delay: 0.08 } : transition
+            }}
+          />
+          <MotionElement
+            as="div"
+            className="demo-chroma-band demo-chroma-band-green"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion ? { y: 18 } : { y: isSeparating ? [16, -2, 10] : 18, opacity: [0.72, 1, 0.86] },
+              transition: isSeparating ? { duration: 1.24, ease: "easeInOut", repeat: Infinity, repeatType: "mirror", delay: 0.14 } : transition
+            }}
+          />
+          <MotionElement
+            as="div"
+            className="demo-chroma-band demo-chroma-band-lime"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion ? { y: 42 } : { y: isSeparating ? [34, 18, 26] : 42, opacity: [0.64, 0.92, 0.76] },
+              transition: isSeparating ? { duration: 1.18, ease: "easeInOut", repeat: Infinity, repeatType: "mirror", delay: 0.2 } : transition
+            }}
+          />
+        </div>
+      </div>
+      <div className="demo-rf-grid">{RepeatedSpans({ count: 4 })}</div>
+    </div>
+  );
+}
+
 function InferenceScene({ state, motionEnabled, reduceMotion }) {
   const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
   const isFocused = state.phaseKey === "observing" || state.phaseKey === "complete";
@@ -1847,6 +2118,10 @@ function renderScene(kind, state, motionEnabled, reduceMotion, interactive, onIn
       );
     case "indicator":
       return <IndicatorScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
+    case "clock":
+      return <ClockScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
+    case "mirror":
+      return <MirrorScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "flame":
       return <FlameScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "crystal":
@@ -1859,6 +2134,8 @@ function renderScene(kind, state, motionEnabled, reduceMotion, interactive, onIn
       return <ElectroplateScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "electrolysis":
       return <ElectrolysisScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
+    case "chromatography":
+      return <ChromatographyScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "rate":
       return <RateScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "inference":

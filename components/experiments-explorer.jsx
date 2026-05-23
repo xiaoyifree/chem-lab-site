@@ -24,21 +24,93 @@ function getInitialSlug(experiments, defaultSlug) {
 function getExperimentCode(experiment) {
   const slug = experiment.slug;
 
+  if (slug.includes("iodine-clock")) return "CLOCK";
+  if (slug.includes("silver-mirror")) return "MIRROR";
+  if (slug.includes("iodine-starch")) return "STAIN";
   if (slug.includes("carbon-dioxide")) return "FIZZ";
+  if (slug.includes("buffer")) return "BUFFER";
+  if (slug.includes("titration")) return "TITRATE";
   if (slug.includes("indicator")) return "PH";
+  if (slug.includes("oxygen") || slug.includes("peroxide")) return "OXYGEN";
+  if (slug.includes("galvanic") || slug.includes("electrolysis")) return "CELL";
   if (slug.includes("iron") || slug.includes("copper")) return "RUST";
   if (slug.includes("magnesium")) return "FLAME";
   if (slug.includes("precipitation") || slug.includes("hydroxide") || slug.includes("silver")) return "CLOUD";
   if (slug.includes("crystallization") || slug.includes("heating")) return "CRYSTAL";
   if (slug.includes("distillation")) return "DISTILL";
   if (slug.includes("electroplating")) return "PLATE";
+  if (slug.includes("thermite")) return "THERM";
+  if (slug.includes("fountain")) return "FOUNTAIN";
+  if (slug.includes("chromatography")) return "SPECTRUM";
+  if (slug.includes("aspirin")) return "ASPIRIN";
+  if (slug.includes("colloid")) return "COLLOID";
   if (slug.includes("rate-control")) return "RATE";
   if (slug.includes("inference")) return "INFER";
 
   return "LAB";
 }
 
+function getExperimentIcon(experiment) {
+  if (experiment.icon) {
+    return experiment.icon;
+  }
+
+  const code = getExperimentCode(experiment);
+  const fallbackByCode = {
+    PH: "🌈",
+    FIZZ: "⚗️",
+    STAIN: "🟣",
+    CLOCK: "⏱️",
+    MIRROR: "🪞",
+    CLOUD: "☁️",
+    CRYSTAL: "💎",
+    OXYGEN: "🫧",
+    CELL: "⚡",
+    FLAME: "🔥",
+    THERM: "🌟",
+    PLATE: "💿",
+    DISTILL: "🌡️",
+    RATE: "⏳",
+    INFER: "🧠",
+    BUFFER: "📊",
+    TITRATE: "💧",
+    SPECTRUM: "🎨",
+    ASPIRIN: "💊",
+    COLLOID: "☁️",
+    FOUNTAIN: "⛲"
+  };
+
+  return fallbackByCode[code] ?? "🧪";
+}
+
 function getExperimentTone(experiment) {
+  if (experiment.slug.includes("iodine-clock")) {
+    return {
+      accent: "#9b8cff",
+      soft: "rgba(155, 140, 255, 0.16)",
+      strong: "rgba(155, 140, 255, 0.34)",
+      card: "linear-gradient(135deg, rgba(155, 140, 255, 0.24), rgba(79, 70, 229, 0.16))"
+    };
+  }
+
+  if (experiment.slug.includes("silver-mirror")) {
+    return {
+      accent: "#8ad4ff",
+      soft: "rgba(138, 212, 255, 0.16)",
+      strong: "rgba(138, 212, 255, 0.34)",
+      card: "linear-gradient(135deg, rgba(138, 212, 255, 0.22), rgba(226, 232, 240, 0.16))"
+    };
+  }
+
+  if (experiment.slug.includes("chromatography")) {
+    return {
+      accent: "#f97316",
+      soft: "rgba(249, 115, 22, 0.16)",
+      strong: "rgba(249, 115, 22, 0.34)",
+      card: "linear-gradient(135deg, rgba(249, 115, 22, 0.22), rgba(45, 212, 191, 0.16))"
+    };
+  }
+
   if (experiment.levelKey === "advanced") {
     return {
       accent: "#ffb703",
@@ -204,6 +276,9 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
                   <div className={`level-badge ${experiment.badgeClass}`}>{experiment.level}</div>
                   <span className="explorer-item-code">{getExperimentCode(experiment)}</span>
                 </div>
+                <span className="explorer-item-symbol" aria-hidden="true">
+                  {getExperimentIcon(experiment)}
+                </span>
                 <h3>{experiment.title}</h3>
                 <p>{experiment.summary}</p>
                 <span className="explorer-cta">{isActive ? "当前实验" : "切换查看"}</span>
@@ -247,7 +322,12 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
                       <span className={`level-badge ${selectedExperiment.badgeClass}`}>{selectedExperiment.level}</span>
                       <span className="lab-console-code">{experimentCode}</span>
                     </div>
-                    <h1>{selectedExperiment.title}</h1>
+                    <h1>
+                      <span className="lab-console-icon" aria-hidden="true">
+                        {getExperimentIcon(selectedExperiment)}
+                      </span>
+                      <span>{selectedExperiment.title}</span>
+                    </h1>
                     <p>{selectedExperiment.subtitle || selectedExperiment.summary}</p>
                   </motion.div>
                 </AnimatePresence>

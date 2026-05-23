@@ -1352,6 +1352,341 @@ select {
   padding: 38px 34px 26px;
 }
 
+.demo-scene-clock,
+.demo-clock-vessel,
+.demo-clock-liquid,
+.demo-clock-surface span,
+.demo-clock-bloom span,
+.demo-clock-counter,
+.demo-clock-ring span,
+.demo-clock-particles span,
+.demo-scene-mirror,
+.demo-mirror-tube,
+.demo-mirror-liquid,
+.demo-mirror-surface span,
+.demo-mirror-coat,
+.demo-mirror-sheen,
+.demo-water-bath,
+.demo-water-bath-liquid,
+.demo-water-bath-wave span,
+.demo-scene-chromatography,
+.demo-chamber,
+.demo-solvent,
+.demo-solvent-front,
+.demo-paper-strip,
+.demo-chroma-band,
+.demo-rf-grid span {
+  position: absolute;
+}
+
+.demo-scene-clock {
+  overflow: hidden;
+}
+
+.demo-clock-vessel {
+  left: 50%;
+  bottom: 30px;
+  width: 240px;
+  height: 222px;
+  margin-left: -120px;
+  border-radius: 0 0 30px 30px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: none;
+  overflow: hidden;
+}
+
+.demo-clock-liquid {
+  inset: auto 0 0;
+  height: 62%;
+  background: linear-gradient(180deg, rgba(236, 233, 254, 0.34), rgba(91, 33, 182, 0.82));
+}
+
+.demo-clock-surface,
+.demo-clock-bloom,
+.demo-water-bath-wave {
+  position: absolute;
+  inset-inline: 0;
+  pointer-events: none;
+}
+
+.demo-clock-surface {
+  left: 18px;
+  right: 18px;
+  bottom: 118px;
+  height: 18px;
+}
+
+.demo-clock-surface span,
+.demo-mirror-surface span,
+.demo-water-bath-wave span {
+  bottom: 0;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.56);
+  animation: liquid-sway 2.3s ease-in-out infinite;
+}
+
+.demo-clock-surface span:nth-child(1),
+.demo-mirror-surface span:nth-child(1),
+.demo-water-bath-wave span:nth-child(1) { left: 16px; width: 40px; }
+.demo-clock-surface span:nth-child(2),
+.demo-mirror-surface span:nth-child(2),
+.demo-water-bath-wave span:nth-child(2) { left: 60px; width: 54px; animation-delay: -0.5s; }
+.demo-clock-surface span:nth-child(3),
+.demo-mirror-surface span:nth-child(3),
+.demo-water-bath-wave span:nth-child(3) { left: 112px; width: 38px; animation-delay: -1s; }
+.demo-clock-surface span:nth-child(4) { left: 154px; width: 32px; animation-delay: -1.4s; }
+
+.demo-clock-bloom {
+  left: 30px;
+  right: 30px;
+  top: 56px;
+  height: 118px;
+}
+
+.demo-clock-bloom span {
+  width: 42px;
+  height: 52px;
+  border-radius: 999px;
+  background: radial-gradient(circle at center, rgba(196, 181, 253, 0.34), rgba(99, 102, 241, 0.08) 72%, transparent);
+  filter: blur(1px);
+  animation: diffusion-drift 2.6s ease-in-out infinite;
+}
+
+.demo-clock-bloom span:nth-child(1) { left: 18px; top: 12px; }
+.demo-clock-bloom span:nth-child(2) { left: 64px; top: 24px; animation-delay: -0.4s; }
+.demo-clock-bloom span:nth-child(3) { left: 110px; top: 6px; animation-delay: -0.8s; }
+.demo-clock-bloom span:nth-child(4) { left: 142px; top: 36px; animation-delay: -1.1s; }
+.demo-clock-bloom span:nth-child(5) { left: 86px; top: 54px; animation-delay: -1.5s; }
+
+.demo-clock-counter {
+  left: 50%;
+  top: 34px;
+  width: 124px;
+  margin-left: -62px;
+  padding: 12px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(196, 181, 253, 0.26);
+  background: rgba(14, 18, 34, 0.8);
+  text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.demo-clock-counter span {
+  display: block;
+  margin-bottom: 6px;
+  color: rgba(226, 232, 240, 0.48);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.demo-clock-counter strong {
+  color: rgba(245, 243, 255, 0.96);
+  font-size: 1.7rem;
+  line-height: 1;
+  font-family: "Avenir Next", "Inter", sans-serif;
+}
+
+.demo-clock-ring {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.demo-clock-ring span {
+  left: 50%;
+  top: 50%;
+  width: 160px;
+  height: 160px;
+  margin-left: -80px;
+  margin-top: -12px;
+  border-radius: 50%;
+  border: 1px solid rgba(196, 181, 253, 0.18);
+}
+
+.demo-clock-ring span:nth-child(2) {
+  width: 208px;
+  height: 208px;
+  margin-left: -104px;
+  margin-top: -36px;
+  border-color: rgba(129, 140, 248, 0.12);
+}
+
+.demo-clock-ring span:nth-child(3) {
+  width: 260px;
+  height: 260px;
+  margin-left: -130px;
+  margin-top: -62px;
+  border-color: rgba(99, 102, 241, 0.08);
+}
+
+.demo-clock-particles span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(224, 231, 255, 0.88);
+  animation: lab-rise 2.2s linear infinite;
+}
+
+.demo-clock-particles span:nth-child(1) { left: 32%; bottom: 86px; animation-delay: -0.2s; }
+.demo-clock-particles span:nth-child(2) { left: 38%; bottom: 122px; animation-delay: -0.8s; }
+.demo-clock-particles span:nth-child(3) { left: 44%; bottom: 98px; animation-delay: -1.2s; }
+.demo-clock-particles span:nth-child(4) { left: 52%; bottom: 134px; animation-delay: -1.6s; }
+.demo-clock-particles span:nth-child(5) { left: 58%; bottom: 92px; animation-delay: -0.6s; }
+.demo-clock-particles span:nth-child(6) { left: 64%; bottom: 128px; animation-delay: -1.4s; }
+.demo-clock-particles span:nth-child(7) { left: 70%; bottom: 104px; animation-delay: -1s; }
+.demo-clock-particles span:nth-child(8) { left: 74%; bottom: 144px; animation-delay: -1.8s; }
+
+.demo-scene-mirror {
+  overflow: hidden;
+}
+
+.demo-mirror-tube {
+  left: 50%;
+  top: 42px;
+  width: 168px;
+  height: 238px;
+  margin-left: -84px;
+  border-radius: 999px 999px 28px 28px;
+  border: 4px solid rgba(255, 255, 255, 0.28);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+}
+
+.demo-mirror-liquid {
+  inset: auto 0 0;
+  height: 48%;
+  background: linear-gradient(180deg, rgba(245, 235, 120, 0.28), rgba(120, 88, 32, 0.52));
+}
+
+.demo-mirror-surface {
+  left: 18px;
+  right: 18px;
+  bottom: 92px;
+  height: 16px;
+}
+
+.demo-mirror-coat {
+  left: 10px;
+  top: 20px;
+  width: 22px;
+  height: 184px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(203, 213, 225, 0.92), rgba(148, 163, 184, 0.64));
+  box-shadow: 0 0 24px rgba(226, 232, 240, 0.22);
+}
+
+.demo-mirror-sheen {
+  left: 14px;
+  top: 24px;
+  width: 36px;
+  height: 176px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0));
+  filter: blur(1px);
+  opacity: 0.2;
+}
+
+.demo-water-bath {
+  left: 50%;
+  bottom: 20px;
+  width: 280px;
+  height: 90px;
+  margin-left: -140px;
+  border-radius: 24px;
+  border: 1px solid rgba(138, 212, 255, 0.18);
+  overflow: hidden;
+  background: rgba(8, 16, 30, 0.74);
+}
+
+.demo-water-bath-liquid {
+  inset: auto 0 0;
+  height: 58%;
+  background: linear-gradient(180deg, rgba(96, 165, 250, 0.4), rgba(37, 99, 235, 0.54));
+}
+
+.demo-water-bath-wave {
+  left: 18px;
+  right: 18px;
+  bottom: 28px;
+  height: 14px;
+}
+
+.demo-scene-chromatography {
+  overflow: hidden;
+}
+
+.demo-chamber {
+  left: 50%;
+  bottom: 24px;
+  width: 270px;
+  height: 264px;
+  margin-left: -135px;
+  border-radius: 22px 22px 18px 18px;
+  border: 4px solid rgba(255, 255, 255, 0.28);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+}
+
+.demo-solvent {
+  inset: auto 0 0;
+  height: 34%;
+  background: linear-gradient(180deg, rgba(120, 210, 255, 0.18), rgba(56, 189, 248, 0.28));
+}
+
+.demo-solvent-front {
+  left: 0;
+  right: 0;
+  bottom: 34%;
+  height: 44%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.08));
+  opacity: 0.68;
+}
+
+.demo-paper-strip {
+  left: 50%;
+  top: 18px;
+  width: 72px;
+  height: 214px;
+  margin-left: -36px;
+  border-radius: 18px 18px 12px 12px;
+  background: linear-gradient(180deg, rgba(252, 252, 249, 0.95), rgba(240, 240, 236, 0.9));
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.12);
+}
+
+.demo-chroma-band {
+  left: 10px;
+  right: 10px;
+  height: 14px;
+  border-radius: 999px;
+  filter: blur(0.5px);
+}
+
+.demo-chroma-band-orange { bottom: 56px; background: rgba(249, 115, 22, 0.92); }
+.demo-chroma-band-gold { bottom: 84px; background: rgba(250, 204, 21, 0.92); }
+.demo-chroma-band-green { bottom: 112px; background: rgba(22, 163, 74, 0.92); }
+.demo-chroma-band-lime { bottom: 138px; background: rgba(132, 204, 22, 0.92); }
+
+.demo-rf-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.demo-rf-grid span {
+  left: 50%;
+  width: 140px;
+  margin-left: -70px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.demo-rf-grid span:nth-child(1) { top: 68px; }
+.demo-rf-grid span:nth-child(2) { top: 116px; }
+.demo-rf-grid span:nth-child(3) { top: 166px; }
+.demo-rf-grid span:nth-child(4) { top: 214px; }
+
 .demo-tube {
   position: relative;
   height: 228px;
@@ -2805,6 +3140,21 @@ select {
   gap: 10px;
 }
 
+.explorer-item-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin: 12px 0 10px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(228, 237, 249, 0.72));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.76),
+    0 14px 26px rgba(15, 23, 42, 0.08);
+  font-size: 1.65rem;
+}
+
 .explorer-item-code {
   color: rgba(29, 40, 55, 0.42);
   font-size: 0.84rem;
@@ -2839,6 +3189,9 @@ select {
   line-height: 0.95;
   letter-spacing: -0.05em;
   color: #f7fafc;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .lab-console-title p {
@@ -2860,6 +3213,22 @@ select {
   font-size: 1rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+
+.lab-console-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(64px, 8vw, 88px);
+  height: clamp(64px, 8vw, 88px);
+  border-radius: 26px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(148, 163, 184, 0.08));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 18px 32px rgba(4, 8, 17, 0.22);
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  line-height: 1;
 }
 
 .lab-equation-bar {
@@ -3212,6 +3581,14 @@ select {
 
   .lab-console-title h1 {
     font-size: clamp(2.6rem, 11vw, 4.2rem);
+    gap: 10px;
+  }
+
+  .lab-console-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    font-size: 1.75rem;
   }
 }
 

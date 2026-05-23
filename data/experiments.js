@@ -1,3 +1,5 @@
+import { claudeExperiments } from "./claude-experiments.js";
+
 export const levels = [
   {
     key: "beginner",
@@ -25,7 +27,7 @@ export const levels = [
   }
 ];
 
-export const experiments = [
+const coreExperiments = [
   {
     slug: "acid-base-indicator",
     title: "酸碱指示剂变色",
@@ -513,6 +515,16 @@ export const experiments = [
     sceneVariant: "hero"
   }
 ];
+
+const levelOrder = {
+  beginner: 0,
+  intermediate: 1,
+  advanced: 2
+};
+
+export const experiments = [...coreExperiments, ...claudeExperiments].sort(
+  (left, right) => levelOrder[left.levelKey] - levelOrder[right.levelKey]
+);
 
 export const featuredSlug = "carbon-dioxide-preparation";
 
