@@ -516,12 +516,13 @@ function RepeatedSpans({ count }) {
   return Array.from({ length: count }).map((_, index) => <span key={index} />);
 }
 
-function Tube({ tone }) {
+function Tube({ tone, children }) {
   return (
     <div className={`demo-tube demo-tube-${tone}`}>
       <span className="demo-tube-glass" />
       <span className="demo-tube-liquid" />
       <span className="demo-tube-badge" />
+      {children}
     </div>
   );
 }
@@ -548,6 +549,18 @@ function StageBridge() {
       <span className="demo-bridge-dot" />
     </div>
   );
+}
+
+function SurfaceWave({ className, count = 3 }) {
+  return <div className={className}>{RepeatedSpans({ count })}</div>;
+}
+
+function DiffusionField({ className, count = 4 }) {
+  return <div className={className}>{RepeatedSpans({ count })}</div>;
+}
+
+function SedimentField({ className, count = 4 }) {
+  return <div className={className}>{RepeatedSpans({ count })}</div>;
 }
 
 function LabBeaker({ side, liquidClassName, children }) {
@@ -737,11 +750,69 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
   );
 }
 
-function IndicatorScene() {
+function IndicatorScene({ state, motionEnabled, reduceMotion }) {
+  const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
+  const isActive = state.flags.reactionStarted || state.phaseKey === "observing" || state.phaseKey === "complete";
+
   return (
     <div className="demo-scene demo-scene-indicator">
-      {["pink", "violet", "amber"].map((tone) => (
-        <Tube key={tone} tone={tone} />
+      {["pink", "violet", "amber"].map((tone, index) => (
+        <Tube key={tone} tone={tone}>
+          <MotionElement
+            as="div"
+            className="demo-tube-surface"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion
+                ? { opacity: 1 }
+                : isActive
+                  ? {
+                      opacity: [0.36, 0.82, 0.54],
+                      y: [2, -3, 0],
+                      scaleX: [0.95, 1.04, 0.99]
+                    }
+                  : { opacity: 0.24, y: 2, scaleX: 0.94 },
+              transition: isActive
+                ? {
+                    duration: 1.08,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                    delay: index * 0.14
+                  }
+                : transition
+            }}
+          >
+            {RepeatedSpans({ count: 3 })}
+          </MotionElement>
+          <MotionElement
+            as="div"
+            className="demo-tube-bloom"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion
+                ? { opacity: 1 }
+                : isActive
+                  ? {
+                      opacity: [0.16, 0.48, 0.24],
+                      scale: [0.82, 1.06, 0.94],
+                      y: [8, -2, 2]
+                    }
+                  : { opacity: 0.08, scale: 0.78, y: 10 },
+              transition: isActive
+                ? {
+                    duration: 1.18,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                    delay: index * 0.16
+                  }
+                : transition
+            }}
+          >
+            {RepeatedSpans({ count: 3 })}
+          </MotionElement>
+        </Tube>
       ))}
     </div>
   );
@@ -821,11 +892,58 @@ function FlameScene({ state, motionEnabled, reduceMotion }) {
   );
 }
 
-function CrystalScene() {
+function CrystalScene({ state, motionEnabled, reduceMotion }) {
+  const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
+  const isGrowing = state.flags.reactionStarted || state.phaseKey === "observing" || state.phaseKey === "complete";
+
   return (
     <div className="demo-scene demo-scene-crystal">
       <div className="demo-dish">
         <div className="demo-dish-liquid" />
+        <MotionElement
+          as="div"
+          className="demo-dish-surface"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isGrowing
+                ? { opacity: [0.34, 0.78, 0.5], y: [2, -3, 0], scaleX: [0.96, 1.04, 1] }
+                : { opacity: 0.2, y: 2, scaleX: 0.94 },
+            transition: isGrowing
+              ? {
+                  duration: 1.12,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 4 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="demo-dish-mist"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isGrowing
+                ? { opacity: [0.12, 0.42, 0.2], scale: [0.84, 1.08, 0.96], y: [12, -4, 0] }
+                : { opacity: 0.06, scale: 0.76, y: 14 },
+            transition: isGrowing
+              ? {
+                  duration: 1.22,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 4 })}
+        </MotionElement>
         <div className="demo-dish-crystals">{RepeatedSpans({ count: 6 })}</div>
       </div>
       <div className="demo-heat-wave">{RepeatedSpans({ count: 4 })}</div>
@@ -843,6 +961,50 @@ function PrecipitateScene({ state, motionEnabled, reduceMotion }) {
       <div className="demo-mix-vessel">
         <div className="demo-mix-liquid demo-mix-left" />
         <div className="demo-mix-liquid demo-mix-right" />
+        <MotionElement
+          as="div"
+          className="demo-mix-surface"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isMixing
+                ? { opacity: [0.52, 0.94, 0.68], y: [2, -4, 0], scaleX: [0.96, 1.04, 0.99] }
+                : isSettling
+                  ? { opacity: 0.82, y: 0, scaleX: 1 }
+                  : { opacity: 0.34, y: 4, scaleX: 0.95 },
+            transition: isMixing
+              ? {
+                  ...transition,
+                  duration: 1
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 4 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="demo-mix-diffusion"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isMixing
+                ? { opacity: [0.28, 0.72, 0.46], scale: [0.82, 1.08, 0.96], y: [14, -4, 2] }
+                : isSettling
+                  ? { opacity: 0.38, scale: 1, y: 8 }
+                  : { opacity: 0.18, scale: 0.76, y: 16 },
+            transition: isMixing
+              ? {
+                  ...transition,
+                  duration: 1.08
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 5 })}
+        </MotionElement>
         <MotionElement
           as="div"
           className="demo-cloud-bloom"
@@ -864,6 +1026,23 @@ function PrecipitateScene({ state, motionEnabled, reduceMotion }) {
           }}
         >
           {RepeatedSpans({ count: 6 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="demo-mix-sediment"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isSettling
+                ? { opacity: 0.88, scaleY: 1, y: 0 }
+                : isMixing
+                  ? { opacity: [0.12, 0.38, 0.22], scaleY: [0.7, 1, 0.84], y: [12, 0, 6] }
+                  : { opacity: 0.08, scaleY: 0.62, y: 16 },
+            transition
+          }}
+        >
+          {RepeatedSpans({ count: 5 })}
         </MotionElement>
       </div>
       <MotionElement
@@ -898,6 +1077,28 @@ function DistillationScene({ state, motionEnabled, reduceMotion }) {
     <div className="demo-scene demo-scene-distillation">
       <div className="demo-flask">
         <div className="demo-flask-liquid" />
+        <MotionElement
+          as="div"
+          className="demo-flask-surface"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isFlowing
+                ? { opacity: [0.42, 0.86, 0.58], y: [2, -3, 0], scaleX: [0.96, 1.04, 0.99] }
+                : { opacity: 0.28, y: 2, scaleX: 0.94 },
+            transition: isFlowing
+              ? {
+                  duration: 1.18,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 3 })}
+        </MotionElement>
       </div>
       <div className="demo-condenser">
         <span className="demo-condenser-tube" />
@@ -941,6 +1142,28 @@ function DistillationScene({ state, motionEnabled, reduceMotion }) {
             transition
           }}
         />
+        <MotionElement
+          as="div"
+          className="demo-receiver-surface"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isFlowing
+                ? { opacity: [0.34, 0.72, 0.5], y: [1, -2, 0], scaleX: [0.95, 1.03, 1] }
+                : { opacity: 0.2, y: 2, scaleX: 0.95 },
+            transition: isFlowing
+              ? {
+                  duration: 1.1,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 3 })}
+        </MotionElement>
       </div>
       <MotionElement
         as="div"
@@ -981,8 +1204,50 @@ function ElectroplateScene({ state, motionEnabled, reduceMotion }) {
     <div className="demo-scene demo-scene-electroplate">
       <div className="demo-cell">
         <div className="demo-cell-liquid" />
+        <MotionElement
+          as="div"
+          className="demo-cell-surface"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isCharging
+                ? { opacity: [0.42, 0.84, 0.58], y: [2, -3, 0], scaleX: [0.96, 1.04, 0.99] }
+                : { opacity: 0.28, y: 2, scaleX: 0.95 },
+            transition: isCharging
+              ? {
+                  duration: 1.08,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 3 })}
+        </MotionElement>
         <span className="demo-electrode demo-electrode-left" />
         <span className="demo-electrode demo-electrode-right" />
+        <MotionElement
+          as="div"
+          className="demo-ion-trails"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isCharging
+                ? { opacity: [0.24, 0.68, 0.32], scale: [0.88, 1.06, 0.96], y: [8, -4, 2] }
+                : { opacity: 0.16, scale: 0.82, y: 10 },
+            transition: isCharging
+              ? {
+                  ...transition,
+                  duration: 1.06
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 6 })}
+        </MotionElement>
         <MotionElement
           as="span"
           className="demo-copper-coat"
@@ -1030,13 +1295,102 @@ function ElectroplateScene({ state, motionEnabled, reduceMotion }) {
   );
 }
 
-function ElectrolysisScene() {
+function ElectrolysisScene({ state, motionEnabled, reduceMotion }) {
+  const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
+  const isCharging = state.flags.reactionStarted || state.phaseKey === "observing" || state.phaseKey === "complete";
+
   return (
     <div className="demo-scene demo-scene-electroplate">
       <div className="demo-cell">
         <div className="demo-cell-liquid" />
+        <MotionElement
+          as="div"
+          className="demo-cell-surface"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isCharging
+                ? { opacity: [0.4, 0.82, 0.56], y: [2, -3, 0], scaleX: [0.96, 1.04, 0.99] }
+                : { opacity: 0.24, y: 2, scaleX: 0.94 },
+            transition: isCharging
+              ? {
+                  duration: 1.02,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 3 })}
+        </MotionElement>
         <span className="demo-electrode demo-electrode-left" />
         <span className="demo-electrode demo-electrode-right" />
+        <MotionElement
+          as="div"
+          className="demo-ion-trails"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isCharging
+                ? { opacity: [0.22, 0.64, 0.34], scale: [0.88, 1.06, 0.96], y: [8, -4, 2] }
+                : { opacity: 0.14, scale: 0.8, y: 10 },
+            transition: isCharging
+              ? {
+                  ...transition,
+                  duration: 1.08
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 6 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="demo-electrolysis-bubbles demo-electrolysis-bubbles-left"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isCharging
+                ? { opacity: [0.42, 0.96, 0.66], scale: [0.84, 1.04, 0.94] }
+                : { opacity: 0.18, scale: 0.72 },
+            transition: isCharging
+              ? {
+                  duration: 0.96,
+                  ease: "easeOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 4 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="demo-electrolysis-bubbles demo-electrolysis-bubbles-right"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isCharging
+                ? { opacity: [0.28, 0.72, 0.46], scale: [0.84, 1.02, 0.94] }
+                : { opacity: 0.14, scale: 0.72 },
+            transition: isCharging
+              ? {
+                  duration: 1.08,
+                  ease: "easeOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 3 })}
+        </MotionElement>
       </div>
       <div className="demo-circuit">
         <span className="demo-wire demo-wire-left" />
@@ -1048,13 +1402,60 @@ function ElectrolysisScene() {
   );
 }
 
-function RateScene() {
+function RateScene({ state, motionEnabled, reduceMotion }) {
+  const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
+  const intensity = 0.88 + state.progress * 0.28;
+
   return (
     <div className="demo-scene demo-scene-rate">
       {Array.from({ length: 3 }).map((_, index) => (
         <div className="demo-rate-vessel" key={index}>
           <span className="demo-rate-label">{index + 1}</span>
           <div className="demo-rate-liquid" />
+          <MotionElement
+            as="div"
+            className="demo-rate-surface"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion
+                ? { opacity: 1 }
+                : {
+                    opacity: [0.34, 0.78, 0.5],
+                    y: [2, -2, 0],
+                    scaleX: [0.95, 1.04, 0.99]
+                  },
+              transition: {
+                duration: 1.04 + index * 0.14,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatType: "mirror"
+              }
+            }}
+          >
+            {RepeatedSpans({ count: 3 })}
+          </MotionElement>
+          <MotionElement
+            as="div"
+            className="demo-rate-current"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion
+                ? { opacity: 1 }
+                : {
+                    opacity: [0.16, 0.42 * intensity, 0.22],
+                    scale: [0.82, 1.08, 0.96],
+                    y: [10, -4, 2]
+                  },
+              transition: {
+                duration: 1.12 + index * 0.16,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatType: "mirror"
+              }
+            }}
+          >
+            {RepeatedSpans({ count: 3 })}
+          </MotionElement>
           <div className="demo-rate-bubbles">{RepeatedSpans({ count: 4 + index * 2 })}</div>
         </div>
       ))}
@@ -1062,12 +1463,72 @@ function RateScene() {
   );
 }
 
-function InferenceScene() {
+function InferenceScene({ state, motionEnabled, reduceMotion }) {
+  const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
+  const isFocused = state.phaseKey === "observing" || state.phaseKey === "complete";
+
   return (
     <div className="demo-scene demo-scene-inference">
-      <div className="demo-card-grid">{RepeatedSpans({ count: 4 })}</div>
-      <div className="demo-link-lines">{RepeatedSpans({ count: 3 })}</div>
-      <div className="demo-focus-ring" />
+      <MotionElement
+        as="div"
+        className="demo-card-grid"
+        enabled={motionEnabled}
+        motionProps={{
+          animate: reduceMotion
+            ? { opacity: 1 }
+            : isFocused
+              ? { opacity: [0.8, 1, 0.9], scale: [0.98, 1.01, 1], y: [2, -2, 0] }
+              : { opacity: 0.8, scale: 0.98, y: 2 },
+          transition: isFocused
+            ? {
+                ...transition,
+                duration: 1.18
+              }
+            : transition
+        }}
+      >
+        {RepeatedSpans({ count: 4 })}
+      </MotionElement>
+      <MotionElement
+        as="div"
+        className="demo-link-lines"
+        enabled={motionEnabled}
+        motionProps={{
+          animate: reduceMotion
+            ? { opacity: 1 }
+            : isFocused
+              ? { opacity: [0.34, 0.76, 0.48], scale: [0.96, 1.03, 1], y: [4, -2, 0] }
+              : { opacity: 0.22, scale: 0.94, y: 4 },
+          transition: isFocused
+            ? {
+                ...transition,
+                duration: 1.08
+              }
+            : transition
+        }}
+      >
+        {RepeatedSpans({ count: 3 })}
+      </MotionElement>
+      <MotionElement
+        as="div"
+        className="demo-focus-ring"
+        enabled={motionEnabled}
+        motionProps={{
+          animate: reduceMotion
+            ? { opacity: 1 }
+            : isFocused
+              ? { opacity: [0.42, 0.88, 0.58], scale: [0.92, 1.06, 1], y: [4, -4, 0] }
+              : { opacity: 0.24, scale: 0.88, y: 6 },
+          transition: isFocused
+            ? {
+                duration: 1.24,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatType: "mirror"
+              }
+            : transition
+        }}
+      />
     </div>
   );
 }
@@ -1076,9 +1537,16 @@ function ReactionScene() {
   return (
     <div className="demo-scene demo-scene-reaction">
       <div className="demo-stage-orbit" />
-      <Vessel side="left" leftLiquidClass="demo-liquid-left" rightLiquidClass="demo-liquid-right" showVapor={false} />
+      <Vessel side="left" leftLiquidClass="demo-liquid-left" rightLiquidClass="demo-liquid-right" showVapor={false}>
+        <SurfaceWave className="demo-vessel-surface demo-vessel-surface-left" count={3} />
+        <DiffusionField className="demo-vessel-current demo-vessel-current-left" count={4} />
+      </Vessel>
       <StageBridge />
-      <Vessel side="right" leftLiquidClass="demo-liquid-left" rightLiquidClass="demo-liquid-right" />
+      <Vessel side="right" leftLiquidClass="demo-liquid-left" rightLiquidClass="demo-liquid-right">
+        <SurfaceWave className="demo-vessel-surface demo-vessel-surface-right" count={3} />
+        <DiffusionField className="demo-vessel-current demo-vessel-current-right" count={4} />
+        <SedimentField className="demo-vessel-bed" count={4} />
+      </Vessel>
       <ParticleField count={8} />
     </div>
   );
@@ -1123,6 +1591,70 @@ function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, on
 
       <LabBeaker side="left" liquidClassName="lab-liquid-reactant">
         <div className={`lab-rocks ${isCharged ? "lab-rocks-loaded" : ""}`}>{RepeatedSpans({ count: 3 })}</div>
+        <MotionElement
+          as="div"
+          className="lab-surface-wave lab-surface-wave-reactant"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isReacting
+                ? { opacity: [0.42, 0.9, 0.62], y: [2, -3, 0], scaleX: [0.96, 1.04, 1] }
+                : isTransferring
+                  ? { opacity: 0.74, y: 0, scaleX: 1 }
+                  : { opacity: 0.22, y: 4, scaleX: 0.94 },
+            transition: isReacting
+              ? {
+                  ...transition,
+                  duration: 1.05
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 4 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="lab-diffusion-plume"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isReacting
+                ? { opacity: [0.2, 0.64, 0.34], scale: [0.82, 1.08, 0.96], y: [12, -3, 2] }
+                : isTransferring
+                  ? { opacity: 0.28, scale: 1, y: 6 }
+                  : { opacity: 0.1, scale: 0.76, y: 14 },
+            transition: isReacting
+              ? {
+                  ...transition,
+                  duration: 1.12
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 5 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="lab-foam-band"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isReacting
+                ? { opacity: [0.24, 0.66, 0.4], y: [2, -2, 0], scaleX: [0.94, 1.02, 0.98] }
+                : isTransferring
+                  ? { opacity: 0.46, y: 0, scaleX: 1 }
+                  : { opacity: 0.08, y: 4, scaleX: 0.92 },
+            transition: isReacting
+              ? {
+                  ...transition,
+                  duration: 0.94
+                }
+              : transition
+          }}
+        />
         <MotionElement
           as="div"
           className="lab-bubbles"
@@ -1203,6 +1735,50 @@ function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, on
       >
         <MotionElement
           as="div"
+          className="lab-surface-wave lab-surface-wave-lime"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isTransferring
+                ? { opacity: [0.36, 0.82, 0.54], y: [2, -3, 0], scaleX: [0.95, 1.03, 0.99] }
+                : { opacity: 0.12, y: 4, scaleX: 0.92 },
+            transition: isTransferring
+              ? {
+                  duration: 1.02,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 4 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="lab-cloud-mist"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isVerified
+                ? { opacity: [0.28, 0.74, 0.48], scale: [0.88, 1.08, 0.98], y: [8, -4, 2] }
+                : isTransferring
+                  ? { opacity: 0.36, scale: 0.94, y: 10 }
+                  : { opacity: 0.08, scale: 0.72, y: 18 },
+            transition: isVerified
+              ? {
+                  ...transition,
+                  duration: 1.16
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 5 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
           className="lab-clouds"
           enabled={motionEnabled}
           motionProps={{
@@ -1225,6 +1801,23 @@ function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, on
           }}
         >
           {RepeatedSpans({ count: 3 })}
+        </MotionElement>
+        <MotionElement
+          as="div"
+          className="lab-precipitate-bed"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isVerified
+                ? { opacity: 0.88, scaleY: 1, y: 0 }
+                : isTransferring
+                  ? { opacity: 0.32, scaleY: 0.78, y: 10 }
+                  : { opacity: 0.06, scaleY: 0.62, y: 16 },
+            transition
+          }}
+        >
+          {RepeatedSpans({ count: 5 })}
         </MotionElement>
       </LabBeaker>
 
@@ -1253,11 +1846,11 @@ function renderScene(kind, state, motionEnabled, reduceMotion, interactive, onIn
         />
       );
     case "indicator":
-      return <IndicatorScene />;
+      return <IndicatorScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "flame":
       return <FlameScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "crystal":
-      return <CrystalScene />;
+      return <CrystalScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "precipitate":
       return <PrecipitateScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "distillation":
@@ -1265,11 +1858,11 @@ function renderScene(kind, state, motionEnabled, reduceMotion, interactive, onIn
     case "electroplate":
       return <ElectroplateScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "electrolysis":
-      return <ElectrolysisScene />;
+      return <ElectrolysisScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "rate":
-      return <RateScene />;
+      return <RateScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "inference":
-      return <InferenceScene />;
+      return <InferenceScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     default:
       return <ReactionScene />;
   }
