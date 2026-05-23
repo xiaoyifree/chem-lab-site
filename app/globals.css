@@ -3164,6 +3164,7 @@ select {
 
 .explorer-stage-lab {
   gap: 0;
+  scroll-margin-top: 24px;
 }
 
 .lab-console {

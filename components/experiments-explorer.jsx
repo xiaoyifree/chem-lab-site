@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import {
   createExperimentAnimationState,
@@ -177,6 +177,7 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
   const [selectedSlug, setSelectedSlug] = useState(() => getInitialSlug(experiments, defaultSlug));
   const [activeTab, setActiveTab] = useState("steps");
   const [stepIndex, setStepIndex] = useState(0);
+  const stageRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -222,12 +223,27 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
   );
   const stageIsEmphasized = animationState.phaseKey === animationState.emphasisPhase;
 
+  const scrollStageIntoView = () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      stageRef.current?.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+        block: "start"
+      });
+    });
+  };
+
   const handleSelect = (slug) => {
     setSelectedSlug(slug);
 
     if (typeof window !== "undefined") {
       window.history.replaceState(null, "", `#${slug}`);
     }
+
+    scrollStageIntoView();
   };
 
   const handleAdvance = (nextStep) => {
@@ -288,7 +304,7 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
         </div>
       </aside>
 
-      <section className="explorer-stage explorer-stage-lab">
+      <section className="explorer-stage explorer-stage-lab" ref={stageRef}>
         <ExperimentConsoleMotionProvider>
           <LayoutGroup id="experiments-console">
             <motion.article
