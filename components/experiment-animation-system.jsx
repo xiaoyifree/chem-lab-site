@@ -75,6 +75,11 @@ const motionProfileByKind = {
     emphasisPhase: "reacting",
     transitionPreset: "reactive"
   },
+  displacement: {
+    motionPreset: "metal-displace",
+    emphasisPhase: "reacting",
+    transitionPreset: "reactive"
+  },
   chromatography: {
     motionPreset: "band-separate",
     emphasisPhase: "observing",
@@ -233,6 +238,16 @@ export const experimentRuleCatalog = {
     resultLabel: "两极产物",
     observation: "电流驱动氧化还原反应，两极分别产生气体或金属沉积。"
   },
+  "metal-displacement": {
+    id: "metal-displacement",
+    title: "金属置换反应",
+    inputReagents: ["iron-nail", "copper-sulfate"],
+    reactants: ["Fe", "CuSO4"],
+    products: ["FeSO4", "Cu"],
+    resultEffect: "coating",
+    resultLabel: "红铜析出",
+    observation: "打磨后的铁钉进入硫酸铜溶液，表面逐渐析出红色铜层，蓝色溶液变浅并偏绿。"
+  },
   "silver-mirror": {
     id: "silver-mirror",
     title: "银氨还原",
@@ -294,6 +309,7 @@ const defaultRuleByKind = {
   distillation: "distillation",
   electroplate: "electroplating",
   electrolysis: "electrolysis",
+  displacement: "metal-displacement",
   chromatography: "chromatography",
   reaction: "reaction-general"
 };
@@ -506,6 +522,20 @@ const genericInteractionByKind = {
     target: { x: 0.5, y: 0.38 },
     pourPose: { rotate: 0, scale: 1.05 }
   },
+  displacement: {
+    icon: "🔩",
+    label: "拖入金属固体",
+    actionLabel: "金属正在滑入溶液",
+    helper: "把打磨好的金属拖到试管口，松手让它进入盐溶液",
+    targetLabel: "试管口",
+    toolTone: "metal",
+    commitEffect: "metal-drop",
+    start: { x: 0.16, y: 0.18 },
+    target: { x: 0.5, y: 0.38 },
+    radius: 92,
+    commitDelayMs: 720,
+    pourPose: { rotate: -12, scale: 1.05 }
+  },
   chromatography: {
     icon: "🎨",
     label: "拖入样品点",
@@ -564,6 +594,115 @@ function getPhaseInteractionCopy(phaseKey) {
   return "加入";
 }
 
+function inferMaterialInteractionProfile({ experiment, kind, phaseKey, stepIndex }) {
+  const demoSteps = getDemoStepsForExperiment(experiment);
+  const stepCopy = `${demoSteps[stepIndex]?.title ?? ""} ${demoSteps[stepIndex]?.note ?? ""}`;
+  const materialCopy = `${experiment.materials?.join(" ") ?? ""} ${experiment.title ?? ""} ${experiment.slug ?? ""}`;
+  const source = `${stepCopy} ${materialCopy}`;
+  const isSetupPhase = phaseKey === "setup" || phaseKey === "idle";
+
+  if (
+    (isSetupPhase || kind === "displacement" || kind === "electroplate") &&
+    /铁钉|铁片|铜片|锌片|铝片|金属片|待镀金属|steel|iron|copper|zinc|metal/i.test(source)
+  ) {
+    return {
+      icon: "🔩",
+      label: /铁钉|iron/i.test(source) ? "拖入打磨铁钉" : "拖入金属样品",
+      actionLabel: "金属样品正在放入",
+      helper: "把金属样品拖到试管或烧杯口，松手后观察表面和溶液变化",
+      targetLabel: "容器口",
+      toolTone: "metal",
+      commitEffect: "metal-drop",
+      start: { x: 0.16, y: 0.18 },
+      target: { x: 0.5, y: 0.38 },
+      radius: 92,
+      commitDelayMs: 720,
+      pourPose: { rotate: -12, scale: 1.05 }
+    };
+  }
+
+  if (isSetupPhase && /大理石|蛋壳|碳酸钙|食盐|晶体|粉末|颗粒|固体|样品|marble|crystal|solid/i.test(source)) {
+    return {
+      icon: /晶体|crystal/i.test(source) ? "💎" : "🪨",
+      label: /晶体|crystal/i.test(source) ? "拖入晶体样品" : "拖入固体样品",
+      actionLabel: "固体正在加入",
+      helper: "把固体样品拖到容器内部，松手后观察溶解、结晶或产气变化",
+      targetLabel: "容器内",
+      toolTone: "stone",
+      commitEffect: "charge-drop",
+      start: { x: 0.16, y: 0.18 },
+      target: { x: 0.5, y: 0.64 },
+      radius: 90,
+      commitDelayMs: 620,
+      pourPose: { rotate: -10, scale: 1.04 }
+    };
+  }
+
+  if (/酒精灯|加热|热源|点燃|火源|燃烧|burn|heat|flame/i.test(source) && (kind === "flame" || kind === "distillation" || !isSetupPhase)) {
+    return {
+      icon: "🔥",
+      label: "拖入热源",
+      actionLabel: "正在加热",
+      helper: "把热源拖到反应或加热位置，松手后观察温度导致的变化",
+      targetLabel: "加热点",
+      toolTone: "heat",
+      commitEffect: kind === "flame" ? "spark-burst" : "heat-pulse",
+      start: { x: 0.16, y: 0.72 },
+      target: kind === "distillation" ? { x: 0.31, y: 0.69 } : { x: 0.5, y: 0.58 },
+      radius: 90,
+      commitDelayMs: 760,
+      pourPose: { rotate: -6, scale: 1.05 }
+    };
+  }
+
+  if (/电源|导线|电极|电流|电解|电镀|battery|power|electrode/i.test(source)) {
+    return {
+      icon: "⚡",
+      label: "接入电源",
+      actionLabel: "电流正在接通",
+      helper: "把电源夹拖到电极接线处，松手后观察气泡、沉积或电流反馈",
+      targetLabel: "接线位",
+      toolTone: "power",
+      commitEffect: "spark-burst",
+      start: { x: 0.16, y: 0.22 },
+      target: { x: 0.5, y: 0.38 },
+      radius: 90,
+      commitDelayMs: 760,
+      pourPose: { rotate: 0, scale: 1.05 }
+    };
+  }
+
+  if (/指示剂|紫甘蓝|石蕊|酚酞|碘液|淀粉|色素|indicator|starch|pigment/i.test(source)) {
+    return {
+      icon: "🌈",
+      label: "拖入显色试剂",
+      actionLabel: "显色试剂正在滴入",
+      helper: "把显色试剂拖到液面上方，松手后观察颜色扩散",
+      targetLabel: "显色位",
+      toolTone: "indicator",
+      commitEffect: "liquid-pour",
+      target: { x: 0.5, y: 0.42 },
+      pourPose: { rotate: -18, scale: 1.04 }
+    };
+  }
+
+  if (/盐酸|硝酸|硫酸|氢氧化钠|硝酸银|硫酸铜|溶液|试剂|液体|滴管|acid|solution|reagent/i.test(source)) {
+    return {
+      icon: "🧪",
+      label: "拖入反应试剂",
+      actionLabel: "试剂正在加入",
+      helper: "把试剂瓶拖到容器口，松手后观察液体混合和反应现象",
+      targetLabel: "滴加位",
+      toolTone: /石灰水|lime/i.test(source) ? "lime" : "acid",
+      commitEffect: "liquid-pour",
+      target: { x: 0.5, y: 0.42 },
+      pourPose: { rotate: -18, scale: 1.04 }
+    };
+  }
+
+  return null;
+}
+
 const ExperimentConsoleMotionContext = createContext(false);
 
 export function ExperimentConsoleMotionProvider({ children, enabled = true }) {
@@ -591,26 +730,28 @@ function resolveInteractionProfile(kind, phaseKey, rule, { experiment, stepIndex
   }
 
   const fallback = genericInteractionByKind[kind] ?? genericInteractionByKind.reaction;
+  const materialProfile = inferMaterialInteractionProfile({ experiment, kind, phaseKey, stepIndex });
+  const interactionCopy = materialProfile ? { ...fallback, ...materialProfile } : fallback;
   const phaseAction = getPhaseInteractionCopy(phaseKey);
 
   return {
     id: `${experiment.slug}-${kind}-${phaseKey}-${stepIndex}`,
     ruleId: rule.id,
-    icon: fallback.icon,
-    label: phaseKey === "setup" ? fallback.label : `${phaseAction}${fallback.label.replace(/^(拖入|加入|接通|接入|混合|滴加)/, "")}`,
-    actionLabel: fallback.actionLabel,
-    helper: fallback.helper,
-    autoHint: fallback.helper,
+    icon: interactionCopy.icon,
+    label: phaseKey === "setup" ? interactionCopy.label : `${phaseAction}${interactionCopy.label.replace(/^(拖入|加入|接通|接入|混合|滴加)/, "")}`,
+    actionLabel: interactionCopy.actionLabel,
+    helper: interactionCopy.helper,
+    autoHint: interactionCopy.helper,
     autoPlay: false,
-    toolTone: fallback.toolTone,
-    start: fallback.start ?? { x: 0.14, y: 0.2 },
-    target: fallback.target,
-    targetSide: fallback.targetSide ?? "center",
-    targetLabel: fallback.targetLabel,
-    radius: fallback.radius ?? 86,
-    commitEffect: fallback.commitEffect,
-    commitDelayMs: fallback.commitDelayMs ?? 760,
-    pourPose: fallback.pourPose,
+    toolTone: interactionCopy.toolTone,
+    start: interactionCopy.start ?? { x: 0.14, y: 0.2 },
+    target: interactionCopy.target,
+    targetSide: interactionCopy.targetSide ?? "center",
+    targetLabel: interactionCopy.targetLabel,
+    radius: interactionCopy.radius ?? 86,
+    commitEffect: interactionCopy.commitEffect,
+    commitDelayMs: interactionCopy.commitDelayMs ?? 760,
+    pourPose: interactionCopy.pourPose,
     nextStep: Math.min(totalSteps - 1, stepIndex + 1),
     rule
   };
@@ -811,6 +952,10 @@ export function getDemoStepsForExperiment(experiment) {
 
 export function inferDemoKind(experiment) {
   const slug = experiment.slug;
+
+  if (slug.includes("iron-copper") || slug.includes("displacement")) {
+    return "displacement";
+  }
 
   if (slug.includes("carbon-dioxide")) {
     return "fizz-transfer";
@@ -1085,6 +1230,45 @@ const stageToolSize = {
   height: 92
 };
 
+function StageToolIcon({ interaction }) {
+  if (interaction.toolTone === "metal") {
+    return (
+      <span className="lab-stage-tool-icon lab-stage-tool-icon-metal" aria-hidden="true">
+        <span className="lab-drag-nail">
+          <span className="lab-drag-nail-head" />
+          <span className="lab-drag-nail-body" />
+          <span className="lab-drag-nail-tip" />
+        </span>
+      </span>
+    );
+  }
+
+  if (interaction.toolTone === "heat") {
+    return (
+      <span className="lab-stage-tool-icon lab-stage-tool-icon-heat" aria-hidden="true">
+        <span className="lab-drag-burner-flame" />
+        <span className="lab-reagent-bottle-label">{interaction.icon}</span>
+      </span>
+    );
+  }
+
+  if (interaction.toolTone === "power") {
+    return (
+      <span className="lab-stage-tool-icon lab-stage-tool-icon-power" aria-hidden="true">
+        <span className="lab-drag-power-wire" />
+        <span className="lab-reagent-bottle-label">{interaction.icon}</span>
+      </span>
+    );
+  }
+
+  return (
+    <span className="lab-stage-tool-icon" aria-hidden="true">
+      <span className="lab-reagent-bottle-liquid" />
+      <span className="lab-reagent-bottle-label">{interaction.icon}</span>
+    </span>
+  );
+}
+
 function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
   const bounds = useStageBounds(containerRef);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -1248,6 +1432,11 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
               <div className="lab-stage-spark-field">{RepeatedSpans({ count: 8 })}</div>
             ) : interaction.commitEffect === "heat-pulse" ? (
               <div className="lab-stage-heat-field">{RepeatedSpans({ count: 5 })}</div>
+            ) : interaction.commitEffect === "metal-drop" ? (
+              <div className="lab-stage-metal-drop">
+                <span className="lab-stage-metal-nail" />
+                <span className="lab-stage-metal-splash" />
+              </div>
             ) : (
               <>
                 <span className="lab-stage-pour-stream" />
@@ -1343,10 +1532,7 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
         type="button"
         whileDrag={reduceMotion ? undefined : { scale: 1.04, boxShadow: "0 18px 36px rgba(4, 8, 17, 0.24)" }}
       >
-        <span className="lab-stage-tool-icon" aria-hidden="true">
-          <span className="lab-reagent-bottle-liquid" />
-          <span className="lab-reagent-bottle-label">{interaction.icon}</span>
-        </span>
+        <StageToolIcon interaction={interaction} />
         <span className="lab-stage-tool-copy">
           <strong>{isPouring ? interaction.actionLabel ?? "正在加入..." : interaction.label}</strong>
           <small>
@@ -2507,6 +2693,152 @@ function ReactionScene({ state }) {
   );
 }
 
+function DisplacementScene({ state, motionEnabled, reduceMotion }) {
+  const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
+  const nailLoaded = state.stepIndex >= 1 || state.phaseKey === "reacting" || state.phaseKey === "observing" || state.phaseKey === "complete";
+  const reactionVisible = state.stepIndex >= 2 || state.phaseKey === "observing" || state.phaseKey === "complete";
+  const settled = state.phaseKey === "observing" || state.phaseKey === "complete";
+
+  return (
+    <div className="demo-scene demo-scene-displacement">
+      <div className="real-lab-bench" />
+      <div className="real-test-tube-rack">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="real-test-tube real-test-tube-main">
+        <span className="real-test-tube-glass" />
+        <span className="real-test-tube-rim" />
+        <span className="real-test-tube-highlight" />
+        <span className="real-test-tube-graduations" />
+        <MotionElement
+          as="span"
+          className={`real-test-tube-liquid ${reactionVisible ? "real-test-tube-liquid-reacted" : ""}`}
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : {
+                  opacity: 1,
+                  backgroundPosition: reactionVisible ? ["0% 0%", "100% 45%", "0% 0%"] : "0% 0%"
+                },
+            transition: reactionVisible
+              ? {
+                  duration: 2.8,
+                  ease: "easeInOut",
+                  repeat: Infinity
+                }
+              : transition
+          }}
+        >
+          <span className="real-liquid-meniscus" />
+        </MotionElement>
+
+        <MotionElement
+          as="div"
+          className={`real-iron-nail real-iron-nail-in-tube ${reactionVisible ? "real-iron-nail-reacted" : ""}`}
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: nailLoaded ? 1 : 0 }
+              : nailLoaded
+                ? {
+                    opacity: 1,
+                    y: 0,
+                    rotate: reactionVisible ? [-9, -8, -10, -9] : -9,
+                    scale: 1
+                  }
+                : { opacity: 0, y: -72, rotate: -18, scale: 0.96 },
+            transition: reactionVisible
+              ? {
+                  duration: 1.7,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          <span className="real-iron-nail-head" />
+          <span className="real-iron-nail-body" />
+          <span className="real-iron-nail-tip" />
+          <MotionElement
+            as="span"
+            className="real-copper-coating"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion
+                ? { opacity: reactionVisible ? 1 : 0 }
+                : reactionVisible
+                  ? { opacity: [0.28, 0.9, 0.72], scaleY: settled ? 1 : [0.2, 1.05, 0.86] }
+                  : { opacity: 0, scaleY: 0.12 },
+              transition: reactionVisible
+                ? {
+                    duration: 1.4,
+                    ease: "easeInOut"
+                  }
+                : transition
+            }}
+          />
+        </MotionElement>
+
+        <MotionElement
+          as="div"
+          className="real-copper-particles"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: reactionVisible ? 1 : 0 }
+              : reactionVisible
+                ? { opacity: [0.24, 0.82, 0.5], scale: [0.86, 1.08, 0.96] }
+                : { opacity: 0, scale: 0.72 },
+            transition: reactionVisible
+              ? {
+                  duration: 1.25,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 12 })}
+        </MotionElement>
+
+        <MotionElement
+          as="div"
+          className="real-solution-wake"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: reactionVisible ? 1 : 0 }
+              : reactionVisible
+                ? { opacity: [0.18, 0.58, 0.26], scale: [0.86, 1.08, 0.96], y: [12, -4, 2] }
+                : nailLoaded
+                  ? { opacity: 0.18, scale: 0.8, y: 12 }
+                  : { opacity: 0, scale: 0.72, y: 16 },
+            transition: reactionVisible
+              ? {
+                  duration: 1.36,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 5 })}
+        </MotionElement>
+      </div>
+      <div className="real-stage-label">
+        <span>CuSO4 溶液</span>
+        <strong>{reactionVisible ? "铁钉表面析出红铜，溶液逐渐偏绿" : "请把打磨铁钉拖入试管"}</strong>
+      </div>
+    </div>
+  );
+}
+
 function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, onInteractiveStepChange }) {
   const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
   const sceneRef = useRef(null);
@@ -2820,6 +3152,8 @@ function renderScene(kind, state, motionEnabled, reduceMotion, interactive, onIn
       return <ElectroplateScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "electrolysis":
       return <ElectrolysisScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
+    case "displacement":
+      return <DisplacementScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "chromatography":
       return <ChromatographyScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     case "rate":
