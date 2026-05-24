@@ -327,6 +327,20 @@ function resolveRuleId({ experiment, kind, phaseKey }) {
 }
 
 function resolveExperimentRule({ experiment, kind, phaseKey }) {
+  if (kind === "fizz-transfer" && isEggshellVinegarExperiment(experiment)) {
+    const copy = getCarbonateInteractionCopy(experiment);
+
+    if (phaseKey === "idle") {
+      return copy.solid.rule;
+    }
+
+    if (phaseKey === "loaded") {
+      return copy.acid.rule;
+    }
+
+    return copy.gas.rule;
+  }
+
   const ruleId = resolveRuleId({ experiment, kind, phaseKey });
   return experimentRuleCatalog[ruleId] ?? experimentRuleCatalog["reaction-general"];
 }
@@ -398,6 +412,28 @@ const stageInteractionProfiles = {
       nextStep: 2
     },
     reacting: {
+      id: "co2-bubble-check",
+      ruleId: "acid-carbonate-gas",
+      icon: "🫧",
+      label: "观察产气",
+      actionLabel: "气泡正在增强",
+      helper: "把观察点拖到左侧反应瓶上方，确认连续产气",
+      autoHint: "先确认左侧反应瓶内连续产生气泡，再进入二氧化碳检验步骤。",
+      autoPlay: false,
+      toolTone: "lime",
+      start: { x: 0.12, y: 0.2 },
+      target: { x: 0.27, y: 0.48 },
+      targetSide: "left",
+      radius: 86,
+      commitEffect: "spark-burst",
+      commitDelayMs: 720,
+      pourPose: {
+        rotate: -8,
+        scale: 1.04
+      },
+      nextStep: 3
+    },
+    transferring: {
       id: "limewater-check",
       ruleId: "limewater-clouding",
       icon: "🫙",
@@ -417,10 +453,143 @@ const stageInteractionProfiles = {
         rotate: 22,
         scale: 1.04
       },
-      nextStep: 3
+      nextStep: 4
     }
   }
 };
+
+function isEggshellVinegarExperiment(experiment) {
+  const source = `${experiment.slug ?? ""} ${experiment.title ?? ""} ${experiment.materials?.join(" ") ?? ""}`;
+  return /eggshell|蛋壳|白醋|vinegar/i.test(source);
+}
+
+function getCarbonateInteractionCopy(experiment) {
+  const isEggshell = isEggshellVinegarExperiment(experiment);
+
+  if (isEggshell) {
+    return {
+      isEggshell: true,
+      solid: {
+        id: "eggshell-charge",
+        icon: "🥚",
+        label: "放入蛋壳",
+        actionLabel: "蛋壳碎片落入杯底",
+        helper: "把蛋壳碎片拖到左侧反应容器底部",
+        autoHint: "手动把蛋壳碎片加入反应容器，为后续白醋反应提供接触面积。",
+        target: { x: 0.5, y: 0.78 },
+        targetSide: "center",
+        rule: {
+          ...experimentRuleCatalog["carbonate-charge"],
+          title: "装入蛋壳碎片",
+          inputReagents: ["eggshell"],
+          products: ["待加白醋"],
+          observation: "蛋壳碎片先进入反应容器，系统等待白醋触发产气。"
+        }
+      },
+      acid: {
+        id: "vinegar-pour",
+        icon: "🧴",
+        label: "滴加白醋",
+        actionLabel: "白醋正在倒入",
+        helper: "把白醋拖到左侧容器口并松手倒入",
+        autoHint: "手动把白醋沿容器口倒入，酸液接触蛋壳后开始产生二氧化碳。",
+        target: { x: 0.5, y: 0.34 },
+        targetSide: "center",
+        rule: {
+          ...experimentRuleCatalog["acid-carbonate-gas"],
+          title: "白醋 + 蛋壳",
+          inputReagents: ["eggshell", "vinegar"],
+          reactants: ["CaCO3", "CH3COOH"],
+          products: ["CO2", "Ca(CH3COO)2", "H2O"],
+          observation: "白醋接触蛋壳中的碳酸钙后产生 CO2，蛋壳表面出现连续细密气泡。"
+        }
+      },
+      gas: {
+        id: "eggshell-bubble-check",
+        icon: "🫧",
+        label: "观察气泡",
+        actionLabel: "蛋壳表面正在冒泡",
+        helper: "把观察点拖到反应容器上方，确认蛋壳表面连续冒泡",
+        autoHint: "观察蛋壳表面细密气泡和固体逐渐变薄的过程。",
+        target: { x: 0.5, y: 0.48 },
+        targetSide: "center",
+        rule: {
+          ...experimentRuleCatalog["acid-carbonate-gas"],
+          title: "观察蛋壳产气",
+          inputReagents: ["eggshell", "vinegar"],
+          reactants: ["CaCO3", "CH3COOH"],
+          products: ["CO2", "Ca(CH3COO)2", "H2O"],
+          observation: "蛋壳表面持续出现细密气泡，说明碳酸钙正在和白醋反应并释放 CO2。"
+        }
+      },
+      receiver: null
+    };
+  }
+
+  return {
+    isEggshell: false,
+    solid: {
+      rule: experimentRuleCatalog["carbonate-charge"]
+    },
+    acid: {
+      rule: experimentRuleCatalog["acid-carbonate-gas"]
+    },
+    gas: {
+      rule: experimentRuleCatalog["acid-carbonate-gas"]
+    },
+    receiver: {
+      rule: experimentRuleCatalog["limewater-clouding"]
+    }
+  };
+}
+
+function resolveFizzTransferInteractionProfile(profile, phaseKey, experiment) {
+  const copy = getCarbonateInteractionCopy(experiment);
+
+  if (phaseKey === "idle") {
+    return {
+      ...profile,
+      ...copy.solid
+    };
+  }
+
+  if (phaseKey === "loaded") {
+    return {
+      ...profile,
+      ...copy.acid
+    };
+  }
+
+  if (phaseKey === "reacting" && copy.gas.id) {
+    return {
+      ...profile,
+      ...copy.gas,
+      toolTone: "lime",
+      start: { x: 0.12, y: 0.2 },
+      target: copy.gas.target ?? { x: 0.27, y: 0.48 },
+      targetSide: copy.gas.targetSide ?? "left",
+      radius: 86,
+      commitEffect: "spark-burst",
+      commitDelayMs: 720,
+      pourPose: {
+        rotate: -8,
+        scale: 1.04
+      }
+    };
+  }
+
+  if (phaseKey === "transferring" && copy.receiver) {
+    return {
+      ...profile,
+      ...copy.receiver
+    };
+  }
+
+  return {
+    ...profile,
+    rule: copy[phaseKey === "transferring" ? "receiver" : "gas"]?.rule ?? experimentRuleCatalog[profile.ruleId]
+  };
+}
 
 const genericInteractionByKind = {
   indicator: {
@@ -749,19 +918,22 @@ function useExperimentConsoleMotionEnabled() {
 }
 
 function resolveInteractionProfile(kind, phaseKey, rule, { experiment, stepIndex, totalSteps }) {
+  if (stepIndex >= totalSteps - 1) {
+    return null;
+  }
+
   const profile = stageInteractionProfiles[kind]?.[phaseKey] ?? null;
 
   if (profile) {
-    return {
-      ...profile,
-      autoPlay: false,
-      nextStep: Math.min(totalSteps - 1, profile.nextStep ?? stepIndex + 1),
-      rule: experimentRuleCatalog[profile.ruleId] ?? rule
-    };
-  }
+    const resolvedProfile =
+      kind === "fizz-transfer" ? resolveFizzTransferInteractionProfile(profile, phaseKey, experiment) : profile;
 
-  if (stepIndex >= totalSteps - 1) {
-    return null;
+    return {
+      ...resolvedProfile,
+      autoPlay: false,
+      nextStep: Math.min(totalSteps - 1, resolvedProfile.nextStep ?? stepIndex + 1),
+      rule: resolvedProfile.rule ?? experimentRuleCatalog[resolvedProfile.ruleId] ?? rule
+    };
   }
 
   const fallback = genericInteractionByKind[kind] ?? genericInteractionByKind.reaction;
@@ -2935,22 +3107,31 @@ function DisplacementScene({ state, motionEnabled, reduceMotion }) {
 function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, onInteractiveStepChange }) {
   const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
   const sceneRef = useRef(null);
+  const carbonateCopy = getCarbonateInteractionCopy(state.experiment);
+  const isEggshellDemo = carbonateCopy.isEggshell;
   const isCharged = state.flags.chargeLoaded;
   const isReacting = state.flags.reactionStarted;
-  const isTransferring = state.phaseKey === "transferring" || state.phaseKey === "verified";
-  const isVerified = state.phaseKey === "verified";
+  const isTransferring = !isEggshellDemo && (state.phaseKey === "transferring" || state.phaseKey === "verified");
+  const isVerified = !isEggshellDemo && state.phaseKey === "verified";
   const interaction = interactive ? state.interactionProfile : null;
   const activeRule = interaction?.rule ?? state.rule;
   const stageHint = interaction
     ? interaction.autoHint ?? `${interaction.helper}。`
     : isVerified
       ? "石灰水已经明显变浑浊，完成二氧化碳检验。"
+      : state.flags.finished && isEggshellDemo
+        ? "蛋壳表面持续冒泡并逐渐变薄，完成蛋壳与白醋的观察。"
       : isTransferring
         ? "观察导管中的气体持续进入石灰水。"
         : activeRule?.observation ?? "现在进入观察阶段，确认反应是否稳定进行。";
 
   return (
-    <div className={`lab-stage-shell ${interactive ? "lab-stage-shell-interactive" : ""}`} ref={sceneRef}>
+    <div
+      className={`lab-stage-shell ${interactive ? "lab-stage-shell-interactive" : ""} ${
+        isEggshellDemo ? "lab-stage-shell-single-vessel" : ""
+      }`}
+      ref={sceneRef}
+    >
       <AnimatePresence initial={false} mode="wait">
         <MotionElement
           as="div"
@@ -2965,13 +3146,19 @@ function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, on
           }}
         >
           <span className="lab-stage-hint-label">{interaction ? "实验动作" : "阶段提示"}</span>
-          <strong>{interaction ? interaction.label : state.phaseKey === "verified" ? "完成检验" : "观察变化"}</strong>
+          <strong>{interaction ? interaction.label : state.flags.finished ? (isEggshellDemo ? "完成观察" : "完成检验") : "观察变化"}</strong>
           <p>{stageHint}</p>
         </MotionElement>
       </AnimatePresence>
 
-      <LabBeaker label="反应瓶" side="left" liquidClassName="lab-liquid-reactant">
-        <div className={`lab-rocks ${isCharged ? "lab-rocks-loaded" : ""}`}>{RepeatedSpans({ count: 3 })}</div>
+      <LabBeaker label={isEggshellDemo ? "反应杯" : "反应瓶"} side="left" liquidClassName="lab-liquid-reactant">
+        <div
+          className={`lab-rocks lab-carbonate-solids ${
+            isEggshellDemo ? "lab-carbonate-solids-eggshell" : "lab-carbonate-solids-marble"
+          } ${isCharged ? "lab-rocks-loaded" : ""}`}
+        >
+          {RepeatedSpans({ count: isEggshellDemo ? 5 : 3 })}
+        </div>
         <MotionElement
           as="div"
           className="lab-surface-wave lab-surface-wave-reactant"
@@ -3085,123 +3272,127 @@ function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, on
         />
       </LabBeaker>
 
-      <div className={`lab-transfer-line ${isTransferring ? "lab-transfer-line-active" : ""}`}>
-        <MotionElement
-          as="span"
-          className="lab-flow-dot"
-          enabled={motionEnabled}
-          motionProps={{
-            animate: reduceMotion
-              ? { opacity: 1 }
-              : isTransferring
-                ? {
-                    opacity: [0.35, 1, 0.45],
-                    x: [0, 72, 0]
-                  }
-                : { opacity: 0.18, x: 0 },
-            transition: isTransferring
-              ? {
-                  duration: 1.1,
-                  ease: "easeInOut",
-                  repeat: Infinity
-                }
-              : transition
-          }}
-        />
-      </div>
+      {!isEggshellDemo ? (
+        <>
+          <div className={`lab-transfer-line ${isTransferring ? "lab-transfer-line-active" : ""}`}>
+            <MotionElement
+              as="span"
+              className="lab-flow-dot"
+              enabled={motionEnabled}
+              motionProps={{
+                animate: reduceMotion
+                  ? { opacity: 1 }
+                  : isTransferring
+                    ? {
+                        opacity: [0.35, 1, 0.45],
+                        x: [0, 72, 0]
+                      }
+                    : { opacity: 0.18, x: 0 },
+                transition: isTransferring
+                  ? {
+                      duration: 1.1,
+                      ease: "easeInOut",
+                      repeat: Infinity
+                    }
+                  : transition
+              }}
+            />
+          </div>
 
-      <LabBeaker
-        label="检验瓶"
-        side="right"
-        liquidClassName={`lab-liquid-limewater ${isTransferring ? "lab-liquid-ready" : "lab-liquid-dormant"}`}
-      >
-        <MotionElement
-          as="div"
-          className="lab-surface-wave lab-surface-wave-lime"
-          enabled={motionEnabled}
-          motionProps={{
-            animate: reduceMotion
-              ? { opacity: 1 }
-              : isTransferring
-                ? { opacity: [0.36, 0.82, 0.54], y: [2, -3, 0], scaleX: [0.95, 1.03, 0.99] }
-                : { opacity: 0.12, y: 4, scaleX: 0.92 },
-            transition: isTransferring
-              ? {
-                  duration: 1.02,
-                  ease: "easeInOut",
-                  repeat: Infinity,
-                  repeatType: "mirror"
-                }
-              : transition
-          }}
-        >
-          {RepeatedSpans({ count: 4 })}
-        </MotionElement>
-        <MotionElement
-          as="div"
-          className="lab-cloud-mist"
-          enabled={motionEnabled}
-          motionProps={{
-            animate: reduceMotion
-              ? { opacity: 1 }
-              : isVerified
-                ? { opacity: [0.28, 0.74, 0.48], scale: [0.88, 1.08, 0.98], y: [8, -4, 2] }
-                : isTransferring
-                  ? { opacity: 0.36, scale: 0.94, y: 10 }
-                  : { opacity: 0.08, scale: 0.72, y: 18 },
-            transition: isVerified
-              ? {
-                  ...transition,
-                  duration: 1.16
-                }
-              : transition
-          }}
-        >
-          {RepeatedSpans({ count: 5 })}
-        </MotionElement>
-        <MotionElement
-          as="div"
-          className="lab-clouds"
-          enabled={motionEnabled}
-          motionProps={{
-            animate: reduceMotion
-              ? { opacity: 1 }
-              : isVerified
-                ? {
-                    opacity: [0.48, 0.95, 0.72],
-                    scale: [0.84, 1.08, 1]
-                  }
-                : isTransferring
-                  ? { opacity: 0.58, scale: 0.9 }
-                  : { opacity: 0.18, scale: 0.72 },
-            transition: isVerified
-              ? {
-                  ...transition,
-                  duration: 1
-                }
-              : transition
-          }}
-        >
-          {RepeatedSpans({ count: 3 })}
-        </MotionElement>
-        <MotionElement
-          as="div"
-          className="lab-precipitate-bed"
-          enabled={motionEnabled}
-          motionProps={{
-            animate: reduceMotion
-              ? { opacity: 1 }
-              : isVerified
-                ? { opacity: 0.88, scaleY: 1, y: 0 }
-                : isTransferring
-                  ? { opacity: 0.32, scaleY: 0.78, y: 10 }
-                  : { opacity: 0.06, scaleY: 0.62, y: 16 },
-            transition
-          }}
-        >
-          {RepeatedSpans({ count: 5 })}
-        </MotionElement>
-      </LabBeaker>
+          <LabBeaker
+            label="检验瓶"
+            side="right"
+            liquidClassName={`lab-liquid-limewater ${isTransferring ? "lab-liquid-ready" : "lab-liquid-dormant"}`}
+          >
+            <MotionElement
+              as="div"
+              className="lab-surface-wave lab-surface-wave-lime"
+              enabled={motionEnabled}
+              motionProps={{
+                animate: reduceMotion
+                  ? { opacity: 1 }
+                  : isTransferring
+                    ? { opacity: [0.36, 0.82, 0.54], y: [2, -3, 0], scaleX: [0.95, 1.03, 0.99] }
+                    : { opacity: 0.12, y: 4, scaleX: 0.92 },
+                transition: isTransferring
+                  ? {
+                      duration: 1.02,
+                      ease: "easeInOut",
+                      repeat: Infinity,
+                      repeatType: "mirror"
+                    }
+                  : transition
+              }}
+            >
+              {RepeatedSpans({ count: 4 })}
+            </MotionElement>
+            <MotionElement
+              as="div"
+              className="lab-cloud-mist"
+              enabled={motionEnabled}
+              motionProps={{
+                animate: reduceMotion
+                  ? { opacity: 1 }
+                  : isVerified
+                    ? { opacity: [0.28, 0.74, 0.48], scale: [0.88, 1.08, 0.98], y: [8, -4, 2] }
+                    : isTransferring
+                      ? { opacity: 0.36, scale: 0.94, y: 10 }
+                      : { opacity: 0.08, scale: 0.72, y: 18 },
+                transition: isVerified
+                  ? {
+                      ...transition,
+                      duration: 1.16
+                    }
+                  : transition
+              }}
+            >
+              {RepeatedSpans({ count: 5 })}
+            </MotionElement>
+            <MotionElement
+              as="div"
+              className="lab-clouds"
+              enabled={motionEnabled}
+              motionProps={{
+                animate: reduceMotion
+                  ? { opacity: 1 }
+                  : isVerified
+                    ? {
+                        opacity: [0.48, 0.95, 0.72],
+                        scale: [0.84, 1.08, 1]
+                      }
+                    : isTransferring
+                      ? { opacity: 0.58, scale: 0.9 }
+                      : { opacity: 0.18, scale: 0.72 },
+                transition: isVerified
+                  ? {
+                      ...transition,
+                      duration: 1
+                    }
+                  : transition
+              }}
+            >
+              {RepeatedSpans({ count: 3 })}
+            </MotionElement>
+            <MotionElement
+              as="div"
+              className="lab-precipitate-bed"
+              enabled={motionEnabled}
+              motionProps={{
+                animate: reduceMotion
+                  ? { opacity: 1 }
+                  : isVerified
+                    ? { opacity: 0.88, scaleY: 1, y: 0 }
+                    : isTransferring
+                      ? { opacity: 0.32, scaleY: 0.78, y: 10 }
+                      : { opacity: 0.06, scaleY: 0.62, y: 16 },
+                transition
+              }}
+            >
+              {RepeatedSpans({ count: 5 })}
+            </MotionElement>
+          </LabBeaker>
+        </>
+      ) : null}
 
       {interactive ? (
         <StageDragTool

@@ -799,6 +799,11 @@ select {
   left: 42px;
 }
 
+.lab-stage-shell-single-vessel .lab-beaker-left {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .lab-beaker-right {
   right: 42px;
 }
@@ -1025,6 +1030,47 @@ select {
 
 .lab-rocks span:nth-child(3) {
   left: 88px;
+}
+
+.lab-carbonate-solids-eggshell span {
+  width: 22px;
+  height: 17px;
+  border-radius: 46% 54% 48% 52%;
+  background:
+    radial-gradient(circle at 38% 35%, rgba(255, 255, 255, 0.96) 0 18%, transparent 19%),
+    linear-gradient(145deg, rgba(254, 243, 199, 0.98), rgba(214, 211, 209, 0.9) 52%, rgba(146, 64, 14, 0.72));
+  box-shadow:
+    inset 0 2px 6px rgba(255, 255, 255, 0.34),
+    inset 0 -3px 8px rgba(120, 53, 15, 0.22),
+    0 2px 6px rgba(2, 6, 23, 0.18);
+}
+
+.lab-carbonate-solids-eggshell span:nth-child(1) {
+  left: 14px;
+  transform: rotate(-18deg);
+}
+
+.lab-carbonate-solids-eggshell span:nth-child(2) {
+  left: 42px;
+  bottom: 14px;
+  transform: rotate(12deg) scale(0.92);
+}
+
+.lab-carbonate-solids-eggshell span:nth-child(3) {
+  left: 70px;
+  transform: rotate(22deg) scale(0.86);
+}
+
+.lab-carbonate-solids-eggshell span:nth-child(4) {
+  left: 96px;
+  bottom: 15px;
+  transform: rotate(-8deg) scale(0.78);
+}
+
+.lab-carbonate-solids-eggshell span:nth-child(5) {
+  left: 116px;
+  bottom: 20px;
+  transform: rotate(18deg) scale(0.72);
 }
 
 .lab-bubbles {
