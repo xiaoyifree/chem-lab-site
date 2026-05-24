@@ -601,6 +601,40 @@ function inferMaterialInteractionProfile({ experiment, kind, phaseKey, stepIndex
   const source = `${stepCopy} ${materialCopy}`;
   const isSetupPhase = phaseKey === "setup" || phaseKey === "idle";
 
+  if (/高锰酸钾|KMnO4|kmno|二氧化锰|MnO2|粉末|powder/i.test(source)) {
+    return {
+      icon: "KMnO4",
+      label: /高锰酸钾|KMnO4|kmno/i.test(source) ? "拖入高锰酸钾粉末" : "拖入粉末样品",
+      actionLabel: "粉末正在倒入试管",
+      helper: "拖动药匙到试管口，松手把粉末加入试管底部",
+      targetLabel: "试管口",
+      toolTone: "powder",
+      toolShape: "powder",
+      commitEffect: "powder-drop",
+      target: { x: 0.5, y: 0.38 },
+      radius: 96,
+      commitDelayMs: 720,
+      pourPose: { rotate: -16, scale: 1.05 }
+    };
+  }
+
+  if (/镁带|magnesium/i.test(source)) {
+    return {
+      icon: "Mg",
+      label: "拖入镁带",
+      actionLabel: "镁带正在就位",
+      helper: "把镁带拖到火焰上方，松手后观察白光和火星",
+      targetLabel: "火焰位",
+      toolTone: "metal",
+      toolShape: "magnesium",
+      commitEffect: "spark-burst",
+      target: { x: 0.5, y: 0.58 },
+      radius: 96,
+      commitDelayMs: 760,
+      pourPose: { rotate: -18, scale: 1.08 }
+    };
+  }
+
   if (
     (isSetupPhase || kind === "displacement" || kind === "electroplate") &&
     /铁钉|铁片|铜片|锌片|铝片|金属片|待镀金属|steel|iron|copper|zinc|metal/i.test(source)
@@ -612,6 +646,7 @@ function inferMaterialInteractionProfile({ experiment, kind, phaseKey, stepIndex
       helper: "把金属样品拖到试管或烧杯口，松手后观察表面和溶液变化",
       targetLabel: "容器口",
       toolTone: "metal",
+      toolShape: /铁钉|iron/i.test(source) ? "nail" : "metal-strip",
       commitEffect: "metal-drop",
       start: { x: 0.16, y: 0.18 },
       target: { x: 0.5, y: 0.38 },
@@ -957,7 +992,7 @@ export function inferDemoKind(experiment) {
     return "displacement";
   }
 
-  if (slug.includes("carbon-dioxide")) {
+  if (slug.includes("carbon-dioxide") || slug.includes("eggshell") || slug.includes("vinegar")) {
     return "fizz-transfer";
   }
 
@@ -1226,11 +1261,29 @@ function LabBeaker({ side, liquidClassName, label, children }) {
 }
 
 const stageToolSize = {
-  width: 152,
-  height: 92
+  width: 178,
+  height: 104
 };
 
 function StageToolIcon({ interaction }) {
+  if (interaction.toolShape === "magnesium") {
+    return (
+      <span className="lab-stage-tool-icon lab-stage-tool-icon-magnesium" aria-hidden="true">
+        <span className="lab-drag-magnesium-ribbon" />
+        <span className="lab-drag-magnesium-spark" />
+      </span>
+    );
+  }
+
+  if (interaction.toolShape === "powder") {
+    return (
+      <span className="lab-stage-tool-icon lab-stage-tool-icon-powder" aria-hidden="true">
+        <span className="lab-drag-powder-spoon" />
+        <span className="lab-drag-powder-grains">{RepeatedSpans({ count: 8 })}</span>
+      </span>
+    );
+  }
+
   if (interaction.toolTone === "metal") {
     return (
       <span className="lab-stage-tool-icon lab-stage-tool-icon-metal" aria-hidden="true">
@@ -1350,10 +1403,15 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
   }
 
   const startCenter = resolveStagePoint(bounds, interaction.start);
+  const dockCenter = {
+    x: Math.max(stageToolSize.width / 2 + 18, Math.min(bounds.width - stageToolSize.width / 2 - 18, bounds.width * 0.22)),
+    y: Math.max(stageToolSize.height / 2 + 18, Math.min(bounds.height - stageToolSize.height / 2 - 18, bounds.height * 0.25))
+  };
+  const visualStartCenter = interaction.docked === false ? startCenter : dockCenter;
   const targetCenter = resolveStagePoint(bounds, interaction.target);
   const snapOffset = {
-    x: targetCenter.x - startCenter.x,
-    y: targetCenter.y - startCenter.y
+    x: targetCenter.x - visualStartCenter.x,
+    y: targetCenter.y - visualStartCenter.y
   };
   const isSnapping = dragStatus === "snapping";
   const isPouring = dragStatus === "pouring";
@@ -1437,6 +1495,11 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
                 <span className="lab-stage-metal-nail" />
                 <span className="lab-stage-metal-splash" />
               </div>
+            ) : interaction.commitEffect === "powder-drop" ? (
+              <div className="lab-stage-powder-drop">
+                <span className="lab-stage-powder-spoon" />
+                <div className="lab-stage-powder-grains">{RepeatedSpans({ count: 10 })}</div>
+              </div>
             ) : (
               <>
                 <span className="lab-stage-pour-stream" />
@@ -1476,8 +1539,8 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
         }}
         onDrag={(_, info) => {
           const currentCenter = {
-            x: startCenter.x + info.offset.x,
-            y: startCenter.y + info.offset.y
+            x: visualStartCenter.x + info.offset.x,
+            y: visualStartCenter.y + info.offset.y
           };
 
           setTargetFeedback(getPointDistance(currentCenter, targetCenter) <= interaction.radius ? "near" : "dragging");
@@ -1486,8 +1549,8 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
           setIsDragging(false);
 
           const releaseCenter = {
-            x: startCenter.x + info.offset.x,
-            y: startCenter.y + info.offset.y
+            x: visualStartCenter.x + info.offset.x,
+            y: visualStartCenter.y + info.offset.y
           };
 
           if (getPointDistance(releaseCenter, targetCenter) <= interaction.radius) {
@@ -1507,8 +1570,8 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
           setTargetFeedback("dragging");
         }}
         style={{
-          left: startCenter.x - stageToolSize.width / 2,
-          top: startCenter.y - stageToolSize.height / 2,
+          left: visualStartCenter.x - stageToolSize.width / 2,
+          top: visualStartCenter.y - stageToolSize.height / 2,
           width: stageToolSize.width,
           minHeight: stageToolSize.height
         }}
@@ -1790,6 +1853,36 @@ function FlameScene({ state, motionEnabled, reduceMotion }) {
         <span className="demo-flame demo-flame-outer" />
         <span className="demo-flame demo-flame-middle" />
         <span className="demo-flame demo-flame-core" />
+      </MotionElement>
+      <MotionElement
+        as="div"
+        className={`demo-magnesium-ribbon ${isActive ? "demo-magnesium-ribbon-burning" : ""}`}
+        enabled={motionEnabled}
+        motionProps={{
+          animate: reduceMotion
+            ? { opacity: 1 }
+            : isActive
+              ? {
+                  opacity: [0.86, 1, 0.92],
+                  y: [0, -4, 0],
+                  filter: [
+                    "brightness(1.2)",
+                    "brightness(1.8)",
+                    "brightness(1.35)"
+                  ]
+                }
+              : { opacity: 0.92, y: 0, filter: "brightness(1)" },
+          transition: isActive
+            ? {
+                duration: 0.8,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatType: "mirror"
+              }
+            : transition
+        }}
+      >
+        <span />
       </MotionElement>
       <MotionElement
         as="div"

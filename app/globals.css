@@ -1195,7 +1195,7 @@ select {
 }
 
 .lab-stage-tool {
-  z-index: 5;
+  z-index: 20;
   display: flex;
   gap: 9px;
   align-items: center;
@@ -1212,6 +1212,8 @@ select {
   cursor: grab;
   text-align: left;
   touch-action: none;
+  outline: 2px solid rgba(45, 212, 191, 0.12);
+  outline-offset: 4px;
 }
 
 .lab-stage-tool:active {
@@ -1347,14 +1349,20 @@ select {
 }
 
 .lab-stage-tool-copy strong {
-  font-size: 0.94rem;
+  font-size: 1rem;
   line-height: 1.2;
 }
 
 .lab-stage-tool-copy small {
   color: rgba(226, 232, 240, 0.62);
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   line-height: 1.4;
+}
+
+.lab-stage-tool-copy small::before {
+  content: "拖拽 ";
+  color: rgba(45, 212, 191, 0.92);
+  font-weight: 900;
 }
 
 .lab-stage-tool-stone .lab-stage-tool-icon {
@@ -1437,10 +1445,27 @@ select {
   display: none;
 }
 
+.lab-stage-tool-icon-magnesium,
+.lab-stage-tool-icon-powder {
+  border-color: rgba(226, 232, 240, 0.36);
+}
+
+.lab-stage-tool-icon-magnesium::before,
+.lab-stage-tool-icon-magnesium::after,
+.lab-stage-tool-icon-powder::before,
+.lab-stage-tool-icon-powder::after {
+  display: none;
+}
+
 .lab-drag-nail,
 .lab-drag-nail-head,
 .lab-drag-nail-body,
 .lab-drag-nail-tip,
+.lab-drag-magnesium-ribbon,
+.lab-drag-magnesium-spark,
+.lab-drag-powder-spoon,
+.lab-drag-powder-grains,
+.lab-drag-powder-grains span,
 .lab-drag-burner-flame,
 .lab-drag-power-wire {
   position: absolute;
@@ -1483,6 +1508,100 @@ select {
   clip-path: polygon(50% 100%, 0 0, 100% 0);
   background: linear-gradient(90deg, rgba(203, 213, 225, 0.95), rgba(71, 85, 105, 0.9));
 }
+
+.lab-stage-tool-icon-magnesium {
+  background:
+    radial-gradient(circle at 70% 24%, rgba(253, 224, 71, 0.24), transparent 28%),
+    linear-gradient(135deg, rgba(248, 250, 252, 0.28), rgba(148, 163, 184, 0.12));
+}
+
+.lab-drag-magnesium-ribbon {
+  left: 8px;
+  top: 26px;
+  width: 52px;
+  height: 13px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(203, 213, 225, 0.9) 38%, rgba(100, 116, 139, 0.86));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.22),
+    0 8px 14px rgba(2, 6, 23, 0.22);
+  transform: rotate(-12deg);
+}
+
+.lab-drag-magnesium-ribbon::before {
+  content: "Mg";
+  position: absolute;
+  left: 17px;
+  top: -16px;
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 0.66rem;
+  font-weight: 900;
+}
+
+.lab-drag-magnesium-spark {
+  right: 7px;
+  top: 10px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(253, 224, 71, 0.92);
+  box-shadow:
+    0 0 10px rgba(253, 224, 71, 0.8),
+    0 0 22px rgba(249, 115, 22, 0.4);
+}
+
+.lab-stage-tool-icon-powder {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18), transparent 32%, rgba(255, 255, 255, 0.08)),
+    linear-gradient(180deg, rgba(168, 85, 247, 0.34), rgba(59, 130, 246, 0.14));
+}
+
+.lab-drag-powder-spoon {
+  left: 6px;
+  top: 34px;
+  width: 54px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(203, 213, 225, 0.9);
+  box-shadow: 0 7px 12px rgba(2, 6, 23, 0.22);
+  transform: rotate(-15deg);
+}
+
+.lab-drag-powder-spoon::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: -9px;
+  width: 22px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.96), rgba(100, 116, 139, 0.78));
+}
+
+.lab-drag-powder-grains {
+  right: 3px;
+  top: 18px;
+  width: 28px;
+  height: 22px;
+}
+
+.lab-drag-powder-grains span {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(124, 58, 237, 0.92);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.36);
+}
+
+.lab-drag-powder-grains span:nth-child(1) { left: 2px; top: 8px; }
+.lab-drag-powder-grains span:nth-child(2) { left: 8px; top: 3px; }
+.lab-drag-powder-grains span:nth-child(3) { left: 13px; top: 11px; }
+.lab-drag-powder-grains span:nth-child(4) { left: 19px; top: 5px; }
+.lab-drag-powder-grains span:nth-child(5) { left: 23px; top: 13px; }
+.lab-drag-powder-grains span:nth-child(6) { left: 6px; top: 15px; }
+.lab-drag-powder-grains span:nth-child(7) { left: 16px; top: 17px; }
+.lab-drag-powder-grains span:nth-child(8) { left: 0; top: 1px; }
 
 .lab-stage-tool-icon-heat::before,
 .lab-stage-tool-icon-heat::after,
@@ -1528,6 +1647,13 @@ select {
   margin-top: -16px;
 }
 
+.lab-stage-action-powder-drop {
+  width: 108px;
+  height: 150px;
+  margin-left: -54px;
+  margin-top: -86px;
+}
+
 .lab-stage-action-metal-drop {
   width: 108px;
   height: 148px;
@@ -1552,12 +1678,17 @@ select {
 
 .lab-stage-metal-drop,
 .lab-stage-metal-nail,
-.lab-stage-metal-splash {
+.lab-stage-metal-splash,
+.lab-stage-powder-drop,
+.lab-stage-powder-spoon,
+.lab-stage-powder-grains,
+.lab-stage-powder-grains span {
   position: absolute;
   pointer-events: none;
 }
 
-.lab-stage-metal-drop {
+.lab-stage-metal-drop,
+.lab-stage-powder-drop {
   inset: 0;
 }
 
@@ -1590,6 +1721,56 @@ select {
   transform: translateX(-50%) scale(0.62);
   animation: lab-metal-splash 0.78s ease-out forwards;
 }
+
+.lab-stage-powder-spoon {
+  left: 16px;
+  top: 18px;
+  width: 72px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(203, 213, 225, 0.94);
+  transform: rotate(-18deg);
+  animation: lab-powder-spoon-tilt 0.88s ease-out forwards;
+}
+
+.lab-stage-powder-spoon::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  top: -12px;
+  width: 28px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.98), rgba(100, 116, 139, 0.84));
+}
+
+.lab-stage-powder-grains {
+  left: 48px;
+  top: 30px;
+  width: 40px;
+  height: 112px;
+}
+
+.lab-stage-powder-grains span {
+  top: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(124, 58, 237, 0.95);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.36);
+  animation: lab-powder-grain-drop 0.82s ease-in forwards;
+}
+
+.lab-stage-powder-grains span:nth-child(1) { left: 2px; animation-delay: -0.02s; }
+.lab-stage-powder-grains span:nth-child(2) { left: 10px; animation-delay: -0.12s; }
+.lab-stage-powder-grains span:nth-child(3) { left: 18px; animation-delay: -0.06s; }
+.lab-stage-powder-grains span:nth-child(4) { left: 26px; animation-delay: -0.18s; }
+.lab-stage-powder-grains span:nth-child(5) { left: 34px; animation-delay: -0.1s; }
+.lab-stage-powder-grains span:nth-child(6) { left: 7px; animation-delay: -0.22s; }
+.lab-stage-powder-grains span:nth-child(7) { left: 15px; animation-delay: -0.28s; }
+.lab-stage-powder-grains span:nth-child(8) { left: 23px; animation-delay: -0.34s; }
+.lab-stage-powder-grains span:nth-child(9) { left: 30px; animation-delay: -0.4s; }
+.lab-stage-powder-grains span:nth-child(10) { left: 12px; animation-delay: -0.46s; }
 
 .lab-stage-pour-stream {
   position: absolute;
@@ -2932,6 +3113,41 @@ select {
   width: 120px;
   height: 150px;
   margin-left: -60px;
+}
+
+.demo-magnesium-ribbon {
+  left: 50%;
+  bottom: 220px;
+  z-index: 5;
+  width: 142px;
+  height: 34px;
+  margin-left: -71px;
+  transform: rotate(-10deg);
+  filter: drop-shadow(0 14px 20px rgba(2, 6, 23, 0.22));
+}
+
+.demo-magnesium-ribbon span {
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  width: 126px;
+  height: 13px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(203, 213, 225, 0.94) 42%, rgba(100, 116, 139, 0.88));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.52),
+    0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.demo-magnesium-ribbon-burning span {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 1) 0 18%, transparent 20%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.98), rgba(254, 240, 138, 0.96), rgba(203, 213, 225, 0.88));
+  box-shadow:
+    0 0 22px rgba(255, 255, 255, 0.82),
+    0 0 46px rgba(253, 224, 71, 0.42),
+    0 0 80px rgba(249, 115, 22, 0.24);
 }
 
 .demo-flame {
@@ -4474,6 +4690,38 @@ select {
   100% {
     opacity: 0;
     transform: translateX(-50%) scale(1.45);
+  }
+}
+
+@keyframes lab-powder-spoon-tilt {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) rotate(-8deg);
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.18;
+    transform: translateY(8px) rotate(-32deg);
+  }
+}
+
+@keyframes lab-powder-grain-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.7);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(98px) scale(1.06);
   }
 }
 
