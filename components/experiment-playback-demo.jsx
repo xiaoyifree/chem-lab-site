@@ -14,7 +14,7 @@ export function ExperimentPlaybackDemo({
   stepIndex: controlledStepIndex,
   onAdvance,
   onReset,
-  interactive = false,
+  interactive = true,
   showControls = true,
   showCopy = true
 }) {

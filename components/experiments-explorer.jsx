@@ -373,7 +373,7 @@ export function ExperimentsExplorer({ experiments, defaultSlug }) {
                 >
                   <ExperimentPlaybackDemo
                     experiment={selectedExperiment}
-                    interactive={selectedExperiment.slug === "carbon-dioxide-preparation"}
+                    interactive
                     onAdvance={handleAdvance}
                     onReset={handleReset}
                     showControls={false}

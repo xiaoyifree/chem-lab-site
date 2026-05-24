@@ -1390,6 +1390,40 @@ select {
   background: linear-gradient(180deg, rgba(248, 250, 252, 0.9), rgba(203, 213, 225, 0.48));
 }
 
+.lab-stage-tool-indicator .lab-stage-tool-icon {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), transparent 32%, rgba(255, 255, 255, 0.08)),
+    linear-gradient(160deg, rgba(244, 114, 182, 0.5), rgba(45, 212, 191, 0.28), rgba(96, 165, 250, 0.22));
+}
+
+.lab-stage-tool-indicator .lab-reagent-bottle-liquid {
+  background:
+    linear-gradient(90deg, rgba(248, 113, 113, 0.72), rgba(168, 85, 247, 0.62), rgba(45, 212, 191, 0.6)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(96, 165, 250, 0.34));
+}
+
+.lab-stage-tool-heat .lab-stage-tool-icon {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), transparent 32%, rgba(255, 255, 255, 0.08)),
+    linear-gradient(180deg, rgba(251, 191, 36, 0.66), rgba(249, 115, 22, 0.32));
+}
+
+.lab-stage-tool-heat .lab-reagent-bottle-liquid {
+  background: linear-gradient(180deg, rgba(254, 240, 138, 0.92), rgba(249, 115, 22, 0.46));
+}
+
+.lab-stage-tool-power .lab-stage-tool-icon {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), transparent 32%, rgba(255, 255, 255, 0.08)),
+    linear-gradient(180deg, rgba(125, 211, 252, 0.68), rgba(37, 99, 235, 0.28));
+}
+
+.lab-stage-tool-power .lab-reagent-bottle-liquid {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(250, 204, 21, 0.92) 0 18%, transparent 19%),
+    linear-gradient(180deg, rgba(191, 219, 254, 0.88), rgba(59, 130, 246, 0.48));
+}
+
 .lab-stage-action {
   z-index: 4;
   pointer-events: none;
@@ -1407,6 +1441,14 @@ select {
   height: 44px;
   margin-left: -22px;
   margin-top: -12px;
+}
+
+.lab-stage-action-spark-burst,
+.lab-stage-action-heat-pulse {
+  width: 84px;
+  height: 84px;
+  margin-left: -42px;
+  margin-top: -42px;
 }
 
 .lab-stage-pour-stream {
@@ -1430,8 +1472,25 @@ select {
   box-shadow: 0 0 18px rgba(226, 232, 240, 0.26);
 }
 
+.lab-stage-action-indicator .lab-stage-pour-stream {
+  background: linear-gradient(180deg, rgba(244, 114, 182, 0.08), rgba(168, 85, 247, 0.9), rgba(45, 212, 191, 0.22));
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.28);
+}
+
+.lab-stage-action-heat .lab-stage-pour-stream {
+  background: linear-gradient(180deg, rgba(254, 240, 138, 0.08), rgba(249, 115, 22, 0.9), rgba(239, 68, 68, 0.18));
+  box-shadow: 0 0 22px rgba(249, 115, 22, 0.3);
+}
+
+.lab-stage-action-power .lab-stage-pour-stream {
+  background: linear-gradient(180deg, rgba(250, 204, 21, 0.08), rgba(96, 165, 250, 0.9), rgba(37, 99, 235, 0.18));
+  box-shadow: 0 0 22px rgba(96, 165, 250, 0.3);
+}
+
 .lab-stage-pour-droplets span,
-.lab-stage-charge-field span {
+.lab-stage-charge-field span,
+.lab-stage-spark-field span,
+.lab-stage-heat-field span {
   position: absolute;
   border-radius: 999px;
 }
@@ -1453,6 +1512,21 @@ select {
 .lab-stage-action-lime .lab-stage-pour-droplets span {
   background: rgba(248, 250, 252, 0.96);
   box-shadow: 0 0 10px rgba(226, 232, 240, 0.24);
+}
+
+.lab-stage-action-indicator .lab-stage-pour-droplets span {
+  background: rgba(216, 180, 254, 0.94);
+  box-shadow: 0 0 11px rgba(168, 85, 247, 0.26);
+}
+
+.lab-stage-action-heat .lab-stage-pour-droplets span {
+  background: rgba(253, 186, 116, 0.94);
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.28);
+}
+
+.lab-stage-action-power .lab-stage-pour-droplets span {
+  background: rgba(147, 197, 253, 0.95);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.28);
 }
 
 .lab-stage-pour-droplets span:nth-child(1) { animation-delay: -0.1s; }
@@ -1494,6 +1568,53 @@ select {
   left: 8px;
   animation-delay: -0.24s;
 }
+
+.lab-stage-spark-field,
+.lab-stage-heat-field {
+  position: absolute;
+  inset: 0;
+}
+
+.lab-stage-spark-field span {
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  background: rgba(250, 204, 21, 0.96);
+  box-shadow:
+    0 0 12px rgba(250, 204, 21, 0.62),
+    0 0 24px rgba(96, 165, 250, 0.28);
+  animation: lab-spark-burst 0.78s ease-out forwards;
+}
+
+.lab-stage-spark-field span:nth-child(1) { --spark-x: -38px; --spark-y: -42px; animation-delay: -0.02s; }
+.lab-stage-spark-field span:nth-child(2) { --spark-x: 34px; --spark-y: -36px; animation-delay: -0.08s; }
+.lab-stage-spark-field span:nth-child(3) { --spark-x: -24px; --spark-y: 28px; animation-delay: -0.14s; }
+.lab-stage-spark-field span:nth-child(4) { --spark-x: 42px; --spark-y: 16px; animation-delay: -0.2s; }
+.lab-stage-spark-field span:nth-child(5) { --spark-x: 0px; --spark-y: -54px; animation-delay: -0.26s; }
+.lab-stage-spark-field span:nth-child(6) { --spark-x: -48px; --spark-y: 2px; animation-delay: -0.32s; }
+.lab-stage-spark-field span:nth-child(7) { --spark-x: 48px; --spark-y: -6px; animation-delay: -0.38s; }
+.lab-stage-spark-field span:nth-child(8) { --spark-x: 6px; --spark-y: 40px; animation-delay: -0.44s; }
+
+.lab-stage-heat-field span {
+  left: 50%;
+  bottom: 0;
+  width: 15px;
+  height: 48px;
+  border-radius: 999px 999px 40% 40%;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(254, 240, 138, 0.92), transparent 46%),
+    linear-gradient(180deg, rgba(251, 191, 36, 0.82), rgba(249, 115, 22, 0.02));
+  filter: blur(0.2px);
+  transform-origin: 50% 100%;
+  animation: lab-heat-pulse 0.92s ease-out forwards;
+}
+
+.lab-stage-heat-field span:nth-child(1) { margin-left: -34px; animation-delay: -0.08s; }
+.lab-stage-heat-field span:nth-child(2) { margin-left: -17px; animation-delay: -0.18s; }
+.lab-stage-heat-field span:nth-child(3) { margin-left: 0; animation-delay: -0.02s; }
+.lab-stage-heat-field span:nth-child(4) { margin-left: 17px; animation-delay: -0.24s; }
+.lab-stage-heat-field span:nth-child(5) { margin-left: 34px; animation-delay: -0.14s; }
 
 .lab-demo-copy h3 {
   margin: 8px 0 10px;
@@ -3854,6 +3975,38 @@ select {
   100% {
     opacity: 0;
     transform: translateY(34px) scale(1.04);
+  }
+}
+
+@keyframes lab-spark-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.45);
+  }
+
+  32% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--spark-x, 0px)), calc(-50% + var(--spark-y, -28px))) scale(1.05);
+  }
+}
+
+@keyframes lab-heat-pulse {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scaleY(0.45);
+  }
+
+  35% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-58px) scaleY(1.12);
   }
 }
 

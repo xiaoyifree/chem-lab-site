@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, forwardRef, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 export const themeByLevel = {
@@ -343,10 +343,9 @@ const stageInteractionProfiles = {
       icon: "🪨",
       label: "放入大理石",
       actionLabel: "大理石落入瓶底",
-      helper: "大理石会先进入左侧反应瓶底部",
-      autoHint: "先把碳酸钙固体加入反应瓶，为后续酸化反应提供稳定表面积。",
-      autoPlay: true,
-      autoStartDelayMs: 760,
+      helper: "把大理石拖到左侧反应瓶底部",
+      autoHint: "手动把碳酸钙固体加入反应瓶，为后续酸化反应提供稳定表面积。",
+      autoPlay: false,
       toolTone: "stone",
       start: { x: 0.12, y: 0.2 },
       target: { x: 0.27, y: 0.78 },
@@ -366,10 +365,9 @@ const stageInteractionProfiles = {
       icon: "🧪",
       label: "滴加稀盐酸",
       actionLabel: "稀盐酸正在倒入",
-      helper: "试剂瓶会移动到左侧瓶口并倾斜倒液",
-      autoHint: "稀盐酸沿瓶口缓慢倒入，液体接触大理石后开始产生二氧化碳。",
-      autoPlay: true,
-      autoStartDelayMs: 880,
+      helper: "把稀盐酸拖到左侧瓶口并松手倒液",
+      autoHint: "手动把稀盐酸沿瓶口倒入，液体接触大理石后开始产生二氧化碳。",
+      autoPlay: false,
       toolTone: "acid",
       start: { x: 0.12, y: 0.7 },
       target: { x: 0.27, y: 0.34 },
@@ -389,10 +387,9 @@ const stageInteractionProfiles = {
       icon: "🫙",
       label: "接入石灰水",
       actionLabel: "石灰水接入导管",
-      helper: "检验瓶会移动到右侧导管末端",
-      autoHint: "澄清石灰水接到导管末端，二氧化碳进入后会逐渐变浑浊。",
-      autoPlay: true,
-      autoStartDelayMs: 820,
+      helper: "把澄清石灰水拖到右侧导管末端",
+      autoHint: "手动把澄清石灰水接到导管末端，二氧化碳进入后会逐渐变浑浊。",
+      autoPlay: false,
       toolTone: "lime",
       start: { x: 0.88, y: 0.2 },
       target: { x: 0.73, y: 0.35 },
@@ -409,6 +406,164 @@ const stageInteractionProfiles = {
   }
 };
 
+const genericInteractionByKind = {
+  indicator: {
+    icon: "🌈",
+    label: "拖入指示剂",
+    actionLabel: "指示剂正在滴入",
+    helper: "把指示剂拖到试管上方，松手观察颜色扩散",
+    targetLabel: "显色位",
+    toolTone: "indicator",
+    commitEffect: "liquid-pour",
+    target: { x: 0.5, y: 0.45 },
+    pourPose: { rotate: -18, scale: 1.04 }
+  },
+  clock: {
+    icon: "⏱️",
+    label: "混合反应液",
+    actionLabel: "反应液正在混合",
+    helper: "把第二份反应液拖入主烧杯，松手开始计时",
+    targetLabel: "混合位",
+    toolTone: "indicator",
+    commitEffect: "liquid-pour",
+    target: { x: 0.5, y: 0.45 },
+    pourPose: { rotate: -20, scale: 1.04 }
+  },
+  mirror: {
+    icon: "🪞",
+    label: "加入还原剂",
+    actionLabel: "还原剂正在加入",
+    helper: "把葡萄糖溶液拖入银氨试管，松手开始加热显影",
+    targetLabel: "银镜位",
+    toolTone: "lime",
+    commitEffect: "liquid-pour",
+    target: { x: 0.48, y: 0.45 },
+    pourPose: { rotate: -18, scale: 1.04 }
+  },
+  flame: {
+    icon: "🔥",
+    label: "拖入引燃器",
+    actionLabel: "正在点燃",
+    helper: "把火源拖到金属条底部，松手观察燃烧反馈",
+    targetLabel: "点火位",
+    toolTone: "heat",
+    commitEffect: "spark-burst",
+    target: { x: 0.5, y: 0.58 },
+    pourPose: { rotate: -8, scale: 1.05 }
+  },
+  crystal: {
+    icon: "💎",
+    label: "拖入晶种",
+    actionLabel: "晶种正在析出",
+    helper: "把晶种拖到蒸发皿中，松手观察晶体生长",
+    targetLabel: "结晶位",
+    toolTone: "lime",
+    commitEffect: "charge-drop",
+    target: { x: 0.5, y: 0.66 },
+    pourPose: { rotate: -10, scale: 1.04 }
+  },
+  precipitate: {
+    icon: "🧪",
+    label: "滴加沉淀剂",
+    actionLabel: "沉淀剂正在加入",
+    helper: "把试剂拖到混合容器上方，松手观察浑浊扩散",
+    targetLabel: "滴加位",
+    toolTone: "acid",
+    commitEffect: "liquid-pour",
+    target: { x: 0.5, y: 0.42 },
+    pourPose: { rotate: -18, scale: 1.04 }
+  },
+  distillation: {
+    icon: "🌡️",
+    label: "拖入热源",
+    actionLabel: "正在加热",
+    helper: "把热源拖到蒸馏瓶下方，松手让蒸汽进入冷凝管",
+    targetLabel: "加热位",
+    toolTone: "heat",
+    commitEffect: "heat-pulse",
+    target: { x: 0.31, y: 0.69 },
+    pourPose: { rotate: -6, scale: 1.05 }
+  },
+  electroplate: {
+    icon: "⚡",
+    label: "接通电源",
+    actionLabel: "电流正在通过",
+    helper: "把电源夹拖到电极上，松手观察金属沉积",
+    targetLabel: "电极位",
+    toolTone: "power",
+    commitEffect: "spark-burst",
+    target: { x: 0.5, y: 0.45 },
+    pourPose: { rotate: 0, scale: 1.05 }
+  },
+  electrolysis: {
+    icon: "⚡",
+    label: "接入电源",
+    actionLabel: "电解开始",
+    helper: "把电源拖到电极接线处，松手观察气泡产生",
+    targetLabel: "接线位",
+    toolTone: "power",
+    commitEffect: "spark-burst",
+    target: { x: 0.5, y: 0.38 },
+    pourPose: { rotate: 0, scale: 1.05 }
+  },
+  chromatography: {
+    icon: "🎨",
+    label: "拖入样品点",
+    actionLabel: "样品正在展开",
+    helper: "把样品点拖到层析纸起始线，松手观察色带分离",
+    targetLabel: "起始线",
+    toolTone: "indicator",
+    commitEffect: "liquid-pour",
+    target: { x: 0.5, y: 0.72 },
+    pourPose: { rotate: -10, scale: 1.04 }
+  },
+  rate: {
+    icon: "⏳",
+    label: "加入变量试剂",
+    actionLabel: "变量条件已加入",
+    helper: "把变量试剂拖到实验容器中，松手观察速率变化",
+    targetLabel: "变量位",
+    toolTone: "acid",
+    commitEffect: "liquid-pour",
+    target: { x: 0.5, y: 0.5 },
+    pourPose: { rotate: -18, scale: 1.04 }
+  },
+  inference: {
+    icon: "🧠",
+    label: "拖入线索样品",
+    actionLabel: "样品正在反应",
+    helper: "把未知样品拖到检测区，松手观察推断线索",
+    targetLabel: "检测位",
+    toolTone: "indicator",
+    commitEffect: "liquid-pour",
+    target: { x: 0.5, y: 0.5 },
+    pourPose: { rotate: -12, scale: 1.04 }
+  },
+  reaction: {
+    icon: "🧪",
+    label: "加入试剂",
+    actionLabel: "试剂正在加入",
+    helper: "把试剂瓶拖到反应容器上方，松手触发现象",
+    targetLabel: "反应位",
+    toolTone: "acid",
+    commitEffect: "liquid-pour",
+    target: { x: 0.5, y: 0.48 },
+    pourPose: { rotate: -18, scale: 1.04 }
+  }
+};
+
+function getPhaseInteractionCopy(phaseKey) {
+  if (phaseKey === "setup" || phaseKey === "idle") {
+    return "准备";
+  }
+
+  if (phaseKey === "observing" || phaseKey === "transferring") {
+    return "观察";
+  }
+
+  return "加入";
+}
+
 const ExperimentConsoleMotionContext = createContext(false);
 
 export function ExperimentConsoleMotionProvider({ children, enabled = true }) {
@@ -419,16 +574,45 @@ function useExperimentConsoleMotionEnabled() {
   return useContext(ExperimentConsoleMotionContext);
 }
 
-function resolveInteractionProfile(kind, phaseKey, rule) {
+function resolveInteractionProfile(kind, phaseKey, rule, { experiment, stepIndex, totalSteps }) {
   const profile = stageInteractionProfiles[kind]?.[phaseKey] ?? null;
 
-  if (!profile) {
+  if (profile) {
+    return {
+      ...profile,
+      autoPlay: false,
+      nextStep: Math.min(totalSteps - 1, profile.nextStep ?? stepIndex + 1),
+      rule: experimentRuleCatalog[profile.ruleId] ?? rule
+    };
+  }
+
+  if (stepIndex >= totalSteps - 1) {
     return null;
   }
 
+  const fallback = genericInteractionByKind[kind] ?? genericInteractionByKind.reaction;
+  const phaseAction = getPhaseInteractionCopy(phaseKey);
+
   return {
-    ...profile,
-    rule: experimentRuleCatalog[profile.ruleId] ?? rule
+    id: `${experiment.slug}-${kind}-${phaseKey}-${stepIndex}`,
+    ruleId: rule.id,
+    icon: fallback.icon,
+    label: phaseKey === "setup" ? fallback.label : `${phaseAction}${fallback.label.replace(/^(拖入|加入|接通|接入|混合|滴加)/, "")}`,
+    actionLabel: fallback.actionLabel,
+    helper: fallback.helper,
+    autoHint: fallback.helper,
+    autoPlay: false,
+    toolTone: fallback.toolTone,
+    start: fallback.start ?? { x: 0.14, y: 0.2 },
+    target: fallback.target,
+    targetSide: fallback.targetSide ?? "center",
+    targetLabel: fallback.targetLabel,
+    radius: fallback.radius ?? 86,
+    commitEffect: fallback.commitEffect,
+    commitDelayMs: fallback.commitDelayMs ?? 760,
+    pourPose: fallback.pourPose,
+    nextStep: Math.min(totalSteps - 1, stepIndex + 1),
+    rule
   };
 }
 
@@ -500,19 +684,23 @@ export function resolveMotionTransition(preset, reduceMotion = false) {
   return transitionByPreset[preset] ?? transitionByPreset.gentle;
 }
 
-function MotionElement({ as = "div", enabled, motionProps, children, ...rest }) {
+const MotionElement = forwardRef(function MotionElement({ as = "div", enabled, motionProps, children, ...rest }, ref) {
   const Component = enabled ? motion[as] : as;
 
   if (!enabled) {
-    return <Component {...rest}>{children}</Component>;
+    return (
+      <Component ref={ref} {...rest}>
+        {children}
+      </Component>
+    );
   }
 
   return (
-    <Component initial={false} {...motionProps} {...rest}>
+    <Component ref={ref} initial={false} {...motionProps} {...rest}>
       {children}
     </Component>
   );
-}
+});
 
 let demoAudioContext = null;
 
@@ -746,7 +934,11 @@ export function createExperimentAnimationState({ experiment, stepIndex, totalSte
     motionPreset: motionProfile.motionPreset,
     emphasisPhase: motionProfile.emphasisPhase,
     transitionPreset: motionProfile.transitionPreset,
-    interactionProfile: resolveInteractionProfile(kind, phaseKey, rule),
+    interactionProfile: resolveInteractionProfile(kind, phaseKey, rule, {
+      experiment,
+      stepIndex,
+      totalSteps
+    }),
     flags: {
       chargeLoaded: isFizzTransfer ? stepIndex >= 1 : stepIndex >= 0,
       reactionStarted,
@@ -944,7 +1136,7 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
   }, [reduceMotion, targetFeedback]);
 
   useEffect(() => {
-    if (!bounds || !interaction || interaction.autoPlay === false || manualInteracted || dragStatus !== "ready" || isDragging) {
+    if (!bounds || !interaction || interaction.autoPlay !== true || manualInteracted || dragStatus !== "ready" || isDragging) {
       return undefined;
     }
 
@@ -995,9 +1187,7 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
             ? "目标已锁定，松手加入"
             : isDragging
               ? "拖向发光目标区"
-              : interaction.autoPlay === false
-                ? "拖动试剂到目标区"
-                : "自动演示中，可手动拖动";
+              : "拖动试剂到目标区";
   const animateTarget = reduceMotion
     ? { opacity: 1, x: activeOffset.x, y: activeOffset.y, scale: 1, rotate: 0 }
     : {
@@ -1019,7 +1209,7 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
           top: targetCenter.y
         }}
       >
-        <span>{interaction.targetSide === "left" ? "反应位" : "检验位"}</span>
+        <span>{interaction.targetLabel ?? (interaction.targetSide === "left" ? "反应位" : "检验位")}</span>
       </div>
 
       <AnimatePresence initial={false}>
@@ -1054,6 +1244,10 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
           >
             {interaction.commitEffect === "charge-drop" ? (
               <div className="lab-stage-charge-field">{RepeatedSpans({ count: 4 })}</div>
+            ) : interaction.commitEffect === "spark-burst" ? (
+              <div className="lab-stage-spark-field">{RepeatedSpans({ count: 8 })}</div>
+            ) : interaction.commitEffect === "heat-pulse" ? (
+              <div className="lab-stage-heat-field">{RepeatedSpans({ count: 5 })}</div>
             ) : (
               <>
                 <span className="lab-stage-pour-stream" />
@@ -1069,7 +1263,7 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
         className={`lab-stage-tool lab-stage-tool-${interaction.toolTone} ${
           isDragging ? "lab-stage-tool-dragging" : ""
         } ${isPouring ? "lab-stage-tool-pouring" : ""} ${
-          interaction.autoPlay !== false && dragStatus === "ready" ? "lab-stage-tool-autoplay" : ""
+          interaction.autoPlay === true && dragStatus === "ready" ? "lab-stage-tool-autoplay" : ""
         } ${targetFeedback === "near" ? "lab-stage-tool-near" : ""} ${
           targetFeedback === "rejected" ? "lab-stage-tool-rejected" : ""
         }`}
@@ -2651,6 +2845,7 @@ export function ExperimentAnimationStage({
   );
   const motionEnabled = useExperimentConsoleMotionEnabled();
   const reduceMotion = useReducedMotion();
+  const genericStageRef = useRef(null);
   const stageTransition = resolveMotionTransition(state.transitionPreset, reduceMotion);
   const stageScene = (
     <MotionElement
@@ -2710,6 +2905,7 @@ export function ExperimentAnimationStage({
       className={`demo-stage demo-stage-${state.kind} demo-phase-${state.phaseKey}`}
       data-motion-preset={state.motionPreset}
       data-rule-effect={state.resultEffect}
+      ref={genericStageRef}
       style={{
         "--demo-left": state.theme.left,
         "--demo-right": state.theme.right,
@@ -2733,6 +2929,14 @@ export function ExperimentAnimationStage({
       }}
     >
       {motionEnabled ? <AnimatePresence initial={false} mode="wait">{stageScene}</AnimatePresence> : stageScene}
+      {interactive && state.interactionProfile ? (
+        <StageDragTool
+          containerRef={genericStageRef}
+          interaction={state.interactionProfile}
+          onCommit={onInteractiveStepChange}
+          reduceMotion={reduceMotion}
+        />
+      ) : null}
     </MotionElement>
   );
 }
