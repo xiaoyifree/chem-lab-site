@@ -122,10 +122,224 @@ const transitionByPreset = {
   }
 };
 
+export const experimentRuleCatalog = {
+  "carbonate-charge": {
+    id: "carbonate-charge",
+    title: "装入碳酸盐固体",
+    inputReagents: ["calcium-carbonate"],
+    reactants: ["CaCO3"],
+    products: ["待加酸"],
+    resultEffect: "setup",
+    resultLabel: "等待酸化",
+    observation: "大理石先进入反应瓶，系统等待酸液触发产气。"
+  },
+  "acid-carbonate-gas": {
+    id: "acid-carbonate-gas",
+    title: "酸 + 碳酸盐",
+    inputReagents: ["calcium-carbonate", "hydrochloric-acid"],
+    reactants: ["CaCO3", "HCl"],
+    products: ["CO2", "CaCl2", "H2O"],
+    resultEffect: "gas",
+    resultLabel: "产生气体",
+    observation: "酸液接触碳酸盐后产生 CO2，气泡和液面波纹明显增强。"
+  },
+  "carbon-dioxide-transfer": {
+    id: "carbon-dioxide-transfer",
+    title: "CO2 导管传输",
+    inputReagents: ["carbon-dioxide"],
+    reactants: ["CO2"],
+    products: ["进入检验瓶"],
+    resultEffect: "transfer",
+    resultLabel: "气体流动",
+    observation: "CO2 沿导管进入右侧检验瓶，准备与石灰水反应。"
+  },
+  "limewater-clouding": {
+    id: "limewater-clouding",
+    title: "CO2 + 石灰水",
+    inputReagents: ["carbon-dioxide", "limewater"],
+    reactants: ["CO2", "Ca(OH)2"],
+    products: ["CaCO3↓", "H2O"],
+    resultEffect: "clouding",
+    resultLabel: "石灰水变浑浊",
+    observation: "二氧化碳通入澄清石灰水后生成碳酸钙，液体出现乳白浑浊。"
+  },
+  "indicator-color-shift": {
+    id: "indicator-color-shift",
+    title: "酸碱指示剂变色",
+    inputReagents: ["acid", "base", "indicator"],
+    reactants: ["H+", "OH-", "indicator"],
+    products: ["color-shift"],
+    resultEffect: "color",
+    resultLabel: "颜色突变",
+    observation: "酸碱度变化驱动指示剂结构变化，画面用颜色扩散表现 pH 转换。"
+  },
+  "precipitate-formation": {
+    id: "precipitate-formation",
+    title: "离子沉淀反应",
+    inputReagents: ["soluble-cation-salt", "soluble-anion-salt"],
+    reactants: ["cation", "anion"],
+    products: ["insoluble precipitate"],
+    resultEffect: "precipitate",
+    resultLabel: "沉淀扩散",
+    observation: "两种离子混合后形成难溶物，浑浊云团先扩散再向底部聚沉。"
+  },
+  "combustion-oxidation": {
+    id: "combustion-oxidation",
+    title: "燃烧氧化",
+    inputReagents: ["fuel", "oxygen", "heat"],
+    reactants: ["fuel", "O2"],
+    products: ["oxide", "heat", "light"],
+    resultEffect: "flame",
+    resultLabel: "火焰增强",
+    observation: "可燃物与氧气反应放热发光，火焰主层、亮度脉冲和火星同步增强。"
+  },
+  crystallization: {
+    id: "crystallization",
+    title: "结晶析出",
+    inputReagents: ["saturated-solution", "heat"],
+    reactants: ["saturated solution"],
+    products: ["crystals"],
+    resultEffect: "crystal",
+    resultLabel: "晶体生长",
+    observation: "溶液浓缩或冷却后达到过饱和，晶核出现并逐步长成可见晶体。"
+  },
+  distillation: {
+    id: "distillation",
+    title: "沸点差分离",
+    inputReagents: ["mixed-liquid", "heat"],
+    reactants: ["mixed liquid", "heat"],
+    products: ["distillate"],
+    resultEffect: "flow",
+    resultLabel: "冷凝流动",
+    observation: "低沸点组分先汽化，经冷凝管液化并流入接收瓶。"
+  },
+  electroplating: {
+    id: "electroplating",
+    title: "电解沉积",
+    inputReagents: ["metal-ion-solution", "electrode", "current"],
+    reactants: ["metal ions", "electrons"],
+    products: ["metal coating"],
+    resultEffect: "coating",
+    resultLabel: "金属镀层增长",
+    observation: "金属离子在阴极得电子还原，表面镀层逐步增厚。"
+  },
+  electrolysis: {
+    id: "electrolysis",
+    title: "电解分解",
+    inputReagents: ["electrolyte", "electrode", "current"],
+    reactants: ["electrolyte", "current"],
+    products: ["gas at electrodes"],
+    resultEffect: "charge",
+    resultLabel: "两极产物",
+    observation: "电流驱动氧化还原反应，两极分别产生气体或金属沉积。"
+  },
+  "silver-mirror": {
+    id: "silver-mirror",
+    title: "银氨还原",
+    inputReagents: ["aldehyde", "tollens-reagent"],
+    reactants: ["aldehyde", "Ag(NH3)2+"],
+    products: ["Ag mirror"],
+    resultEffect: "coating",
+    resultLabel: "银膜生成",
+    observation: "醛基还原银氨络离子，试管壁逐渐出现明亮银镜。"
+  },
+  "iodine-clock": {
+    id: "iodine-clock",
+    title: "碘钟突变",
+    inputReagents: ["iodate", "bisulfite", "starch"],
+    reactants: ["iodate", "bisulfite", "starch"],
+    products: ["starch-iodine complex"],
+    resultEffect: "clock",
+    resultLabel: "颜色瞬变",
+    observation: "还原剂耗尽后碘迅速累积，淀粉络合物让溶液瞬间变深色。"
+  },
+  chromatography: {
+    id: "chromatography",
+    title: "层析分离",
+    inputReagents: ["pigment-mix", "solvent", "chromatography-paper"],
+    reactants: ["pigment mix", "solvent"],
+    products: ["separated bands"],
+    resultEffect: "separation",
+    resultLabel: "色带分离",
+    observation: "不同色素在固定相和流动相间分配不同，形成分层色带。"
+  },
+  "reaction-general": {
+    id: "reaction-general",
+    title: "反应现象匹配",
+    reactants: ["reagents"],
+    products: ["observable result"],
+    resultEffect: "reaction",
+    resultLabel: "现象生成",
+    observation: "根据实验类型推导当前可观察结果，并交给动画层表现。"
+  }
+};
+
+const phaseRuleByKind = {
+  "fizz-transfer": {
+    idle: "carbonate-charge",
+    loaded: "acid-carbonate-gas",
+    reacting: "acid-carbonate-gas",
+    transferring: "carbon-dioxide-transfer",
+    verified: "limewater-clouding"
+  }
+};
+
+const defaultRuleByKind = {
+  clock: "iodine-clock",
+  mirror: "silver-mirror",
+  indicator: "indicator-color-shift",
+  flame: "combustion-oxidation",
+  crystal: "crystallization",
+  precipitate: "precipitate-formation",
+  distillation: "distillation",
+  electroplate: "electroplating",
+  electrolysis: "electrolysis",
+  chromatography: "chromatography",
+  reaction: "reaction-general"
+};
+
+function resolveRuleId({ experiment, kind, phaseKey }) {
+  if (experiment.ruleSet?.[phaseKey]) {
+    return experiment.ruleSet[phaseKey];
+  }
+
+  if (experiment.ruleId) {
+    return experiment.ruleId;
+  }
+
+  return phaseRuleByKind[kind]?.[phaseKey] ?? defaultRuleByKind[kind] ?? "reaction-general";
+}
+
+function resolveExperimentRule({ experiment, kind, phaseKey }) {
+  const ruleId = resolveRuleId({ experiment, kind, phaseKey });
+  return experimentRuleCatalog[ruleId] ?? experimentRuleCatalog["reaction-general"];
+}
+
+function normalizeReagentList(reagentIds) {
+  return [...new Set(reagentIds)].map((reagentId) => String(reagentId).trim()).filter(Boolean).sort();
+}
+
+export function evaluateExperimentRule(reagentIds) {
+  const normalizedReagents = normalizeReagentList(reagentIds);
+
+  return (
+    Object.values(experimentRuleCatalog).find((rule) => {
+      const ruleReagents = normalizeReagentList(rule.inputReagents ?? []);
+
+      if (!ruleReagents.length || ruleReagents.length !== normalizedReagents.length) {
+        return false;
+      }
+
+      return ruleReagents.every((reagentId, index) => reagentId === normalizedReagents[index]);
+    }) ?? null
+  );
+}
+
 const stageInteractionProfiles = {
   "fizz-transfer": {
     idle: {
       id: "marble-charge",
+      ruleId: "carbonate-charge",
       icon: "🪨",
       label: "拖入大理石",
       helper: "把大理石拖到左侧反应瓶底部",
@@ -144,6 +358,7 @@ const stageInteractionProfiles = {
     },
     loaded: {
       id: "acid-pour",
+      ruleId: "acid-carbonate-gas",
       icon: "🧪",
       label: "拖入稀盐酸",
       helper: "把稀盐酸拖到左侧瓶口开始反应",
@@ -162,6 +377,7 @@ const stageInteractionProfiles = {
     },
     reacting: {
       id: "limewater-check",
+      ruleId: "limewater-clouding",
       icon: "🫙",
       label: "拖入石灰水",
       helper: "把澄清石灰水拖到右侧检验位",
@@ -191,8 +407,17 @@ function useExperimentConsoleMotionEnabled() {
   return useContext(ExperimentConsoleMotionContext);
 }
 
-function resolveInteractionProfile(kind, phaseKey) {
-  return stageInteractionProfiles[kind]?.[phaseKey] ?? null;
+function resolveInteractionProfile(kind, phaseKey, rule) {
+  const profile = stageInteractionProfiles[kind]?.[phaseKey] ?? null;
+
+  if (!profile) {
+    return null;
+  }
+
+  return {
+    ...profile,
+    rule: experimentRuleCatalog[profile.ruleId] ?? rule
+  };
 }
 
 function resolveStagePoint(bounds, point) {
@@ -491,7 +716,9 @@ export function createExperimentAnimationState({ experiment, stepIndex, totalSte
   const theme = themeByLevel[experiment.levelKey] ?? themeByLevel.intermediate;
   const motionProfile = motionProfileByKind[kind] ?? motionProfileByKind.reaction;
   const phaseKey = resolvePhaseKey(kind, stepIndex, totalSteps);
+  const rule = resolveExperimentRule({ experiment, kind, phaseKey });
   const isFizzTransfer = kind === "fizz-transfer";
+  const reactionStarted = isFizzTransfer ? stepIndex >= 2 : stepIndex >= 1;
 
   return {
     experiment,
@@ -501,15 +728,25 @@ export function createExperimentAnimationState({ experiment, stepIndex, totalSte
     totalSteps,
     progress,
     phaseKey,
+    rule,
+    resultEffect: rule.resultEffect,
+    matchedReagents: rule.inputReagents ?? [],
     motionPreset: motionProfile.motionPreset,
     emphasisPhase: motionProfile.emphasisPhase,
     transitionPreset: motionProfile.transitionPreset,
-    interactionProfile: resolveInteractionProfile(kind, phaseKey),
+    interactionProfile: resolveInteractionProfile(kind, phaseKey, rule),
     flags: {
       chargeLoaded: isFizzTransfer ? stepIndex >= 1 : stepIndex >= 0,
-      reactionStarted: isFizzTransfer ? stepIndex >= 2 : stepIndex >= 1,
+      reactionStarted,
       receiverReady: isFizzTransfer ? stepIndex >= 3 : false,
       transferActive: isFizzTransfer ? stepIndex >= 3 : stepIndex >= 2,
+      gasProduced: reactionStarted && rule.resultEffect === "gas",
+      precipitateFormed:
+        reactionStarted && (rule.resultEffect === "precipitate" || rule.resultEffect === "clouding"),
+      colorChanged:
+        reactionStarted && (rule.resultEffect === "color" || rule.resultEffect === "clock"),
+      coatingFormed: reactionStarted && rule.resultEffect === "coating",
+      separationVisible: reactionStarted && rule.resultEffect === "separation",
       finished: stepIndex >= totalSteps - 1
     }
   };
@@ -586,7 +823,12 @@ function Vessel({ side, leftLiquidClass, rightLiquidClass, showSediment = true, 
   return (
     <>
       <div className={`demo-vessel demo-vessel-${side}`}>
-        <div className={`demo-liquid ${side === "left" ? leftLiquidClass : rightLiquidClass}`} />
+        <span className="demo-vessel-rim" />
+        <span className="demo-vessel-highlight" />
+        <span className="demo-vessel-graduations" />
+        <div className={`demo-liquid ${side === "left" ? leftLiquidClass : rightLiquidClass}`}>
+          <span className="demo-liquid-meniscus" />
+        </div>
         {showSediment ? <div className="demo-sediment">{RepeatedSpans({ count: 3 })}</div> : null}
         {showVapor && side === "right" ? <div className="demo-vapor">{RepeatedSpans({ count: 3 })}</div> : null}
       </div>
@@ -601,6 +843,7 @@ function ParticleField({ count = 8 }) {
 function StageBridge() {
   return (
     <div className="demo-stage-bridge">
+      <span className="demo-bridge-glass" />
       <span className="demo-bridge-dot" />
     </div>
   );
@@ -621,15 +864,20 @@ function SedimentField({ className, count = 4 }) {
 function LabBeaker({ side, liquidClassName, children }) {
   return (
     <div className={`lab-beaker lab-beaker-${side}`}>
-      <div className={`lab-liquid ${liquidClassName}`} />
+      <span className="lab-beaker-rim" />
+      <span className="lab-glass-highlight" />
+      <span className="lab-measure-lines" />
+      <div className={`lab-liquid ${liquidClassName}`}>
+        <span className="lab-liquid-meniscus" />
+      </div>
       {children}
     </div>
   );
 }
 
 const stageToolSize = {
-  width: 138,
-  height: 76
+  width: 152,
+  height: 92
 };
 
 function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
@@ -795,10 +1043,17 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
         type="button"
         whileDrag={reduceMotion ? undefined : { scale: 1.04, boxShadow: "0 18px 36px rgba(4, 8, 17, 0.24)" }}
       >
-        <span className="lab-stage-tool-icon">{interaction.icon}</span>
+        <span className="lab-stage-tool-icon" aria-hidden="true">
+          <span className="lab-reagent-bottle-liquid" />
+          <span className="lab-reagent-bottle-label">{interaction.icon}</span>
+        </span>
         <span className="lab-stage-tool-copy">
           <strong>{isPouring ? "正在加入..." : interaction.label}</strong>
-          <small>{isPouring ? "已经吸附到目标位，正在完成加入动作" : interaction.helper}</small>
+          <small>
+            {isPouring
+              ? interaction.rule?.resultLabel ?? "已经吸附到目标位，正在完成加入动作"
+              : interaction.helper}
+          </small>
         </span>
       </motion.button>
     </>
@@ -1804,9 +2059,47 @@ function InferenceScene({ state, motionEnabled, reduceMotion }) {
   );
 }
 
-function ReactionScene() {
+function RuleStatusOverlay({ state, motionEnabled, reduceMotion }) {
+  const rule = state.rule;
+
+  if (!rule) {
+    return null;
+  }
+
+  const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
+
   return (
-    <div className="demo-scene demo-scene-reaction">
+    <AnimatePresence initial={false} mode="wait">
+      <MotionElement
+        as="div"
+        className={`experiment-rule-overlay rule-effect-${rule.resultEffect}`}
+        enabled={motionEnabled}
+        key={`${state.experiment.slug}-${state.phaseKey}-${rule.id}`}
+        motionProps={{
+          initial: reduceMotion ? false : { opacity: 0, y: 10, scale: 0.98 },
+          animate: { opacity: 1, y: 0, scale: 1 },
+          exit: reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 },
+          transition
+        }}
+      >
+        <span className="experiment-rule-kicker">规则引擎 · {state.phaseKey}</span>
+        <strong>{rule.title}</strong>
+        <p>{rule.observation}</p>
+        <div className="experiment-rule-products" aria-label="反应产物">
+          {rule.products.map((product) => (
+            <span key={product}>{product}</span>
+          ))}
+        </div>
+      </MotionElement>
+    </AnimatePresence>
+  );
+}
+
+function ReactionScene({ state }) {
+  const ruleEffect = state?.resultEffect ?? "reaction";
+
+  return (
+    <div className={`demo-scene demo-scene-reaction demo-rule-effect-${ruleEffect}`}>
       <div className="demo-stage-orbit" />
       <Vessel side="left" leftLiquidClass="demo-liquid-left" rightLiquidClass="demo-liquid-right" showVapor={false}>
         <SurfaceWave className="demo-vessel-surface demo-vessel-surface-left" count={3} />
@@ -1831,13 +2124,14 @@ function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, on
   const isTransferring = state.phaseKey === "transferring" || state.phaseKey === "verified";
   const isVerified = state.phaseKey === "verified";
   const interaction = interactive ? state.interactionProfile : null;
+  const activeRule = interaction?.rule ?? state.rule;
   const stageHint = interaction
-    ? interaction.helper
+    ? `${interaction.helper}；匹配规则：${activeRule?.resultLabel ?? "等待现象"}。`
     : isVerified
       ? "石灰水已经明显变浑浊，完成二氧化碳检验。"
       : isTransferring
         ? "观察导管中的气体持续进入石灰水。"
-        : "现在进入观察阶段，确认反应是否稳定进行。";
+        : activeRule?.observation ?? "现在进入观察阶段，确认反应是否稳定进行。";
 
   return (
     <div className={`lab-stage-shell ${interactive ? "lab-stage-shell-interactive" : ""}`} ref={sceneRef}>
@@ -1854,9 +2148,15 @@ function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, on
             transition
           }}
         >
-          <span className="lab-stage-hint-label">{interaction ? "拖拽交互" : "阶段提示"}</span>
+          <span className="lab-stage-hint-label">{interaction ? "拖拽交互 · 规则匹配" : "阶段提示 · 规则引擎"}</span>
           <strong>{interaction ? interaction.label : state.phaseKey === "verified" ? "完成检验" : "观察变化"}</strong>
           <p>{stageHint}</p>
+          {activeRule ? (
+            <div className="lab-rule-chip-row" aria-label="当前实验规则">
+              <span className="lab-rule-chip">{activeRule.title}</span>
+              <span className="lab-rule-chip lab-rule-chip-result">{activeRule.resultLabel}</span>
+            </div>
+          ) : null}
         </MotionElement>
       </AnimatePresence>
 
@@ -2141,7 +2441,7 @@ function renderScene(kind, state, motionEnabled, reduceMotion, interactive, onIn
     case "inference":
       return <InferenceScene motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />;
     default:
-      return <ReactionScene />;
+      return <ReactionScene state={state} />;
   }
 }
 
@@ -2190,6 +2490,7 @@ export function ExperimentAnimationStage({
         as="div"
         className={`lab-stage phase-${state.phaseKey}`}
         data-motion-preset={state.motionPreset}
+        data-rule-effect={state.resultEffect}
         enabled={motionEnabled}
         motionProps={{
           layout: !reduceMotion,
@@ -2207,6 +2508,7 @@ export function ExperimentAnimationStage({
         }}
       >
         {motionEnabled ? <AnimatePresence initial={false} mode="wait">{stageScene}</AnimatePresence> : stageScene}
+        <RuleStatusOverlay motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />
       </MotionElement>
     );
   }
@@ -2216,6 +2518,7 @@ export function ExperimentAnimationStage({
       as="div"
       className={`demo-stage demo-stage-${state.kind} demo-phase-${state.phaseKey}`}
       data-motion-preset={state.motionPreset}
+      data-rule-effect={state.resultEffect}
       style={{
         "--demo-left": state.theme.left,
         "--demo-right": state.theme.right,
@@ -2239,6 +2542,7 @@ export function ExperimentAnimationStage({
       }}
     >
       {motionEnabled ? <AnimatePresence initial={false} mode="wait">{stageScene}</AnimatePresence> : stageScene}
+      <RuleStatusOverlay motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />
     </MotionElement>
   );
 }

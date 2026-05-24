@@ -586,8 +586,121 @@ select {
   line-height: 1.55;
 }
 
+.lab-rule-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.lab-rule-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 9px;
+  border: 1px solid rgba(147, 197, 253, 0.24);
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.12);
+  color: rgba(219, 234, 254, 0.9);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.lab-rule-chip-result {
+  border-color: rgba(45, 212, 191, 0.3);
+  background: rgba(20, 184, 166, 0.14);
+  color: rgba(204, 251, 241, 0.92);
+}
+
+.experiment-rule-overlay {
+  position: absolute;
+  z-index: 7;
+  left: 18px;
+  bottom: 16px;
+  width: min(320px, calc(100% - 36px));
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.86), rgba(30, 41, 59, 0.72)),
+    radial-gradient(circle at 12% 0%, rgba(45, 212, 191, 0.2), transparent 42%);
+  box-shadow: 0 20px 44px rgba(2, 6, 23, 0.22);
+  color: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  backdrop-filter: blur(16px);
+}
+
+.experiment-rule-kicker {
+  display: block;
+  margin-bottom: 4px;
+  color: rgba(125, 211, 252, 0.84);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.experiment-rule-overlay strong {
+  display: block;
+  font-size: 0.98rem;
+  line-height: 1.28;
+}
+
+.experiment-rule-overlay p {
+  margin: 6px 0 0;
+  color: rgba(226, 232, 240, 0.68);
+  font-size: 0.78rem;
+  line-height: 1.48;
+}
+
+.experiment-rule-products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.experiment-rule-products span {
+  padding: 3px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.72);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.66rem;
+}
+
+.rule-effect-gas,
+.rule-effect-transfer {
+  border-color: rgba(125, 211, 252, 0.32);
+}
+
+.rule-effect-clouding,
+.rule-effect-precipitate {
+  border-color: rgba(45, 212, 191, 0.32);
+}
+
+.rule-effect-color,
+.rule-effect-clock {
+  border-color: rgba(244, 114, 182, 0.34);
+}
+
+.rule-effect-flame {
+  border-color: rgba(251, 146, 60, 0.38);
+}
+
+.rule-effect-coating,
+.rule-effect-crystal,
+.rule-effect-separation {
+  border-color: rgba(250, 204, 21, 0.34);
+}
+
 .lab-beaker,
 .lab-transfer-line,
+.lab-beaker-rim,
+.lab-glass-highlight,
+.lab-measure-lines,
+.lab-liquid-meniscus,
 .lab-bubbles span,
 .lab-clouds span,
 .lab-rocks span,
@@ -603,10 +716,62 @@ select {
   bottom: 26px;
   width: 164px;
   height: 228px;
-  border: 4px solid rgba(255, 255, 255, 0.34);
+  border: 4px solid rgba(229, 242, 255, 0.42);
   border-top: none;
   border-radius: 0 0 30px 30px;
   overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 24px,
+      rgba(226, 232, 240, 0.12) 24px 25px,
+      transparent 25px 36px
+    ),
+    linear-gradient(105deg, rgba(255, 255, 255, 0.1), rgba(148, 163, 184, 0.02) 42%, rgba(255, 255, 255, 0.06));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    inset 18px 0 28px rgba(255, 255, 255, 0.06),
+    inset -16px 0 24px rgba(15, 23, 42, 0.22),
+    0 24px 44px rgba(2, 6, 23, 0.22);
+}
+
+.lab-beaker-rim {
+  z-index: 4;
+  left: -9px;
+  right: -9px;
+  top: 0;
+  height: 16px;
+  border: 4px solid rgba(229, 242, 255, 0.5);
+  border-bottom-color: rgba(229, 242, 255, 0.24);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.16);
+}
+
+.lab-glass-highlight {
+  z-index: 3;
+  left: 16px;
+  top: 20px;
+  width: 22px;
+  height: 170px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.04));
+  filter: blur(0.2px);
+  opacity: 0.68;
+}
+
+.lab-measure-lines {
+  z-index: 3;
+  right: 14px;
+  top: 44px;
+  width: 28px;
+  height: 120px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(226, 232, 240, 0.42) 0 2px,
+    transparent 2px 20px
+  );
+  opacity: 0.58;
 }
 
 .lab-beaker-left {
@@ -655,6 +820,21 @@ select {
   inset: auto 0 0;
   height: 56%;
   transition: opacity 240ms ease, transform 240ms ease, filter 240ms ease;
+  box-shadow:
+    inset 0 18px 20px rgba(255, 255, 255, 0.2),
+    inset 0 -22px 28px rgba(15, 23, 42, 0.18);
+}
+
+.lab-liquid-meniscus {
+  left: 10px;
+  right: 10px;
+  top: -8px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.26);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.18);
+  transform: scaleY(0.46);
+  transform-origin: center;
 }
 
 .lab-liquid-reactant {
@@ -837,6 +1017,17 @@ select {
   opacity: 1;
 }
 
+.lab-stage[data-rule-effect="gas"] .lab-bubbles span {
+  border-color: rgba(186, 230, 253, 0.98);
+  box-shadow: 0 0 16px rgba(125, 211, 252, 0.42);
+  animation-duration: 1.7s;
+}
+
+.lab-stage[data-rule-effect="clouding"] .lab-clouds span,
+.lab-stage[data-rule-effect="clouding"] .lab-cloud-mist span {
+  filter: saturate(1.2) drop-shadow(0 0 8px rgba(255, 255, 255, 0.28));
+}
+
 .lab-reactive-ripple {
   left: 34px;
   right: 34px;
@@ -939,13 +1130,17 @@ select {
 .lab-stage-tool {
   z-index: 5;
   display: flex;
-  gap: 10px;
+  gap: 9px;
   align-items: center;
-  padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 24px;
-  background: rgba(9, 15, 28, 0.88);
-  box-shadow: 0 18px 36px rgba(4, 8, 17, 0.18);
+  padding: 10px 12px;
+  border: 1px solid rgba(226, 232, 240, 0.18);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.18), transparent 34%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.78), rgba(30, 41, 59, 0.54));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 18px 36px rgba(4, 8, 17, 0.18);
   color: rgba(255, 255, 255, 0.94);
   cursor: grab;
   text-align: left;
@@ -968,12 +1163,81 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  font-size: 1.3rem;
+  position: relative;
+  width: 40px;
+  height: 62px;
+  border: 2px solid rgba(226, 232, 240, 0.46);
+  border-radius: 12px 12px 16px 16px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), transparent 24%, rgba(255, 255, 255, 0.08) 78%),
+    rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 9px 0 14px rgba(255, 255, 255, 0.08),
+    inset -8px 0 14px rgba(15, 23, 42, 0.22),
+    0 10px 18px rgba(2, 6, 23, 0.18);
+  font-size: 1rem;
   flex-shrink: 0;
+  overflow: visible;
+}
+
+.lab-stage-tool-icon::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: -18px;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(226, 232, 240, 0.4);
+  border-bottom: none;
+  border-radius: 7px 7px 2px 2px;
+  background: rgba(226, 232, 240, 0.18);
+}
+
+.lab-stage-tool-icon::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 9px;
+  height: 24px;
+  border-radius: 7px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.22)),
+    rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+  z-index: 0;
+}
+
+.lab-reagent-bottle-liquid,
+.lab-reagent-bottle-label {
+  position: absolute;
+  pointer-events: none;
+}
+
+.lab-reagent-bottle-liquid {
+  z-index: 1;
+  left: 6px;
+  right: 6px;
+  bottom: 7px;
+  height: 28px;
+  border-radius: 8px 8px 13px 13px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(96, 165, 250, 0.34));
+}
+
+.lab-reagent-bottle-label {
+  z-index: 2;
+  left: 50%;
+  bottom: 13px;
+  width: 24px;
+  height: 18px;
+  margin-left: -12px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #0f172a;
+  font-size: 0.86rem;
+  box-shadow: 0 3px 7px rgba(2, 6, 23, 0.12);
 }
 
 .lab-stage-tool-copy {
@@ -994,15 +1258,36 @@ select {
 }
 
 .lab-stage-tool-stone .lab-stage-tool-icon {
-  background: linear-gradient(135deg, rgba(226, 232, 240, 0.22), rgba(148, 163, 184, 0.24));
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent 32%, rgba(255, 255, 255, 0.08)),
+    linear-gradient(180deg, rgba(226, 232, 240, 0.22), rgba(148, 163, 184, 0.18));
+}
+
+.lab-stage-tool-stone .lab-reagent-bottle-liquid {
+  background:
+    radial-gradient(circle at 36% 62%, rgba(168, 162, 158, 0.95) 0 20%, transparent 21%),
+    radial-gradient(circle at 62% 54%, rgba(120, 113, 108, 0.92) 0 18%, transparent 19%),
+    linear-gradient(180deg, rgba(214, 211, 209, 0.35), rgba(87, 83, 78, 0.28));
 }
 
 .lab-stage-tool-acid .lab-stage-tool-icon {
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.24), rgba(45, 212, 191, 0.18));
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.22), transparent 32%, rgba(255, 255, 255, 0.08)),
+    linear-gradient(180deg, rgba(186, 230, 253, 0.58), rgba(59, 130, 246, 0.2));
+}
+
+.lab-stage-tool-acid .lab-reagent-bottle-liquid {
+  background: linear-gradient(180deg, rgba(224, 242, 254, 0.85), rgba(56, 189, 248, 0.44));
 }
 
 .lab-stage-tool-lime .lab-stage-tool-icon {
-  background: linear-gradient(135deg, rgba(250, 250, 249, 0.2), rgba(125, 211, 252, 0.16));
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), transparent 32%, rgba(255, 255, 255, 0.08)),
+    linear-gradient(180deg, rgba(248, 250, 252, 0.62), rgba(125, 211, 252, 0.18));
+}
+
+.lab-stage-tool-lime .lab-reagent-bottle-liquid {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.9), rgba(203, 213, 225, 0.48));
 }
 
 .lab-stage-action {
@@ -1172,6 +1457,11 @@ select {
 
 .demo-vessel,
 .demo-stage-bridge,
+.demo-vessel-rim,
+.demo-vessel-highlight,
+.demo-vessel-graduations,
+.demo-liquid-meniscus,
+.demo-bridge-glass,
 .demo-particles span,
 .demo-vapor span,
 .demo-sediment span,
@@ -1183,11 +1473,59 @@ select {
   bottom: 0;
   width: 170px;
   height: 230px;
-  border: 4px solid rgba(255, 255, 255, 0.34);
+  border: 4px solid rgba(229, 242, 255, 0.4);
   border-bottom: none;
   border-radius: 34px 34px 0 0;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 27px,
+      rgba(226, 232, 240, 0.12) 27px 28px,
+      transparent 28px 40px
+    ),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.03) 46%, rgba(15, 23, 42, 0.1));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 20px 0 28px rgba(255, 255, 255, 0.05),
+    inset -18px 0 28px rgba(15, 23, 42, 0.18),
+    0 22px 42px rgba(2, 6, 23, 0.2);
+}
+
+.demo-vessel-rim {
+  z-index: 5;
+  left: -11px;
+  right: -11px;
+  top: -2px;
+  height: 24px;
+  border: 4px solid rgba(229, 242, 255, 0.48);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.23), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.16);
+}
+
+.demo-vessel-highlight {
+  z-index: 4;
+  left: 18px;
+  top: 28px;
+  width: 24px;
+  height: 168px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04));
+  opacity: 0.62;
+}
+
+.demo-vessel-graduations {
+  z-index: 4;
+  right: 14px;
+  top: 58px;
+  width: 30px;
+  height: 120px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(226, 232, 240, 0.34) 0 2px,
+    transparent 2px 22px
+  );
 }
 
 .demo-vessel-left {
@@ -1202,6 +1540,20 @@ select {
   position: absolute;
   inset: auto 0 0;
   height: 46%;
+  box-shadow:
+    inset 0 16px 20px rgba(255, 255, 255, 0.18),
+    inset 0 -22px 26px rgba(15, 23, 42, 0.16);
+}
+
+.demo-liquid-meniscus {
+  left: 12px;
+  right: 12px;
+  top: -8px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  transform: scaleY(0.45);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.16);
 }
 
 .demo-liquid-left {
@@ -1240,7 +1592,20 @@ select {
   height: 12px;
   margin-left: -120px;
   border-radius: 999px;
-  background: rgba(203, 213, 225, 0.24);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(148, 163, 184, 0.18)),
+    rgba(203, 213, 225, 0.2);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.22),
+    inset 0 -2px 3px rgba(15, 23, 42, 0.22),
+    0 8px 18px rgba(15, 23, 42, 0.16);
+}
+
+.demo-bridge-glass {
+  inset: 2px 12px auto;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .demo-bridge-dot {
@@ -2167,12 +2532,30 @@ select {
 .demo-dropper {
   left: 50%;
   top: 38px;
-  width: 20px;
+  width: 18px;
   height: 112px;
   margin-left: 68px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(226, 232, 240, 0.94), rgba(148, 163, 184, 0.92));
-  box-shadow: 0 14px 20px rgba(15, 23, 42, 0.18);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.5), transparent 34%, rgba(148, 163, 184, 0.22)),
+    linear-gradient(180deg, rgba(226, 232, 240, 0.9), rgba(148, 163, 184, 0.72));
+  box-shadow:
+    inset 5px 0 8px rgba(255, 255, 255, 0.24),
+    inset -4px 0 8px rgba(15, 23, 42, 0.18),
+    0 14px 20px rgba(15, 23, 42, 0.18);
+}
+
+.demo-dropper::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -28px;
+  width: 40px;
+  height: 36px;
+  margin-left: -20px;
+  border-radius: 50% 50% 42% 42%;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.92));
+  box-shadow: inset 7px 6px 10px rgba(255, 255, 255, 0.12), 0 10px 18px rgba(2, 6, 23, 0.2);
 }
 
 .demo-dropper::after {
@@ -2180,11 +2563,12 @@ select {
   position: absolute;
   left: 50%;
   bottom: -18px;
-  width: 16px;
-  height: 24px;
-  margin-left: -8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.86);
+  width: 12px;
+  height: 22px;
+  margin-left: -6px;
+  border-radius: 50% 50% 60% 60%;
+  background: rgba(191, 219, 254, 0.88);
+  box-shadow: 0 0 14px rgba(125, 211, 252, 0.34);
   animation: drop-pulse 1.9s ease-in-out infinite;
 }
 
@@ -2205,8 +2589,14 @@ select {
   width: 132px;
   height: 132px;
   border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.32);
-  background: rgba(255, 255, 255, 0.06);
+  border: 4px solid rgba(229, 242, 255, 0.42);
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.28), transparent 18%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(148, 163, 184, 0.04));
+  box-shadow:
+    inset 14px 0 22px rgba(255, 255, 255, 0.07),
+    inset -16px -10px 24px rgba(15, 23, 42, 0.18),
+    0 24px 36px rgba(2, 6, 23, 0.2);
 }
 
 .demo-flask::before {
@@ -2218,7 +2608,20 @@ select {
   height: 74px;
   margin-left: -13px;
   border-radius: 999px;
-  background: rgba(226, 232, 240, 0.82);
+  border: 3px solid rgba(229, 242, 255, 0.42);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.26), rgba(226, 232, 240, 0.1));
+}
+
+.demo-flask::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  top: 24px;
+  width: 22px;
+  height: 72px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.04));
+  opacity: 0.66;
 }
 
 .demo-flask-liquid {
@@ -2239,20 +2642,26 @@ select {
   left: 146px;
   top: 94px;
   width: 188px;
-  height: 20px;
+  height: 26px;
+  border: 2px solid rgba(229, 242, 255, 0.26);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(125, 211, 252, 0.08)),
+    rgba(15, 23, 42, 0.12);
+  box-shadow: inset 0 4px 6px rgba(255, 255, 255, 0.14), 0 12px 22px rgba(2, 6, 23, 0.16);
 }
 
 .demo-condenser-tube {
-  inset: 0;
+  inset: 8px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.22);
+  background: linear-gradient(90deg, rgba(241, 245, 249, 0.34), rgba(125, 211, 252, 0.22));
 }
 
 .demo-condenser-flow {
-  top: 4px;
-  left: 12px;
+  top: 9px;
+  left: 16px;
   width: 34px;
-  height: 12px;
+  height: 8px;
   border-radius: 999px;
   background: rgba(186, 230, 253, 0.88);
   animation: flow 1.4s linear infinite;
@@ -2264,8 +2673,19 @@ select {
   width: 124px;
   height: 180px;
   border-radius: 32px 32px 22px 22px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  border: 4px solid rgba(229, 242, 255, 0.38);
   overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 24px,
+      rgba(226, 232, 240, 0.1) 24px 25px,
+      transparent 25px 38px
+    ),
+    linear-gradient(110deg, rgba(255, 255, 255, 0.12), rgba(148, 163, 184, 0.03));
+  box-shadow:
+    inset 12px 0 20px rgba(255, 255, 255, 0.07),
+    0 20px 32px rgba(2, 6, 23, 0.18);
 }
 
 .demo-receiver-liquid {
@@ -2312,9 +2732,20 @@ select {
   height: 220px;
   margin-left: -160px;
   border-radius: 0 0 28px 28px;
-  border: 4px solid rgba(255, 255, 255, 0.32);
+  border: 4px solid rgba(229, 242, 255, 0.4);
   border-top: none;
   overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 28px,
+      rgba(226, 232, 240, 0.1) 28px 29px,
+      transparent 29px 42px
+    ),
+    linear-gradient(105deg, rgba(255, 255, 255, 0.12), rgba(15, 23, 42, 0.06));
+  box-shadow:
+    inset 18px 0 26px rgba(255, 255, 255, 0.06),
+    inset -18px 0 28px rgba(15, 23, 42, 0.18);
 }
 
 .demo-cell-liquid {
@@ -2379,7 +2810,13 @@ select {
   width: 18px;
   height: 122px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(226, 232, 240, 0.94), rgba(148, 163, 184, 0.96));
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.5), transparent 35%, rgba(15, 23, 42, 0.24)),
+    linear-gradient(180deg, rgba(241, 245, 249, 0.95), rgba(100, 116, 139, 0.96));
+  box-shadow:
+    inset 5px 0 7px rgba(255, 255, 255, 0.24),
+    inset -4px 0 7px rgba(15, 23, 42, 0.22),
+    0 10px 18px rgba(15, 23, 42, 0.14);
 }
 
 .demo-electrode-left {
@@ -2406,15 +2843,17 @@ select {
   width: 92px;
   height: 10px;
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.34);
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.14), 0 7px 12px rgba(2, 6, 23, 0.14);
 }
 
 .demo-wire-left {
   left: 112px;
+  background: linear-gradient(180deg, rgba(248, 113, 113, 0.9), rgba(127, 29, 29, 0.9));
 }
 
 .demo-wire-right {
   right: 112px;
+  background: linear-gradient(180deg, rgba(96, 165, 250, 0.92), rgba(30, 64, 175, 0.9));
 }
 
 .demo-battery {
@@ -2426,6 +2865,10 @@ select {
   border-radius: 16px;
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(37, 99, 235, 0.88));
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.24);
+}
+
+.demo-battery {
+  color: rgba(255, 255, 255, 0.76);
 }
 
 .demo-battery::before,
@@ -2617,6 +3060,171 @@ select {
 .demo-stage-flame .demo-spark-field,
 .demo-stage-rate .demo-rate-bubbles {
   opacity: 0.78;
+}
+
+.demo-stage[data-rule-effect="precipitate"] .demo-cloud-bloom span,
+.demo-stage[data-rule-effect="clouding"] .demo-cloud-bloom span {
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.22);
+  filter: saturate(1.25);
+}
+
+.demo-stage[data-rule-effect="flame"] .demo-flame-core {
+  box-shadow: 0 0 34px rgba(255, 245, 157, 0.55);
+}
+
+.demo-stage[data-rule-effect="coating"] .demo-mirror-coat,
+.demo-stage[data-rule-effect="coating"] .demo-electrode-right {
+  filter: saturate(1.25) drop-shadow(0 0 12px rgba(250, 204, 21, 0.32));
+}
+
+.demo-stage[data-rule-effect="flow"] .demo-condenser-flow {
+  filter: drop-shadow(0 0 12px rgba(125, 211, 252, 0.44));
+}
+
+.demo-stage[data-rule-effect="separation"] .demo-chroma-band {
+  filter: saturate(1.35);
+}
+
+/* Realistic apparatus pass: shared glassware, bench shadows, and lab props. */
+.lab-stage::before,
+.demo-stage::before,
+.lab-stage::after,
+.demo-stage::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.lab-stage::before,
+.demo-stage::before {
+  z-index: 0;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 28%),
+    radial-gradient(circle at 50% 92%, rgba(15, 23, 42, 0.32), transparent 42%);
+}
+
+.lab-stage::after,
+.demo-stage::after {
+  z-index: 0;
+  left: 28px;
+  right: 28px;
+  bottom: 18px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(2, 6, 23, 0.34), transparent 72%);
+  filter: blur(4px);
+}
+
+.lab-stage-scene,
+.demo-stage-scene {
+  z-index: 1;
+}
+
+.demo-clock-vessel,
+.demo-mix-vessel,
+.demo-tube,
+.demo-mirror-tube,
+.demo-chamber,
+.demo-dish,
+.demo-rate-vessel {
+  border-color: rgba(229, 242, 255, 0.42);
+  background:
+    linear-gradient(110deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03) 46%, rgba(15, 23, 42, 0.1)),
+    repeating-linear-gradient(to bottom, transparent 0 28px, rgba(226, 232, 240, 0.08) 28px 29px, transparent 29px 42px);
+  box-shadow:
+    inset 16px 0 26px rgba(255, 255, 255, 0.06),
+    inset -16px 0 26px rgba(15, 23, 42, 0.18),
+    0 22px 38px rgba(2, 6, 23, 0.18);
+}
+
+.demo-clock-vessel::before,
+.demo-mix-vessel::before,
+.demo-tube::before,
+.demo-mirror-tube::before,
+.demo-chamber::before,
+.demo-rate-vessel::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  left: 16px;
+  top: 18px;
+  width: 22px;
+  height: 70%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.04));
+  opacity: 0.62;
+  pointer-events: none;
+}
+
+.demo-clock-vessel::after,
+.demo-mix-vessel::after,
+.demo-chamber::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  left: -10px;
+  right: -10px;
+  top: -4px;
+  height: 22px;
+  border: 4px solid rgba(229, 242, 255, 0.46);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.14);
+  pointer-events: none;
+}
+
+.demo-tube {
+  border-radius: 999px 999px 32px 32px;
+}
+
+.demo-tube::after,
+.demo-mirror-tube::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  left: -8px;
+  right: -8px;
+  top: -4px;
+  height: 24px;
+  border: 4px solid rgba(229, 242, 255, 0.44);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.04));
+  pointer-events: none;
+}
+
+.demo-dish {
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.16), transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(15, 23, 42, 0.16));
+}
+
+.demo-dish::before {
+  content: "";
+  position: absolute;
+  z-index: 6;
+  left: -12px;
+  right: -12px;
+  top: 0;
+  height: 40px;
+  border: 4px solid rgba(229, 242, 255, 0.38);
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.02));
+  pointer-events: none;
+}
+
+.demo-paper-strip {
+  background:
+    repeating-linear-gradient(to bottom, rgba(30, 41, 59, 0.04) 0 1px, transparent 1px 18px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.9) 45%, rgba(226, 232, 240, 0.86));
+  box-shadow:
+    inset 0 0 0 1px rgba(148, 163, 184, 0.16),
+    0 14px 26px rgba(2, 6, 23, 0.12);
+}
+
+.demo-rate-vessel {
+  border-radius: 10px 10px 28px 28px;
 }
 
 @keyframes demo-level {
@@ -3567,6 +4175,14 @@ select {
     margin-left: -80px;
   }
 
+  .experiment-rule-overlay {
+    right: 14px;
+    bottom: 12px;
+    left: 14px;
+    width: auto;
+    padding: 10px 12px;
+  }
+
   .explorer-shell-lab,
   .lab-console-grid {
     grid-template-columns: 1fr;
@@ -3621,6 +4237,10 @@ select {
 
   .lab-step-actions {
     flex-direction: column;
+  }
+
+  .experiment-rule-overlay p {
+    display: none;
   }
 
   .lab-step-grid {
