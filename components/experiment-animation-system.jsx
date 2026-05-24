@@ -341,8 +341,12 @@ const stageInteractionProfiles = {
       id: "marble-charge",
       ruleId: "carbonate-charge",
       icon: "🪨",
-      label: "拖入大理石",
-      helper: "把大理石拖到左侧反应瓶底部",
+      label: "放入大理石",
+      actionLabel: "大理石落入瓶底",
+      helper: "大理石会先进入左侧反应瓶底部",
+      autoHint: "先把碳酸钙固体加入反应瓶，为后续酸化反应提供稳定表面积。",
+      autoPlay: true,
+      autoStartDelayMs: 760,
       toolTone: "stone",
       start: { x: 0.12, y: 0.2 },
       target: { x: 0.27, y: 0.78 },
@@ -360,8 +364,12 @@ const stageInteractionProfiles = {
       id: "acid-pour",
       ruleId: "acid-carbonate-gas",
       icon: "🧪",
-      label: "拖入稀盐酸",
-      helper: "把稀盐酸拖到左侧瓶口开始反应",
+      label: "滴加稀盐酸",
+      actionLabel: "稀盐酸正在倒入",
+      helper: "试剂瓶会移动到左侧瓶口并倾斜倒液",
+      autoHint: "稀盐酸沿瓶口缓慢倒入，液体接触大理石后开始产生二氧化碳。",
+      autoPlay: true,
+      autoStartDelayMs: 880,
       toolTone: "acid",
       start: { x: 0.12, y: 0.7 },
       target: { x: 0.27, y: 0.34 },
@@ -379,8 +387,12 @@ const stageInteractionProfiles = {
       id: "limewater-check",
       ruleId: "limewater-clouding",
       icon: "🫙",
-      label: "拖入石灰水",
-      helper: "把澄清石灰水拖到右侧检验位",
+      label: "接入石灰水",
+      actionLabel: "石灰水接入导管",
+      helper: "检验瓶会移动到右侧导管末端",
+      autoHint: "澄清石灰水接到导管末端，二氧化碳进入后会逐渐变浑浊。",
+      autoPlay: true,
+      autoStartDelayMs: 820,
       toolTone: "lime",
       start: { x: 0.88, y: 0.2 },
       target: { x: 0.73, y: 0.35 },
@@ -808,9 +820,9 @@ function RepeatedSpans({ count }) {
   return Array.from({ length: count }).map((_, index) => <span key={index} />);
 }
 
-function Tube({ tone, children }) {
+function Tube({ tone, active, children }) {
   return (
-    <div className={`demo-tube demo-tube-${tone}`}>
+    <div className={`demo-tube demo-tube-${tone} ${active ? "demo-tube-active" : ""}`}>
       <span className="demo-tube-glass" />
       <span className="demo-tube-liquid" />
       <span className="demo-tube-badge" />
@@ -861,7 +873,7 @@ function SedimentField({ className, count = 4 }) {
   return <div className={className}>{RepeatedSpans({ count })}</div>;
 }
 
-function LabBeaker({ side, liquidClassName, children }) {
+function LabBeaker({ side, liquidClassName, label, children }) {
   return (
     <div className={`lab-beaker lab-beaker-${side}`}>
       <span className="lab-beaker-rim" />
@@ -870,6 +882,7 @@ function LabBeaker({ side, liquidClassName, children }) {
       <div className={`lab-liquid ${liquidClassName}`}>
         <span className="lab-liquid-meniscus" />
       </div>
+      <span className="lab-beaker-label">{label ?? (side === "left" ? "反应瓶" : "检验瓶")}</span>
       {children}
     </div>
   );
@@ -885,12 +898,17 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [dragStatus, setDragStatus] = useState("ready");
   const [isDragging, setIsDragging] = useState(false);
+  const [targetFeedback, setTargetFeedback] = useState("idle");
+  const [manualInteracted, setManualInteracted] = useState(false);
   const commitTimerRef = useRef(null);
+  const autoTimerRef = useRef(null);
 
   useEffect(() => {
     setDragOffset({ x: 0, y: 0 });
     setDragStatus("ready");
     setIsDragging(false);
+    setTargetFeedback("idle");
+    setManualInteracted(false);
   }, [interaction?.id, interaction?.nextStep]);
 
   useEffect(() => {
@@ -899,6 +917,7 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
     }
 
     const delay = reduceMotion ? 180 : interaction?.commitDelayMs ?? 760;
+    setTargetFeedback("pouring");
     commitTimerRef.current = window.setTimeout(() => {
       setDragStatus("committed");
       onCommit?.(interaction.nextStep);
@@ -912,6 +931,44 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
     };
   }, [dragStatus, interaction, onCommit, reduceMotion]);
 
+  useEffect(() => {
+    if (targetFeedback !== "rejected") {
+      return undefined;
+    }
+
+    const feedbackTimer = window.setTimeout(() => {
+      setTargetFeedback("idle");
+    }, reduceMotion ? 240 : 620);
+
+    return () => window.clearTimeout(feedbackTimer);
+  }, [reduceMotion, targetFeedback]);
+
+  useEffect(() => {
+    if (!bounds || !interaction || interaction.autoPlay === false || manualInteracted || dragStatus !== "ready" || isDragging) {
+      return undefined;
+    }
+
+    const delay = reduceMotion ? 260 : interaction.autoStartDelayMs ?? 920;
+    autoTimerRef.current = window.setTimeout(() => {
+      const startCenter = resolveStagePoint(bounds, interaction.start);
+      const targetCenter = resolveStagePoint(bounds, interaction.target);
+
+      setTargetFeedback("accepted");
+      setDragOffset({
+        x: targetCenter.x - startCenter.x,
+        y: targetCenter.y - startCenter.y
+      });
+      setDragStatus("snapping");
+    }, delay);
+
+    return () => {
+      if (autoTimerRef.current) {
+        window.clearTimeout(autoTimerRef.current);
+        autoTimerRef.current = null;
+      }
+    };
+  }, [bounds, dragStatus, interaction, isDragging, manualInteracted, reduceMotion]);
+
   if (!interaction || !bounds) {
     return null;
   }
@@ -924,8 +981,23 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
   };
   const isSnapping = dragStatus === "snapping";
   const isPouring = dragStatus === "pouring";
+  const isNearTarget = targetFeedback === "near" || targetFeedback === "accepted" || isSnapping || isPouring;
   const activeOffset = isSnapping || isPouring ? snapOffset : dragOffset;
   const pourPose = interaction.pourPose ?? { rotate: 0, scale: 1.02 };
+  const feedbackMessage =
+    targetFeedback === "rejected"
+      ? "没有对准目标，试剂已回弹"
+      : isPouring
+        ? interaction.rule?.resultLabel ?? "正在加入试剂"
+        : isSnapping || targetFeedback === "accepted"
+          ? "已吸附，准备加入"
+          : targetFeedback === "near"
+            ? "目标已锁定，松手加入"
+            : isDragging
+              ? "拖向发光目标区"
+              : interaction.autoPlay === false
+                ? "拖动试剂到目标区"
+                : "自动演示中，可手动拖动";
   const animateTarget = reduceMotion
     ? { opacity: 1, x: activeOffset.x, y: activeOffset.y, scale: 1, rotate: 0 }
     : {
@@ -941,7 +1013,7 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
       <div
         className={`lab-drop-zone lab-drop-zone-${interaction.targetSide} ${
           isDragging || isSnapping || isPouring ? "lab-drop-zone-active" : ""
-        }`}
+        } ${isNearTarget ? "lab-drop-zone-near" : ""} lab-drop-zone-feedback-${targetFeedback}`}
         style={{
           left: targetCenter.x,
           top: targetCenter.y
@@ -949,6 +1021,22 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
       >
         <span>{interaction.targetSide === "left" ? "反应位" : "检验位"}</span>
       </div>
+
+      <AnimatePresence initial={false}>
+        {targetFeedback !== "idle" || isDragging || isPouring ? (
+          <motion.div
+            aria-live="polite"
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+            className={`lab-feedback-toast lab-feedback-toast-${targetFeedback}`}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.98 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 8, scale: 0.98 }}
+            key={feedbackMessage}
+            transition={resolveMotionTransition("reactive", reduceMotion)}
+          >
+            {feedbackMessage}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       <AnimatePresence initial={false}>
         {isPouring ? (
@@ -980,7 +1068,11 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
         animate={animateTarget}
         className={`lab-stage-tool lab-stage-tool-${interaction.toolTone} ${
           isDragging ? "lab-stage-tool-dragging" : ""
-        } ${isPouring ? "lab-stage-tool-pouring" : ""}`}
+        } ${isPouring ? "lab-stage-tool-pouring" : ""} ${
+          interaction.autoPlay !== false && dragStatus === "ready" ? "lab-stage-tool-autoplay" : ""
+        } ${targetFeedback === "near" ? "lab-stage-tool-near" : ""} ${
+          targetFeedback === "rejected" ? "lab-stage-tool-rejected" : ""
+        }`}
         drag={!isSnapping && !isPouring}
         dragConstraints={containerRef}
         dragElastic={0.08}
@@ -999,6 +1091,14 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
             onCommit?.(interaction.nextStep);
           }
         }}
+        onDrag={(_, info) => {
+          const currentCenter = {
+            x: startCenter.x + info.offset.x,
+            y: startCenter.y + info.offset.y
+          };
+
+          setTargetFeedback(getPointDistance(currentCenter, targetCenter) <= interaction.radius ? "near" : "dragging");
+        }}
         onDragEnd={(_, info) => {
           setIsDragging(false);
 
@@ -1008,15 +1108,21 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
           };
 
           if (getPointDistance(releaseCenter, targetCenter) <= interaction.radius) {
+            setTargetFeedback("accepted");
             setDragStatus("snapping");
             setDragOffset(snapOffset);
             return;
           }
 
+          setTargetFeedback("rejected");
           setDragStatus("ready");
           setDragOffset({ x: 0, y: 0 });
         }}
-        onDragStart={() => setIsDragging(true)}
+        onDragStart={() => {
+          setIsDragging(true);
+          setManualInteracted(true);
+          setTargetFeedback("dragging");
+        }}
         style={{
           left: startCenter.x - stageToolSize.width / 2,
           top: startCenter.y - stageToolSize.height / 2,
@@ -1048,11 +1154,13 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
           <span className="lab-reagent-bottle-label">{interaction.icon}</span>
         </span>
         <span className="lab-stage-tool-copy">
-          <strong>{isPouring ? "正在加入..." : interaction.label}</strong>
+          <strong>{isPouring ? interaction.actionLabel ?? "正在加入..." : interaction.label}</strong>
           <small>
             {isPouring
               ? interaction.rule?.resultLabel ?? "已经吸附到目标位，正在完成加入动作"
-              : interaction.helper}
+              : interaction.autoPlay === false
+                ? interaction.helper
+                : `${interaction.helper}，也可直接拖动`}
           </small>
         </span>
       </motion.button>
@@ -1063,11 +1171,61 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
 function IndicatorScene({ state, motionEnabled, reduceMotion }) {
   const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
   const isActive = state.flags.reactionStarted || state.phaseKey === "observing" || state.phaseKey === "complete";
+  const isSettled = state.phaseKey === "observing" || state.phaseKey === "complete";
 
   return (
     <div className="demo-scene demo-scene-indicator">
       {["pink", "violet", "amber"].map((tone, index) => (
-        <Tube key={tone} tone={tone}>
+        <Tube active={isActive} key={tone} tone={tone}>
+          <MotionElement
+            as="span"
+            className="demo-indicator-droplet"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion
+                ? { opacity: 1 }
+                : isActive
+                  ? {
+                      opacity: [0, 1, 0.28],
+                      y: [-18, 52, 68],
+                      scale: [0.72, 1, 0.78]
+                    }
+                  : { opacity: 0, y: -20, scale: 0.72 },
+              transition: isActive
+                ? {
+                    duration: 1.05,
+                    ease: "easeInOut",
+                    repeat: isSettled ? 0 : Infinity,
+                    delay: index * 0.16
+                  }
+                : transition
+            }}
+          />
+          <MotionElement
+            as="div"
+            className="demo-tube-color-front"
+            enabled={motionEnabled}
+            motionProps={{
+              animate: reduceMotion
+                ? { opacity: 1 }
+                : isActive
+                  ? {
+                      opacity: isSettled ? 0.86 : [0.18, 0.76, 0.48],
+                      scaleY: isSettled ? 1 : [0.2, 1.08, 0.86],
+                      y: isSettled ? 0 : [18, -4, 2]
+                    }
+                  : { opacity: 0.04, scaleY: 0.08, y: 20 },
+              transition: isActive
+                ? {
+                    ...transition,
+                    duration: 1.18,
+                    delay: index * 0.12
+                  }
+                : transition
+            }}
+          >
+            {RepeatedSpans({ count: 4 })}
+          </MotionElement>
           <MotionElement
             as="div"
             className="demo-tube-surface"
@@ -1286,11 +1444,28 @@ function FlameScene({ state, motionEnabled, reduceMotion }) {
 function CrystalScene({ state, motionEnabled, reduceMotion }) {
   const transition = resolveMotionTransition(state.transitionPreset, reduceMotion);
   const isGrowing = state.flags.reactionStarted || state.phaseKey === "observing" || state.phaseKey === "complete";
+  const growthProgress =
+    state.phaseKey === "complete" ? 1 : state.phaseKey === "observing" ? 0.78 : state.phaseKey === "reacting" ? 0.45 : 0.12;
 
   return (
-    <div className="demo-scene demo-scene-crystal">
+    <div className="demo-scene demo-scene-crystal" style={{ "--crystal-progress": growthProgress }}>
       <div className="demo-dish">
-        <div className="demo-dish-liquid" />
+        <MotionElement
+          as="div"
+          className="demo-dish-liquid"
+          enabled={motionEnabled}
+          motionProps={{
+            style: { transformOrigin: "center bottom" },
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : {
+                  opacity: 0.92 - growthProgress * 0.22,
+                  scaleY: 1 - growthProgress * 0.36,
+                  filter: isGrowing ? "saturate(1.18) brightness(1.06)" : "saturate(1) brightness(1)"
+                },
+            transition
+          }}
+        />
         <MotionElement
           as="div"
           className="demo-dish-surface"
@@ -1335,7 +1510,29 @@ function CrystalScene({ state, motionEnabled, reduceMotion }) {
         >
           {RepeatedSpans({ count: 4 })}
         </MotionElement>
-        <div className="demo-dish-crystals">{RepeatedSpans({ count: 6 })}</div>
+        <MotionElement
+          as="div"
+          className="demo-crystal-seed-cloud"
+          enabled={motionEnabled}
+          motionProps={{
+            animate: reduceMotion
+              ? { opacity: 1 }
+              : isGrowing
+                ? { opacity: [0.18, 0.62, 0.36], scale: [0.84, 1.08, 0.96], y: [10, -3, 2] }
+                : { opacity: 0.06, scale: 0.72, y: 14 },
+            transition: isGrowing
+              ? {
+                  duration: 1.16,
+                  ease: "easeInOut",
+                  repeat: state.phaseKey === "complete" ? 0 : Infinity,
+                  repeatType: "mirror"
+                }
+              : transition
+          }}
+        >
+          {RepeatedSpans({ count: 8 })}
+        </MotionElement>
+        <div className="demo-dish-crystals">{RepeatedSpans({ count: 10 })}</div>
       </div>
       <div className="demo-heat-wave">{RepeatedSpans({ count: 4 })}</div>
     </div>
@@ -2126,7 +2323,7 @@ function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, on
   const interaction = interactive ? state.interactionProfile : null;
   const activeRule = interaction?.rule ?? state.rule;
   const stageHint = interaction
-    ? `${interaction.helper}；匹配规则：${activeRule?.resultLabel ?? "等待现象"}。`
+    ? interaction.autoHint ?? `${interaction.helper}。`
     : isVerified
       ? "石灰水已经明显变浑浊，完成二氧化碳检验。"
       : isTransferring
@@ -2148,19 +2345,13 @@ function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, on
             transition
           }}
         >
-          <span className="lab-stage-hint-label">{interaction ? "拖拽交互 · 规则匹配" : "阶段提示 · 规则引擎"}</span>
+          <span className="lab-stage-hint-label">{interaction ? "实验动作" : "阶段提示"}</span>
           <strong>{interaction ? interaction.label : state.phaseKey === "verified" ? "完成检验" : "观察变化"}</strong>
           <p>{stageHint}</p>
-          {activeRule ? (
-            <div className="lab-rule-chip-row" aria-label="当前实验规则">
-              <span className="lab-rule-chip">{activeRule.title}</span>
-              <span className="lab-rule-chip lab-rule-chip-result">{activeRule.resultLabel}</span>
-            </div>
-          ) : null}
         </MotionElement>
       </AnimatePresence>
 
-      <LabBeaker side="left" liquidClassName="lab-liquid-reactant">
+      <LabBeaker label="反应瓶" side="left" liquidClassName="lab-liquid-reactant">
         <div className={`lab-rocks ${isCharged ? "lab-rocks-loaded" : ""}`}>{RepeatedSpans({ count: 3 })}</div>
         <MotionElement
           as="div"
@@ -2301,6 +2492,7 @@ function FizzTransferScene({ state, motionEnabled, reduceMotion, interactive, on
       </div>
 
       <LabBeaker
+        label="检验瓶"
         side="right"
         liquidClassName={`lab-liquid-limewater ${isTransferring ? "lab-liquid-ready" : "lab-liquid-dormant"}`}
       >
@@ -2508,7 +2700,6 @@ export function ExperimentAnimationStage({
         }}
       >
         {motionEnabled ? <AnimatePresence initial={false} mode="wait">{stageScene}</AnimatePresence> : stageScene}
-        <RuleStatusOverlay motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />
       </MotionElement>
     );
   }
@@ -2542,7 +2733,6 @@ export function ExperimentAnimationStage({
       }}
     >
       {motionEnabled ? <AnimatePresence initial={false} mode="wait">{stageScene}</AnimatePresence> : stageScene}
-      <RuleStatusOverlay motionEnabled={motionEnabled} reduceMotion={reduceMotion} state={state} />
     </MotionElement>
   );
 }
