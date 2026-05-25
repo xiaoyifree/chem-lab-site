@@ -1364,6 +1364,591 @@ function RepeatedSpans({ count }) {
   return Array.from({ length: count }).map((_, index) => <span key={index} />);
 }
 
+function hashString(value) {
+  return String(value)
+    .split("")
+    .reduce((hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0, 2166136261);
+}
+
+function seededUnit(seed, index) {
+  const raw = Math.sin(seed * 12.9898 + index * 78.233) * 43758.5453;
+  return raw - Math.floor(raw);
+}
+
+function resolvePhenomenonProfile(state) {
+  const slug = state.experiment.slug ?? "";
+  const effect = state.resultEffect;
+
+  if (state.kind === "flame" || effect === "flame") {
+    return { kind: "flame", centerX: 0.5, centerY: 0.58, palette: ["#fff7ad", "#fb923c", "#ef4444"] };
+  }
+
+  if (state.kind === "crystal" || effect === "crystal") {
+    return { kind: "crystal", centerX: 0.5, centerY: 0.68, palette: ["#e0f2fe", "#93c5fd", "#67e8f9"] };
+  }
+
+  if (state.kind === "precipitate" || effect === "precipitate" || effect === "clouding") {
+    return { kind: "precipitate", centerX: 0.5, centerY: 0.64, palette: ["#eff6ff", "#bfdbfe", "#93c5fd"] };
+  }
+
+  if (state.kind === "distillation" || effect === "flow") {
+    return { kind: "distillation", centerX: 0.5, centerY: 0.45, palette: ["#e0f2fe", "#7dd3fc", "#38bdf8"] };
+  }
+
+  if (state.kind === "electroplate" || state.kind === "displacement" || effect === "coating") {
+    return { kind: "metal", centerX: 0.5, centerY: 0.58, palette: ["#f97316", "#fb923c", "#fed7aa"] };
+  }
+
+  if (state.kind === "electrolysis") {
+    return { kind: "electrolysis", centerX: 0.5, centerY: 0.58, palette: ["#7dd3fc", "#60a5fa", "#fbbf24"] };
+  }
+
+  if (state.kind === "indicator" || state.kind === "clock" || effect === "color") {
+    return { kind: "color", centerX: 0.5, centerY: 0.62, palette: ["#f472b6", "#60a5fa", "#34d399"] };
+  }
+
+  if (state.kind === "fizz-transfer" || effect === "gas" || /oxygen|peroxide|acid|soda|eggshell|vinegar/i.test(slug)) {
+    return {
+      kind: "gas",
+      centerX: state.kind === "fizz-transfer" && !isEggshellVinegarExperiment(state.experiment) ? 0.28 : 0.5,
+      centerY: 0.7,
+      palette: ["#ccfbf1", "#67e8f9", "#fef3c7"]
+    };
+  }
+
+  return { kind: "liquid", centerX: 0.5, centerY: 0.62, palette: ["#67e8f9", "#60a5fa", "#34d399"] };
+}
+
+function getCanvasIntensity(state) {
+  if (state.phaseKey === "idle" || state.phaseKey === "setup") {
+    return 0.14;
+  }
+
+  if (state.phaseKey === "loaded") {
+    return 0.28;
+  }
+
+  if (state.phaseKey === "reacting" || state.phaseKey === state.emphasisPhase) {
+    return 1;
+  }
+
+  if (state.flags.finished || state.phaseKey === "complete" || state.phaseKey === "verified") {
+    return 0.82;
+  }
+
+  return 0.62;
+}
+
+function drawCanvasBubbleField(ctx, width, height, time, intensity, seed, profile) {
+  const baseX = width * profile.centerX;
+  const baseY = height * profile.centerY;
+  const count = Math.floor(18 + intensity * 34);
+
+  for (let index = 0; index < count; index += 1) {
+    const lane = seededUnit(seed, index) - 0.5;
+    const drift = Math.sin(time * 0.9 + index * 1.7) * 8;
+    const rise = ((time * (0.16 + seededUnit(seed, index + 20) * 0.28) + seededUnit(seed, index + 40)) % 1) * height * 0.42;
+    const radius = 2 + seededUnit(seed, index + 60) * 8 * intensity;
+    const x = baseX + lane * width * 0.24 + drift;
+    const y = baseY - rise;
+    const alpha = Math.max(0, (1 - rise / (height * 0.42)) * intensity);
+
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(204, 251, 241, ${0.14 + alpha * 0.56})`;
+    ctx.lineWidth = 1.2;
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    if (index % 5 === 0) {
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255, 255, 255, ${0.12 + alpha * 0.32})`;
+      ctx.arc(x - radius * 0.25, y - radius * 0.2, Math.max(1, radius * 0.22), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  const plume = ctx.createRadialGradient(baseX, baseY - height * 0.08, 10, baseX, baseY - height * 0.08, width * 0.24);
+  plume.addColorStop(0, `rgba(103, 232, 249, ${0.18 * intensity})`);
+  plume.addColorStop(0.55, `rgba(45, 212, 191, ${0.08 * intensity})`);
+  plume.addColorStop(1, "rgba(45, 212, 191, 0)");
+  ctx.fillStyle = plume;
+  ctx.fillRect(0, 0, width, height);
+}
+
+function drawCanvasPrecipitate(ctx, width, height, time, intensity, seed, profile) {
+  const baseX = width * profile.centerX;
+  const baseY = height * profile.centerY;
+  const count = Math.floor(14 + intensity * 26);
+
+  for (let index = 0; index < count; index += 1) {
+    const orbit = seededUnit(seed, index) * Math.PI * 2;
+    const radius = (0.08 + seededUnit(seed, index + 18) * 0.22) * width * intensity;
+    const pulse = 0.82 + Math.sin(time * 1.4 + index) * 0.16;
+    const x = baseX + Math.cos(orbit) * radius * pulse;
+    const y = baseY + Math.sin(orbit) * radius * 0.55 * pulse;
+    const cloudRadius = 18 + seededUnit(seed, index + 38) * 32;
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, cloudRadius);
+
+    gradient.addColorStop(0, `rgba(239, 246, 255, ${0.18 * intensity})`);
+    gradient.addColorStop(0.62, `rgba(147, 197, 253, ${0.07 * intensity})`);
+    gradient.addColorStop(1, "rgba(147, 197, 253, 0)");
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, cloudRadius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = `rgba(226, 232, 240, ${0.12 + intensity * 0.22})`;
+  for (let index = 0; index < 18; index += 1) {
+    const x = baseX - width * 0.2 + seededUnit(seed, index + 80) * width * 0.4;
+    const y = height * 0.77 + seededUnit(seed, index + 100) * height * 0.08;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 5 + seededUnit(seed, index + 120) * 14, 2 + seededUnit(seed, index + 140) * 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawCanvasFlame(ctx, width, height, time, intensity, seed, profile) {
+  const baseX = width * profile.centerX;
+  const baseY = height * 0.72;
+  const flameHeight = height * (0.2 + intensity * 0.2);
+  const layers = [
+    ["rgba(239, 68, 68, 0.42)", 1.08, 0],
+    ["rgba(251, 146, 60, 0.58)", 0.78, 0.7],
+    ["rgba(254, 247, 173, 0.84)", 0.42, 1.4]
+  ];
+
+  layers.forEach(([color, scale, phase]) => {
+    const sway = Math.sin(time * 5.2 + phase) * 12 * intensity;
+    const topY = baseY - flameHeight * scale;
+    const widthScale = width * 0.08 * scale;
+
+    ctx.beginPath();
+    ctx.moveTo(baseX - widthScale, baseY);
+    ctx.bezierCurveTo(baseX - widthScale * 1.1, baseY - flameHeight * 0.4, baseX + sway - widthScale * 0.55, topY + 28, baseX + sway, topY);
+    ctx.bezierCurveTo(baseX + sway + widthScale * 0.55, topY + 28, baseX + widthScale * 1.1, baseY - flameHeight * 0.4, baseX + widthScale, baseY);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 28 * intensity;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  });
+
+  for (let index = 0; index < Math.floor(20 * intensity); index += 1) {
+    const phase = (time * (0.35 + seededUnit(seed, index) * 0.35) + seededUnit(seed, index + 20)) % 1;
+    const x = baseX + (seededUnit(seed, index + 40) - 0.5) * width * 0.28;
+    const y = baseY - phase * height * 0.5;
+    ctx.fillStyle = `rgba(254, 240, 138, ${(1 - phase) * 0.7})`;
+    ctx.beginPath();
+    ctx.arc(x, y, 1.5 + seededUnit(seed, index + 60) * 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawCanvasCrystals(ctx, width, height, time, intensity, seed, profile) {
+  const baseX = width * profile.centerX;
+  const baseY = height * profile.centerY;
+  const count = Math.floor(8 + intensity * 28);
+
+  ctx.strokeStyle = `rgba(186, 230, 253, ${0.26 + intensity * 0.48})`;
+  ctx.fillStyle = `rgba(224, 242, 254, ${0.12 + intensity * 0.28})`;
+  ctx.lineWidth = 1.3;
+
+  for (let index = 0; index < count; index += 1) {
+    const angle = seededUnit(seed, index) * Math.PI * 2;
+    const spread = seededUnit(seed, index + 20) * width * 0.25 * intensity;
+    const x = baseX + Math.cos(angle) * spread;
+    const y = baseY + Math.sin(angle) * spread * 0.48 + Math.sin(time + index) * 2;
+    const size = 5 + seededUnit(seed, index + 40) * 16 * intensity;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle + time * 0.08);
+    ctx.beginPath();
+    ctx.moveTo(0, -size);
+    ctx.lineTo(size * 0.58, 0);
+    ctx.lineTo(0, size);
+    ctx.lineTo(-size * 0.58, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawCanvasFlow(ctx, width, height, time, intensity, seed) {
+  ctx.strokeStyle = `rgba(125, 211, 252, ${0.2 + intensity * 0.48})`;
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+
+  for (let index = 0; index < 5; index += 1) {
+    const phase = (time * 0.28 + index * 0.18) % 1;
+    const startX = width * (0.22 + phase * 0.46);
+    const startY = height * (0.3 + Math.sin(phase * Math.PI * 2) * 0.06);
+
+    ctx.beginPath();
+    ctx.moveTo(startX - 32, startY - 18);
+    ctx.bezierCurveTo(startX, startY - 52, startX + 44, startY + 12, startX + 84, startY - 10);
+    ctx.stroke();
+
+    ctx.fillStyle = `rgba(224, 242, 254, ${(1 - phase) * intensity * 0.62})`;
+    ctx.beginPath();
+    ctx.arc(startX + 84, startY - 10, 3 + seededUnit(seed, index) * 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawCanvasMetal(ctx, width, height, time, intensity, seed, profile) {
+  const centerX = width * profile.centerX;
+  const centerY = height * profile.centerY;
+  const gradient = ctx.createLinearGradient(centerX - width * 0.18, centerY, centerX + width * 0.18, centerY);
+
+  gradient.addColorStop(0, `rgba(249, 115, 22, ${0.02 + intensity * 0.06})`);
+  gradient.addColorStop(0.5, `rgba(251, 146, 60, ${0.16 + intensity * 0.32})`);
+  gradient.addColorStop(1, `rgba(254, 215, 170, ${0.02 + intensity * 0.08})`);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(centerX - width * 0.18, centerY - height * 0.22, width * 0.36, height * 0.44);
+
+  for (let index = 0; index < Math.floor(18 * intensity); index += 1) {
+    const x = centerX + (seededUnit(seed, index) - 0.5) * width * 0.38;
+    const y = centerY + (seededUnit(seed, index + 30) - 0.5) * height * 0.36;
+    ctx.fillStyle = `rgba(251, 146, 60, ${0.24 + seededUnit(seed, index + 60) * 0.42})`;
+    ctx.beginPath();
+    ctx.arc(x, y, 2 + seededUnit(seed, index + 90) * 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawCanvasColorShift(ctx, width, height, time, intensity, seed, profile) {
+  const centerX = width * profile.centerX;
+  const centerY = height * profile.centerY;
+  const colors = [
+    `rgba(244, 114, 182, ${0.12 * intensity})`,
+    `rgba(96, 165, 250, ${0.12 * intensity})`,
+    `rgba(52, 211, 153, ${0.12 * intensity})`
+  ];
+
+  colors.forEach((color, index) => {
+    const radius = width * (0.14 + index * 0.08 + Math.sin(time * 0.6 + index) * 0.02) * (0.4 + intensity);
+    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+    gradient.addColorStop(0, color);
+    gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+  });
+}
+
+function drawCanvasElectrolysis(ctx, width, height, time, intensity, seed) {
+  const leftX = width * 0.38;
+  const rightX = width * 0.62;
+  const baseY = height * 0.74;
+
+  [leftX, rightX].forEach((x, sideIndex) => {
+    const count = Math.floor((sideIndex === 0 ? 18 : 11) * intensity);
+
+    for (let index = 0; index < count; index += 1) {
+      const phase = (time * (0.22 + sideIndex * 0.04) + seededUnit(seed, index + sideIndex * 40)) % 1;
+      const y = baseY - phase * height * 0.48;
+      const dx = (seededUnit(seed, index + 80) - 0.5) * 36;
+      ctx.strokeStyle = sideIndex === 0 ? `rgba(125, 211, 252, ${(1 - phase) * 0.62})` : `rgba(253, 224, 71, ${(1 - phase) * 0.55})`;
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      ctx.arc(x + dx, y, 2 + seededUnit(seed, index + 100) * 5, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  });
+}
+
+function drawCanvasPhenomenon(ctx, width, height, time, state) {
+  const profile = resolvePhenomenonProfile(state);
+  const intensity = getCanvasIntensity(state);
+  const seed = hashString(`${state.experiment.slug}-${profile.kind}`);
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+
+  if (profile.kind === "gas") {
+    drawCanvasBubbleField(ctx, width, height, time, intensity, seed, profile);
+    if (state.phaseKey === "transferring" || state.phaseKey === "verified") {
+      drawCanvasFlow(ctx, width, height, time, intensity, seed);
+      drawCanvasPrecipitate(ctx, width, height, time, state.phaseKey === "verified" ? intensity : intensity * 0.55, seed + 3, {
+        ...profile,
+        centerX: 0.72,
+        centerY: 0.62
+      });
+    }
+  } else if (profile.kind === "precipitate") {
+    drawCanvasPrecipitate(ctx, width, height, time, intensity, seed, profile);
+  } else if (profile.kind === "flame") {
+    drawCanvasFlame(ctx, width, height, time, intensity, seed, profile);
+  } else if (profile.kind === "crystal") {
+    drawCanvasCrystals(ctx, width, height, time, intensity, seed, profile);
+  } else if (profile.kind === "distillation") {
+    drawCanvasFlow(ctx, width, height, time, intensity, seed);
+  } else if (profile.kind === "metal") {
+    drawCanvasMetal(ctx, width, height, time, intensity, seed, profile);
+  } else if (profile.kind === "electrolysis") {
+    drawCanvasElectrolysis(ctx, width, height, time, intensity, seed);
+  } else if (profile.kind === "color") {
+    drawCanvasColorShift(ctx, width, height, time, intensity, seed, profile);
+  } else {
+    drawCanvasColorShift(ctx, width, height, time, intensity * 0.58, seed, profile);
+    drawCanvasBubbleField(ctx, width, height, time, intensity * 0.42, seed, profile);
+  }
+
+  ctx.restore();
+}
+
+function CanvasPhenomenonLayer({ state, reduceMotion }) {
+  const canvasRef = useRef(null);
+  const frameRef = useRef(null);
+  const stateRef = useRef(state);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      return undefined;
+    }
+
+    const context = canvas.getContext("2d", { alpha: true });
+
+    if (!context) {
+      return undefined;
+    }
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    resize();
+
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
+    observer?.observe(canvas);
+
+    let startTime = performance.now();
+    const tick = (now) => {
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+
+      if (width && height) {
+        drawCanvasPhenomenon(context, width, height, (now - startTime) / 1000, stateRef.current);
+      }
+
+      if (!reduceMotion) {
+        frameRef.current = requestAnimationFrame(tick);
+      }
+    };
+
+    frameRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+      }
+
+      observer?.disconnect();
+    };
+  }, [reduceMotion]);
+
+  return <canvas aria-hidden="true" className="lab-phenomenon-canvas" ref={canvasRef} />;
+}
+
+function classifyStageMaterialVisual(copy, experiment, kind) {
+  const text = `${copy ?? ""} ${experiment.title ?? ""} ${experiment.slug ?? ""}`;
+
+  if (/高锰酸钾|KMnO4|kmno/i.test(text)) {
+    return { key: "kmno4", label: "KMnO4 粉末", type: "powder", tone: "purple", target: "tube" };
+  }
+
+  if (/二氧化锰|MnO2/i.test(text)) {
+    return { key: "mno2", label: "MnO2 催化剂", type: "powder", tone: "black", target: "flask" };
+  }
+
+  if (/镁带|magnesium/i.test(text)) {
+    return { key: "magnesium", label: "镁带", type: "magnesium", tone: "silver", target: "flame" };
+  }
+
+  if (/铁钉|铁丝|iron nail|iron/i.test(text)) {
+    return { key: "iron-nail", label: "打磨铁钉", type: "nail", tone: "steel", target: "tube" };
+  }
+
+  if (/铁片|铜片|锌片|铝片|铜板|锌板|金属片|待镀金属/i.test(text)) {
+    return { key: "metal-strip", label: "金属片", type: "metal-strip", tone: "metal", target: "beaker" };
+  }
+
+  if (/蛋壳/i.test(text)) {
+    return { key: "eggshell", label: "碎蛋壳", type: "solid", tone: "eggshell", target: "beaker" };
+  }
+
+  if (/大理石|碳酸钙|CaCO3|CaCO₃/i.test(text)) {
+    return { key: "marble", label: "碳酸盐固体", type: "solid", tone: "marble", target: "beaker" };
+  }
+
+  if (/食盐|NaCl|晶体|结晶|crystal/i.test(text)) {
+    return { key: "crystal", label: "晶体/食盐", type: "crystal", tone: "crystal", target: "dish" };
+  }
+
+  if (/酒精灯|加热|点燃|火源|燃烧|heat|flame/i.test(text)) {
+    return { key: "heat", label: "酒精灯", type: "heat", tone: "heat", target: kind === "distillation" ? "flask" : "center" };
+  }
+
+  if (/电源|通电|电流|电极|电解|电镀|power|electrode/i.test(text)) {
+    return { key: "power", label: "电源/电极", type: "power", tone: "power", target: "electrode" };
+  }
+
+  if (/指示剂|紫甘蓝|石蕊|酚酞|碘液|淀粉|色素|indicator|starch/i.test(text)) {
+    return { key: "indicator", label: "显色试剂", type: "liquid", tone: "indicator", target: "liquid" };
+  }
+
+  if (/石灰水|lime/i.test(text)) {
+    return { key: "limewater", label: "石灰水", type: "liquid", tone: "lime", target: "tube" };
+  }
+
+  if (/盐酸|白醋|醋酸|硝酸|硫酸|氢氧化钠|NaOH|硫酸铜|CuSO4|CuSO₄|溶液|试剂|液体|滴管/i.test(text)) {
+    return { key: "solution", label: "反应溶液", type: "liquid", tone: "solution", target: "liquid" };
+  }
+
+  return null;
+}
+
+function getStageMaterialVisuals(state) {
+  const steps = getDemoStepsForExperiment(state.experiment);
+  const visuals = [];
+  const seen = new Set();
+
+  steps.slice(0, state.stepIndex + 1).forEach((step) => {
+    const visual = classifyStageMaterialVisual(`${step.title} ${step.note}`, state.experiment, state.kind);
+
+    if (visual && !seen.has(visual.key)) {
+      seen.add(visual.key);
+      visuals.push(visual);
+    }
+  });
+
+  if (state.interactionProfile) {
+    const visual = classifyStageMaterialVisual(
+      `${state.interactionProfile.label} ${state.interactionProfile.helper}`,
+      state.experiment,
+      state.kind
+    );
+
+    if (visual && !seen.has(visual.key)) {
+      seen.add(visual.key);
+      visuals.push(visual);
+    }
+  }
+
+  return visuals.slice(-3);
+}
+
+function MaterialVisualIcon({ visual }) {
+  if (visual.type === "nail") {
+    return (
+      <span className="lab-real-prop-icon lab-real-prop-icon-nail">
+        <span className="lab-real-nail-head" />
+        <span className="lab-real-nail-body" />
+        <span className="lab-real-nail-tip" />
+      </span>
+    );
+  }
+
+  if (visual.type === "magnesium") {
+    return (
+      <span className="lab-real-prop-icon lab-real-prop-icon-magnesium">
+        <span className="lab-real-magnesium-strip" />
+      </span>
+    );
+  }
+
+  if (visual.type === "metal-strip") {
+    return (
+      <span className="lab-real-prop-icon lab-real-prop-icon-metal-strip">
+        <span className="lab-real-metal-strip" />
+      </span>
+    );
+  }
+
+  if (visual.type === "powder") {
+    return (
+      <span className={`lab-real-prop-icon lab-real-prop-icon-powder lab-real-prop-tone-${visual.tone}`}>
+        {RepeatedSpans({ count: 12 })}
+      </span>
+    );
+  }
+
+  if (visual.type === "solid") {
+    return (
+      <span className={`lab-real-prop-icon lab-real-prop-icon-solid lab-real-prop-tone-${visual.tone}`}>
+        {RepeatedSpans({ count: 5 })}
+      </span>
+    );
+  }
+
+  if (visual.type === "crystal") {
+    return (
+      <span className="lab-real-prop-icon lab-real-prop-icon-crystal">
+        {RepeatedSpans({ count: 7 })}
+      </span>
+    );
+  }
+
+  if (visual.type === "heat") {
+    return (
+      <span className="lab-real-prop-icon lab-real-prop-icon-heat">
+        <span className="lab-real-burner-base" />
+        <span className="lab-real-burner-flame" />
+      </span>
+    );
+  }
+
+  if (visual.type === "power") {
+    return (
+      <span className="lab-real-prop-icon lab-real-prop-icon-power">
+        <span className="lab-real-power-wire" />
+        <span className="lab-real-power-spark" />
+      </span>
+    );
+  }
+
+  return (
+    <span className={`lab-real-prop-icon lab-real-prop-icon-liquid lab-real-prop-tone-${visual.tone}`}>
+      <span />
+    </span>
+  );
+}
+
+function StageMaterialMemoryLayer({ state }) {
+  const visuals = getStageMaterialVisuals(state);
+
+  if (!visuals.length) {
+    return null;
+  }
+
+  return (
+    <div aria-hidden="true" className={`lab-material-memory lab-material-memory-${state.kind}`}>
+      {visuals.map((visual) => (
+        <div className={`lab-real-prop lab-real-prop-${visual.type} lab-real-prop-target-${visual.target}`} key={visual.key}>
+          <MaterialVisualIcon visual={visual} />
+          <span>{visual.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Tube({ tone, active, children }) {
   return (
     <div className={`demo-tube demo-tube-${tone} ${active ? "demo-tube-active" : ""}`}>
@@ -3486,6 +4071,8 @@ export function ExperimentAnimationStage({
       }}
     >
       {renderScene(state.kind, state, motionEnabled, reduceMotion, interactive, onInteractiveStepChange)}
+      <CanvasPhenomenonLayer reduceMotion={reduceMotion} state={state} />
+      <StageMaterialMemoryLayer state={state} />
     </MotionElement>
   );
 
@@ -3510,8 +4097,8 @@ export function ExperimentAnimationStage({
                     : "0 0 0 rgba(0, 0, 0, 0)"
               },
           transition: stageTransition
-        }}
-      >
+      }}
+    >
         {motionEnabled ? <AnimatePresence initial={false} mode="wait">{stageScene}</AnimatePresence> : stageScene}
       </MotionElement>
     );

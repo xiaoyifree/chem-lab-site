@@ -527,9 +527,328 @@ select {
 .lab-stage-scene,
 .demo-stage-scene {
   position: relative;
+  z-index: 1;
   width: 100%;
   min-height: inherit;
   height: 100%;
+}
+
+.lab-phenomenon-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  opacity: 0.88;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.lab-material-memory {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.lab-real-prop {
+  position: absolute;
+  display: grid;
+  grid-template-columns: 54px max-content;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+  padding: 7px 10px 7px 7px;
+  border: 1px solid rgba(226, 232, 240, 0.16);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.54), rgba(30, 41, 59, 0.3)),
+    radial-gradient(circle at 16% 24%, rgba(125, 211, 252, 0.18), transparent 44%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 16px 34px rgba(2, 6, 23, 0.18);
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(10px);
+}
+
+.lab-real-prop-target-tube,
+.lab-real-prop-target-liquid {
+  left: 50%;
+  top: 58%;
+}
+
+.lab-real-prop-target-beaker {
+  left: 34%;
+  top: 69%;
+}
+
+.lab-real-prop-target-flask {
+  left: 42%;
+  top: 68%;
+}
+
+.lab-real-prop-target-dish,
+.lab-real-prop-target-flame,
+.lab-real-prop-target-center {
+  left: 50%;
+  top: 72%;
+}
+
+.lab-real-prop-target-electrode {
+  left: 50%;
+  top: 43%;
+}
+
+.lab-real-prop:nth-child(2) {
+  transform: translate(calc(-50% + 88px), calc(-50% - 58px)) scale(0.88);
+}
+
+.lab-real-prop:nth-child(3) {
+  transform: translate(calc(-50% - 92px), calc(-50% - 52px)) scale(0.84);
+}
+
+.lab-real-prop-icon,
+.lab-real-prop-icon span {
+  position: relative;
+  display: block;
+}
+
+.lab-real-prop-icon {
+  width: 48px;
+  height: 38px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -14px 22px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+
+.lab-real-prop-icon-nail {
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.26), rgba(71, 85, 105, 0.1));
+  overflow: visible;
+}
+
+.lab-real-nail-head,
+.lab-real-nail-body,
+.lab-real-nail-tip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) rotate(68deg);
+  transform-origin: 50% 0;
+}
+
+.lab-real-nail-head {
+  top: 4px;
+  width: 18px;
+  height: 7px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(248, 250, 252, 0.94), rgba(100, 116, 139, 0.92));
+}
+
+.lab-real-nail-body {
+  top: 9px;
+  width: 5px;
+  height: 38px;
+  border-radius: 999px 999px 3px 3px;
+  background: linear-gradient(90deg, rgba(248, 250, 252, 0.9), rgba(148, 163, 184, 0.92), rgba(51, 65, 85, 0.86));
+}
+
+.lab-real-nail-tip {
+  top: 43px;
+  width: 8px;
+  height: 12px;
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  background: linear-gradient(90deg, rgba(203, 213, 225, 0.95), rgba(71, 85, 105, 0.9));
+}
+
+.lab-real-prop-icon-magnesium {
+  background:
+    radial-gradient(circle at 76% 22%, rgba(254, 240, 138, 0.32), transparent 26%),
+    linear-gradient(135deg, rgba(248, 250, 252, 0.24), rgba(100, 116, 139, 0.1));
+}
+
+.lab-real-magnesium-strip {
+  position: absolute;
+  left: 7px;
+  top: 17px;
+  width: 36px;
+  height: 9px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(203, 213, 225, 0.88), rgba(100, 116, 139, 0.8));
+  box-shadow: 0 0 12px rgba(254, 240, 138, 0.26);
+  transform: rotate(-12deg);
+}
+
+.lab-real-prop-icon-metal-strip {
+  background:
+    linear-gradient(135deg, rgba(226, 232, 240, 0.24), rgba(51, 65, 85, 0.12)),
+    rgba(15, 23, 42, 0.28);
+}
+
+.lab-real-metal-strip {
+  position: absolute;
+  left: 11px;
+  top: 12px;
+  width: 30px;
+  height: 15px;
+  border-radius: 4px;
+  background:
+    linear-gradient(90deg, rgba(248, 250, 252, 0.88), rgba(148, 163, 184, 0.82), rgba(71, 85, 105, 0.86)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    0 6px 12px rgba(2, 6, 23, 0.22);
+  transform: rotate(-9deg);
+}
+
+.lab-real-prop-icon-powder,
+.lab-real-prop-icon-solid,
+.lab-real-prop-icon-crystal {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.12)),
+    rgba(15, 23, 42, 0.34);
+}
+
+.lab-real-prop-icon-powder span,
+.lab-real-prop-icon-solid span,
+.lab-real-prop-icon-crystal span {
+  position: absolute;
+  border-radius: 999px;
+}
+
+.lab-real-prop-icon-powder span {
+  width: 5px;
+  height: 5px;
+  background: rgba(167, 139, 250, 0.94);
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.42);
+}
+
+.lab-real-prop-tone-black span {
+  background: rgba(30, 41, 59, 0.96);
+  box-shadow: 0 0 7px rgba(148, 163, 184, 0.24);
+}
+
+.lab-real-prop-icon-powder span:nth-child(1) { left: 10px; top: 24px; }
+.lab-real-prop-icon-powder span:nth-child(2) { left: 18px; top: 18px; }
+.lab-real-prop-icon-powder span:nth-child(3) { left: 27px; top: 25px; }
+.lab-real-prop-icon-powder span:nth-child(4) { left: 33px; top: 16px; }
+.lab-real-prop-icon-powder span:nth-child(5) { left: 14px; top: 12px; }
+.lab-real-prop-icon-powder span:nth-child(6) { left: 38px; top: 27px; }
+.lab-real-prop-icon-powder span:nth-child(7) { left: 23px; top: 30px; }
+.lab-real-prop-icon-powder span:nth-child(8) { left: 8px; top: 16px; }
+.lab-real-prop-icon-powder span:nth-child(9) { left: 30px; top: 9px; }
+.lab-real-prop-icon-powder span:nth-child(10) { left: 18px; top: 27px; }
+.lab-real-prop-icon-powder span:nth-child(11) { left: 38px; top: 19px; }
+.lab-real-prop-icon-powder span:nth-child(12) { left: 26px; top: 20px; }
+
+.lab-real-prop-icon-solid span {
+  width: 12px;
+  height: 10px;
+  background: linear-gradient(135deg, rgba(245, 245, 244, 0.92), rgba(168, 162, 158, 0.82));
+  border-radius: 45% 55% 48% 52%;
+  box-shadow: 0 4px 9px rgba(2, 6, 23, 0.2);
+}
+
+.lab-real-prop-tone-eggshell span {
+  background: linear-gradient(135deg, rgba(255, 247, 237, 0.96), rgba(253, 224, 171, 0.86));
+}
+
+.lab-real-prop-icon-solid span:nth-child(1) { left: 8px; top: 18px; transform: rotate(-16deg); }
+.lab-real-prop-icon-solid span:nth-child(2) { left: 21px; top: 13px; transform: rotate(12deg); }
+.lab-real-prop-icon-solid span:nth-child(3) { left: 31px; top: 23px; transform: rotate(-8deg); }
+.lab-real-prop-icon-solid span:nth-child(4) { left: 15px; top: 28px; transform: rotate(18deg); }
+.lab-real-prop-icon-solid span:nth-child(5) { left: 35px; top: 12px; transform: rotate(9deg); }
+
+.lab-real-prop-icon-crystal span {
+  width: 10px;
+  height: 10px;
+  background: rgba(224, 242, 254, 0.86);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  box-shadow: 0 0 10px rgba(125, 211, 252, 0.46);
+}
+
+.lab-real-prop-icon-crystal span:nth-child(1) { left: 10px; top: 20px; }
+.lab-real-prop-icon-crystal span:nth-child(2) { left: 24px; top: 14px; }
+.lab-real-prop-icon-crystal span:nth-child(3) { left: 32px; top: 25px; }
+.lab-real-prop-icon-crystal span:nth-child(4) { left: 17px; top: 29px; }
+.lab-real-prop-icon-crystal span:nth-child(5) { left: 36px; top: 12px; }
+.lab-real-prop-icon-crystal span:nth-child(6) { left: 8px; top: 10px; }
+.lab-real-prop-icon-crystal span:nth-child(7) { left: 26px; top: 28px; }
+
+.lab-real-prop-icon-heat {
+  background: radial-gradient(circle at 50% 30%, rgba(254, 240, 138, 0.22), transparent 38%);
+}
+
+.lab-real-burner-base {
+  position: absolute;
+  left: 12px;
+  bottom: 8px;
+  width: 26px;
+  height: 9px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.88), rgba(51, 65, 85, 0.9));
+}
+
+.lab-real-burner-flame {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  width: 18px;
+  height: 24px;
+  border-radius: 50% 50% 46% 46%;
+  background: radial-gradient(circle at 50% 65%, rgba(254, 249, 195, 0.95), rgba(251, 146, 60, 0.86) 48%, rgba(239, 68, 68, 0.08) 72%);
+  box-shadow: 0 0 20px rgba(251, 146, 60, 0.5);
+  transform: translateX(-50%);
+}
+
+.lab-real-prop-icon-power {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.28), rgba(125, 211, 252, 0.1));
+}
+
+.lab-real-power-wire {
+  position: absolute;
+  left: 9px;
+  top: 13px;
+  width: 28px;
+  height: 18px;
+  border: 4px solid rgba(125, 211, 252, 0.88);
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 14px 0 0 0;
+}
+
+.lab-real-power-spark {
+  position: absolute;
+  right: 8px;
+  top: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(250, 204, 21, 0.95);
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.72);
+}
+
+.lab-real-prop-icon-liquid span {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  height: 18px;
+  border-radius: 4px 4px 12px 12px;
+  background: linear-gradient(180deg, rgba(125, 211, 252, 0.86), rgba(37, 99, 235, 0.5));
+}
+
+.lab-real-prop-tone-lime span {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.92), rgba(203, 213, 225, 0.54));
+}
+
+.lab-real-prop-tone-indicator span {
+  background: linear-gradient(90deg, rgba(244, 114, 182, 0.85), rgba(168, 85, 247, 0.68), rgba(45, 212, 191, 0.72));
 }
 
 .lab-stage-shell {
@@ -555,7 +874,7 @@ select {
   top: 14px;
   right: 14px;
   left: auto;
-  z-index: 4;
+  z-index: 8;
   width: min(232px, calc(100% - 28px));
   padding: 8px 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -616,11 +935,12 @@ select {
 
 .experiment-rule-overlay {
   position: absolute;
-  z-index: 2;
-  right: 18px;
-  bottom: 16px;
-  left: 18px;
-  width: auto;
+  z-index: 7;
+  top: 14px;
+  right: auto;
+  bottom: auto;
+  left: 14px;
+  width: min(292px, calc(100% - 28px));
   padding: 7px 10px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
@@ -630,6 +950,7 @@ select {
   box-shadow: 0 14px 32px rgba(2, 6, 23, 0.18);
   color: rgba(255, 255, 255, 0.9);
   pointer-events: none;
+  transform: none;
   backdrop-filter: blur(16px);
 }
 
@@ -5407,11 +5728,12 @@ select {
   }
 
   .experiment-rule-overlay {
-    right: 14px;
-    bottom: 12px;
-    left: 14px;
-    width: auto;
-    padding: 10px 12px;
+    top: 12px;
+    right: auto;
+    bottom: auto;
+    left: 12px;
+    width: min(260px, calc(100% - 24px));
+    padding: 8px 10px;
   }
 
   .explorer-shell-lab,
