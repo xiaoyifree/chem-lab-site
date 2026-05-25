@@ -1828,28 +1828,28 @@ function getStageMaterialVisuals(state) {
   const steps = getDemoStepsForExperiment(state.experiment);
   const visuals = [];
   const seen = new Set();
+  const currentVisual = state.interactionProfile
+    ? classifyStageMaterialVisual(
+        `${state.interactionProfile.label} ${state.interactionProfile.helper}`,
+        state.experiment,
+        state.kind
+      )
+    : null;
 
-  steps.slice(0, state.stepIndex + 1).forEach((step) => {
+  // Only show materials from completed steps. The current step's reagent should
+  // appear as the draggable tool, not as a second non-interactive prop.
+  steps.slice(0, Math.max(0, state.stepIndex)).forEach((step) => {
     const visual = classifyStageMaterialVisual(`${step.title} ${step.note}`, state.experiment, state.kind);
+
+    if (visual?.key && currentVisual?.key === visual.key) {
+      return;
+    }
 
     if (visual && !seen.has(visual.key)) {
       seen.add(visual.key);
       visuals.push(visual);
     }
   });
-
-  if (state.interactionProfile) {
-    const visual = classifyStageMaterialVisual(
-      `${state.interactionProfile.label} ${state.interactionProfile.helper}`,
-      state.experiment,
-      state.kind
-    );
-
-    if (visual && !seen.has(visual.key)) {
-      seen.add(visual.key);
-      visuals.push(visual);
-    }
-  }
 
   return visuals.slice(-3);
 }
@@ -2161,8 +2161,8 @@ function StageDragTool({ containerRef, interaction, onCommit, reduceMotion }) {
 
   const startCenter = resolveStagePoint(bounds, interaction.start);
   const dockCenter = {
-    x: Math.max(stageToolSize.width / 2 + 18, Math.min(bounds.width - stageToolSize.width / 2 - 18, bounds.width * 0.22)),
-    y: Math.max(stageToolSize.height / 2 + 18, Math.min(bounds.height - stageToolSize.height / 2 - 18, bounds.height * 0.25))
+    x: Math.max(stageToolSize.width / 2 + 18, Math.min(bounds.width - stageToolSize.width / 2 - 18, bounds.width * 0.24)),
+    y: Math.max(stageToolSize.height / 2 + 18, Math.min(bounds.height - stageToolSize.height / 2 - 18, bounds.height * 0.78))
   };
   const visualStartCenter = interaction.docked === false ? startCenter : dockCenter;
   const targetCenter = resolveStagePoint(bounds, interaction.target);
